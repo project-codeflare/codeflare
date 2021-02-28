@@ -1,21 +1,21 @@
-from sklearn.preprocessing import FunctionTransformer
+from sklearn.base import BaseEstimator
 
 
 class Node:
     __node_name__ = None
-    __transformer__ = None
-    __and_flag__ = True
+    __estimator__ = None
+    __and_flag__ = False
 
-    def __init__(self, node_name: str, transformer: FunctionTransformer, and_flag=True):
+    def __init__(self, node_name: str, estimator: BaseEstimator, and_flag=False):
         self.__node_name__ = node_name
-        self.__transformer__ = transformer
+        self.__estimator__ = estimator
         self.__and_flag__ = and_flag
 
     def __str__(self):
         return self.__node_name__
 
-    def get_transformer(self) -> FunctionTransformer:
-        return self.__transformer__
+    def get_estimator(self) -> BaseEstimator:
+        return self.__estimator__
 
     def get_and_flag(self):
         return self.__and_flag__
@@ -44,6 +44,9 @@ class Edge:
     def get_to_node(self) -> Node:
         return self.__to_node__
 
+    def __str__(self):
+        return str(self.__from_node__) + ' -> ' + str(self.__to_node__)
+
     def __hash__(self):
         return self.__from_node__.__hash__() ^ self.__to_node__.__hash__()
 
@@ -53,6 +56,21 @@ class Edge:
                 self.__from_node__ == other.__from_node__ and
                 self.__to_node__ == other.__to_node__
         )
+
+
+class KeyedObjectRef:
+    __key__: object = None
+    __object_ref = None
+
+    def __init__(self, obj_ref, key: object = None):
+        self.__key__ = key
+        self.__object_ref = obj_ref
+
+    def get_key(self):
+        return self.__key__
+
+    def get_object_ref(self):
+        return self.__object_ref
 
 
 class Pipeline:
@@ -169,7 +187,7 @@ class Pipeline:
     def get_pre_edges(self, node: Node):
         pre_edges = []
         pre_nodes = self.__pre_graph__[node]
-        #Empty pre
+        # Empty pre
         if not pre_nodes:
             pre_edges.append(Edge(None, node))
 
@@ -180,10 +198,41 @@ class Pipeline:
     def get_post_edges(self, node: Node):
         post_edges = []
         post_nodes = self.__post_graph__[node]
-        #Empty post
+        # Empty post
         if not post_nodes:
             post_edges.append(Edge(node, None))
 
         for post_node in post_nodes:
             post_edges.append(Edge(node, post_node))
         return post_edges
+
+    def is_terminal(self, node: Node):
+        node_post_edges = self.get_post_edges(node)
+        return len(node_post_edges) == 0
+
+
+class XY:
+    __X__ = None
+    __y__ = None
+
+    def __init__(self, X, y):
+        self.__X__ = X
+        self.__y__ = y
+
+    def get_x(self):
+        return self.__X__
+
+    def get_y(self):
+        return self.__y__
+
+
+class XYRef:
+    def __init__(self, Xref, yref):
+        self.Xref = Xref
+        self.yref = yref
+
+    def get_Xref(self):
+        return self.Xref
+
+    def get_yref(self):
+        return self.yref
