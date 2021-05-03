@@ -8,6 +8,7 @@ from sklearn.base import ClassifierMixin
 from sklearn.ensemble import RandomForestClassifier
 
 
+
 class CTransformer(FunctionTransformer):
     def transform(self, X):
         retval = np.zeros(len(X[0]))
