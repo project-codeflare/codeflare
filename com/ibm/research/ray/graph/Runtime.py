@@ -16,13 +16,15 @@ class ExecutionType(Enum):
 
 
 @ray.remote
-def execute_node_inner(node: Node, train_mode: ExecutionType, Xy: XYRef):
+def execute_or_node_inner(node: Node, train_mode: ExecutionType, Xy: XYRef):
     estimator = node.get_estimator()
     # Blocking operation -- not avoidable
     # Xy = ray.get(Xy_ref)
 
     X = ray.get(Xy.get_Xref())
     y = ray.get(Xy.get_yref())
+    print('X shape: ' + str(X.shape))
+    print('Y shape: ' + str(y.shape))
 
     if train_mode == ExecutionType.TRAIN:
         if base.is_classifier(estimator) or base.is_regressor(estimator):
@@ -83,22 +85,24 @@ def execute_pipeline(pipeline: Pipeline, mode: ExecutionType, in_args: dict):
     return out_args
 
 
-def execute_and_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
-    edge_args_lists = list()
-    for pre_edge in pre_edges:
-        edge_args_lists.append(edge_args[pre_edge])
+# def execute_and_node_inner(node: Node, mode: ExecutionType, element):
 
-    # cross product using itertools
-    import itertools
-    cross_product = itertools.product(*edge_args_lists)
 
-    for element in cross_product:
-        # TODO: This has to be addressed, this will fail as it stands! FIX ME....
-        exec_xyrefs = execute_node_inner(node, mode, element)
-        for post_edge in post_edges:
-            if post_edge not in edge_args.keys():
-                edge_args[post_edge] = []
-            edge_args[post_edge].extend(exec_xyrefs)
+# def execute_and_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
+#     edge_args_lists = list()
+#     for pre_edge in pre_edges:
+#         edge_args_lists.append(edge_args[pre_edge])
+#
+#     # cross product using itertools
+#     import itertools
+#     cross_product = itertools.product(*edge_args_lists)
+#
+#     for element in cross_product:
+#         exec_xyrefs = execute_and_node_inner(node, mode, element)
+#         for post_edge in post_edges:
+#             if post_edge not in edge_args.keys():
+#                 edge_args[post_edge] = []
+#             edge_args[post_edge].extend(exec_xyrefs)
 
 
 def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
@@ -108,7 +112,7 @@ def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType)
         for xy_ref in Xyrefs:
             xy_ref_list = ray.get(xy_ref)
             for xy_ref in xy_ref_list:
-                inner_result = execute_node_inner.remote(node, mode, xy_ref)
+                inner_result = execute_or_node_inner.remote(node, mode, xy_ref)
                 exec_xyrefs.append(inner_result)
 
         for post_edge in post_edges:

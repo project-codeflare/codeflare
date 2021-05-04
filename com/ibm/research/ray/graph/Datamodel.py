@@ -1,24 +1,49 @@
 from sklearn.base import BaseEstimator
+from abc import ABC, abstractmethod
 
 
-class Node:
+class XY:
+    __X__ = None
+    __y__ = None
+
+    def __init__(self, X, y):
+        self.__X__ = X
+        self.__y__ = y
+
+    def get_x(self):
+        return self.__X__
+
+    def get_y(self):
+        return self.__y__
+
+
+class XYRef:
+    def __init__(self, Xref, yref):
+        self.Xref = Xref
+        self.yref = yref
+
+    def get_Xref(self):
+        return self.Xref
+
+    def get_yref(self):
+        return self.yref
+
+
+class AndFunc(ABC):
+    @abstractmethod
+    def eval(self, xy_list: list) -> XY:
+        raise NotImplementedError("Please implement this method")
+
+
+class Node(ABC):
     __node_name__ = None
-    __estimator__ = None
-    __and_flag__ = False
-
-    def __init__(self, node_name: str, estimator: BaseEstimator, and_flag=False):
-        self.__node_name__ = node_name
-        self.__estimator__ = estimator
-        self.__and_flag__ = and_flag
 
     def __str__(self):
         return self.__node_name__
 
-    def get_estimator(self) -> BaseEstimator:
-        return self.__estimator__
-
+    @abstractmethod
     def get_and_flag(self):
-        return self.__and_flag__
+        raise NotImplementedError("Please implement this method")
 
     def __hash__(self):
         return self.__node_name__.__hash__()
@@ -28,6 +53,34 @@ class Node:
                 self.__class__ == other.__class__ and
                 self.__node_name__ == other.__node_name__
         )
+
+
+class OrNode(Node):
+    __estimator__ = None
+
+    def __init__(self, node_name: str, estimator: BaseEstimator):
+        self.__node_name__ = node_name
+        self.__estimator__ = estimator
+
+    def get_estimator(self) -> BaseEstimator:
+        return self.__estimator__
+
+    def get_and_flag(self):
+        return False
+
+
+class AndNode(Node):
+    __andfunc__ = None
+
+    def __init__(self, node_name: str, and_func: AndFunc):
+        self.__node_name__ = node_name
+        self.__andfunc__ = and_func
+
+    def get_and_func(self) -> AndFunc:
+        return self.__andfunc__
+
+    def get_and_flag(self):
+        return True
 
 
 class Edge:
@@ -209,30 +262,3 @@ class Pipeline:
     def is_terminal(self, node: Node):
         node_post_edges = self.get_post_edges(node)
         return len(node_post_edges) == 0
-
-
-class XY:
-    __X__ = None
-    __y__ = None
-
-    def __init__(self, X, y):
-        self.__X__ = X
-        self.__y__ = y
-
-    def get_x(self):
-        return self.__X__
-
-    def get_y(self):
-        return self.__y__
-
-
-class XYRef:
-    def __init__(self, Xref, yref):
-        self.Xref = Xref
-        self.yref = yref
-
-    def get_Xref(self):
-        return self.Xref
-
-    def get_yref(self):
-        return self.yref

@@ -8,7 +8,6 @@ from sklearn.base import ClassifierMixin
 from sklearn.ensemble import RandomForestClassifier
 
 
-
 class CTransformer(FunctionTransformer):
     def transform(self, X):
         retval = np.zeros(len(X[0]))
@@ -42,40 +41,24 @@ def print_hi(name):
 if __name__ == '__main__':
     print_hi('PyCharm')
 
-    x1 = [1, 2]
-    x2 = [3, 4]
-    x1.extend(x2)
-    print(str(x1))
-    exit(-1)
+    import pandas as pd
 
-    x = CTransformer()
-    import numpy as np
+    train = pd.read_csv('resources/data/train_ctrUa4K.csv')
+    test = pd.read_csv('resources/data/test_lAUu6dG.csv')
+    train = train.drop('Loan_ID', axis=1)
+    train.dtypes
 
-    input = np.array([[0, 1], [1, 2]])
-    r = x.transform(input)
-    print(r)
+    X = train.drop('Loan_Status', axis=1)
+    y = train['Loan_Status']
+    from sklearn.model_selection import train_test_split
 
-    x = None
-    if not x:
-        print('abc')
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    import numpy as np
-    from sklearn.preprocessing import FunctionTransformer
-    from sklearn.preprocessing import Binarizer
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-    transformer = FunctionTransformer(np.log1p)
-    import com.ibm.research.ray.graph.Datamodel as dm
-
-    pipeline = dm.Pipeline()
-    node_a = dm.Node('a', transformer)
-    node_b = dm.Node('b', transformer)
-    node_c = dm.Node('c', transformer, and_flag=True)
-
-    args = {'transformer': transformer, 'node_name': 'x'}
-    node_x = dm.Node(**args)
-    print(str(node_x))
-
-    pipeline.add_edge(node_a, node_c)
-    pipeline.add_edge(node_b, node_c)
+    c_a = ScaleTestEstimator(50, DecisionTreeClassifier())
+    c_b = ScaleTestEstimator(50, RandomForestClassifier())
+    c_c = ScaleTestEstimator(50, GradientBoostingClassifier())
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
