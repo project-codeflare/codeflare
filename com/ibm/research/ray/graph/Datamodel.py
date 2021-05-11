@@ -2,7 +2,7 @@ from sklearn.base import BaseEstimator
 from abc import ABC, abstractmethod
 
 
-class XY:
+class Xy:
     __X__ = None
     __y__ = None
 
@@ -31,7 +31,7 @@ class XYRef:
 
 class AndFunc(ABC):
     @abstractmethod
-    def eval(self, xy_list: list) -> XY:
+    def eval(self, xy_list: list) -> Xy:
         raise NotImplementedError("Please implement this method")
 
 
