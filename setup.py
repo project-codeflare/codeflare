@@ -1,13 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='ray-graphs',
-    version='1.0.0',
-    packages=['com', 'com.ibm', 'com.ibm.research', 'com.ibm.research.ray', 'com.ibm.research.ray.graph',
-             ],
+    name='hercules',
+    version='0.0.1',
+    packages=['hercules'],
     url='',
-    license='',
-    author='rganti',
+    license='Apache v2.0',
+    author='Raghu Ganti, Mudhakar Srivatsa',
     author_email='rganti@us.ibm.com',
-    description='Ray'
+    description='Hercules pipelines at scale'
 )

@@ -3,40 +3,59 @@ from abc import ABC, abstractmethod
 
 
 class Xy:
-    __X__ = None
-    __y__ = None
+    """
+    Holder class for Xy, where X is array-like and y is array-like. This is the base
+    data structure for fully materialized X and y.
+    """
 
     def __init__(self, X, y):
         self.__X__ = X
         self.__y__ = y
 
+    """
+    Returns the holder value of X
+    """
+
     def get_x(self):
         return self.__X__
+
+    """
+    Returns the holder value of y
+    """
 
     def get_y(self):
         return self.__y__
 
 
 class XYRef:
+    """
+    Holder class that maintains a pointer/reference to X and y. The goal of this is to provide
+    a holder to the object references of Ray. This is used for passing outputs from a transform/fit
+    to the next stage of the pipeline. Since the references can be potentially in flight (or being
+    computed), these holders are essential to the pipeline constructs.
+    """
+
     def __init__(self, Xref, yref):
-        self.Xref = Xref
-        self.yref = yref
+        self.__Xref__ = Xref
+        self.__yref__ = yref
 
     def get_Xref(self):
-        return self.Xref
+        """
+            Returns the object reference to X
+        """
+        return self.__Xref__
 
     def get_yref(self):
-        return self.yref
-
-
-class AndFunc(ABC):
-    @abstractmethod
-    def eval(self, xy_list: list) -> Xy:
-        raise NotImplementedError("Please implement this method")
+        """
+            Returns the object reference to y
+        """
+        return self.__yref__
 
 
 class Node(ABC):
-    __node_name__ = None
+    """
+    A node class that is an abstract one, this is capturing basic info re the Node.
+    """
 
     def __str__(self):
         return self.__node_name__
@@ -67,6 +86,12 @@ class OrNode(Node):
 
     def get_and_flag(self):
         return False
+
+
+class AndFunc(ABC):
+    @abstractmethod
+    def eval(self, xy_list: list) -> Xy:
+        raise NotImplementedError("Please implement this method")
 
 
 class AndNode(Node):
