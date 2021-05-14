@@ -5,7 +5,7 @@
 
 # Pipelines
 
-The `ray-pipeline` library provides facilities for defining and running parallel pipelines on top of [Ray](https://ray.io). The goal of this project is to unify pipeline workflows across multiple platforms such as [scikit-learn](https://scikit-learn.org/) and [Apache Spark](https://spark.apache.org/), while providing nearly optimal scale-out parallelism on pipelined computations.
+The `CodeFlare-Pipelines` library provides facilities for defining and running parallel pipelines on top of [Ray](https://ray.io). The goal of this project is to unify pipeline workflows across multiple platforms such as [scikit-learn](https://scikit-learn.org/) and [Apache Spark](https://spark.apache.org/), while providing nearly optimal scale-out parallelism on pipelined computations.
 
 ## Release status
 
