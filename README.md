@@ -1,4 +1,7 @@
-<img src="./images/pipelines.svg">
+<p align="center">
+<img src="./images/pipelines.svg" width="296" height="180">
+</p>
+
 
 # Pipelines
 
