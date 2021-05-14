@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./images/pipelines.svg" width="296" height="180">
+<img src="./images/pipelines.svg" width="340" height="207">
 </p>
 
 
