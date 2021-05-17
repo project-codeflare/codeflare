@@ -55,6 +55,8 @@ class XYRef:
 class Node(ABC):
     """
     A node class that is an abstract one, this is capturing basic info re the Node.
+    The hash code of this node is the name of the node and equality is defined if the
+    node name and the type of the node match.
     """
 
     def __str__(self):
@@ -65,9 +67,21 @@ class Node(ABC):
         raise NotImplementedError("Please implement this method")
 
     def __hash__(self):
+        """
+        Hash code, defined as the hash code of the node name
+
+        :return: Hash code
+        """
         return self.__node_name__.__hash__()
 
     def __eq__(self, other):
+        """
+        Equality with another node, defined as the class names match and the
+        node names match
+
+        :param other: Node to compare with
+        :return: True if nodes are equal, else False
+        """
         return (
                 self.__class__ == other.__class__ and
                 self.__node_name__ == other.__node_name__
@@ -75,20 +89,44 @@ class Node(ABC):
 
 
 class OrNode(Node):
+    """
+    Or node, which is the basic node that would be the equivalent of any SKlearn pipeline
+    stage. This node is initialized with an estimator that needs to extend sklearn.BaseEstimator.
+    """
     __estimator__ = None
 
     def __init__(self, node_name: str, estimator: BaseEstimator):
+        """
+        Init the OrNode with the name of the node and the etimator.
+
+        :param node_name: Name of the node
+        :param estimator: The base estimator
+        """
         self.__node_name__ = node_name
         self.__estimator__ = estimator
 
     def get_estimator(self) -> BaseEstimator:
+        """
+        Return the estimator that this was initialize with
+
+        :return: Estimator
+        """
         return self.__estimator__
 
     def get_and_flag(self):
+        """
+        A flag to check if node is AND or not. By definition, this is NOT
+        an AND node.
+        :return: False, always
+        """
         return False
 
 
 class AndFunc(ABC):
+    """
+    Or nodes are init-ed from the
+    """
+
     @abstractmethod
     def eval(self, xy_list: list) -> Xy:
         raise NotImplementedError("Please implement this method")
@@ -152,10 +190,9 @@ class KeyedObjectRef:
 
 
 class Pipeline:
-    __pre_graph__ = {}
-    __post_graph__ = {}
-    __node_levels__ = None
-    __level_nodes__ = None
+    """
+    The pipeline class that defines the DAG structure composed of Node(s). The
+    """
 
     def __init__(self):
         self.__pre_graph__ = {}

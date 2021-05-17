@@ -1,7 +1,7 @@
 Metadata-Version: 1.0
-Name: hercules
-Version: 0.0.1
-Summary: Hercules pipelines at scale
+Name: codeflare-pipelines
+Version: 1.0.0
+Summary: Codeflare pipelines
 Home-page: UNKNOWN
 Author: Raghu Ganti, Mudhakar Srivatsa
 Author-email: rganti@us.ibm.com

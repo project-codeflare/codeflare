@@ -1,10 +1,11 @@
 import ray
 
-from com.ibm.research.ray.graph.Datamodel import OrNode
-from com.ibm.research.ray.graph.Datamodel import AndNode
-from com.ibm.research.ray.graph.Datamodel import Edge
-from com.ibm.research.ray.graph.Datamodel import Pipeline
-from com.ibm.research.ray.graph.Datamodel import XYRef
+from codeflare.pipelines.Datamodel import OrNode
+from codeflare.pipelines.Datamodel import AndNode
+from codeflare.pipelines.Datamodel import Edge
+from codeflare.pipelines.Datamodel import Pipeline
+from codeflare.pipelines.Datamodel import XYRef
+from codeflare.pipelines.Datamodel import Xy
 
 import sklearn.base as base
 from enum import Enum
@@ -61,6 +62,66 @@ def execute_or_node_inner(node: OrNode, train_mode: ExecutionType, Xy: XYRef):
             return result
 
 
+def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
+    for pre_edge in pre_edges:
+        Xyref_ptrs = edge_args[pre_edge]
+        exec_xyrefs = []
+        for xy_ref_ptr in Xyref_ptrs:
+            xy_ref = ray.get(xy_ref_ptr)
+            inner_result = execute_or_node_inner.remote(node, mode, xy_ref)
+            exec_xyrefs.append(inner_result)
+
+        for post_edge in post_edges:
+            if post_edge not in edge_args.keys():
+                edge_args[post_edge] = []
+            edge_args[post_edge].extend(exec_xyrefs)
+
+
+@ray.remote
+def and_node_eval(and_func, Xyref_list):
+    xy_list = []
+    for Xyref in Xyref_list:
+        X = ray.get(Xyref.get_Xref())
+        y = ray.get(Xyref.get_yref())
+        xy_list.append(Xy(X, y))
+
+    res_Xy = and_func.eval(xy_list)
+    res_Xref = ray.put(res_Xy.get_x())
+    res_yref = ray.put(res_Xy.get_y())
+    return XYRef(res_Xref, res_yref)
+
+
+def execute_and_node_inner(node: AndNode, Xyref_ptrs):
+    and_func = node.get_and_func()
+    result = []
+
+    Xyref_list = []
+    for Xyref_ptr in Xyref_ptrs:
+        Xyref = ray.get(Xyref_ptr)
+        Xyref_list.append(Xyref)
+
+    Xyref_ptr = and_node_eval.remote(and_func, Xyref_list)
+    result.append(Xyref_ptr)
+    return result
+
+
+def execute_and_node(node, pre_edges, edge_args, post_edges):
+    edge_args_lists = list()
+    for pre_edge in pre_edges:
+        edge_args_lists.append(edge_args[pre_edge])
+
+    # cross product using itertools
+    import itertools
+    cross_product = itertools.product(*edge_args_lists)
+
+    for element in cross_product:
+        exec_xyref_ptrs = execute_and_node_inner(node, element)
+        for post_edge in post_edges:
+            if post_edge not in edge_args.keys():
+                edge_args[post_edge] = []
+            edge_args[post_edge].extend(exec_xyref_ptrs)
+
+
 def execute_pipeline(pipeline: Pipeline, mode: ExecutionType, in_args: dict):
     nodes_by_level = pipeline.get_nodes_by_level()
 
@@ -77,6 +138,8 @@ def execute_pipeline(pipeline: Pipeline, mode: ExecutionType, in_args: dict):
             post_edges = pipeline.get_post_edges(node)
             if not node.get_and_flag():
                 execute_or_node(node, pre_edges, edge_args, post_edges, mode)
+            elif node.get_and_flag():
+                execute_and_node(node, pre_edges, edge_args, post_edges)
 
     out_args = {}
     last_level_nodes = nodes_by_level[pipeline.compute_max_level()]
@@ -85,17 +148,3 @@ def execute_pipeline(pipeline: Pipeline, mode: ExecutionType, in_args: dict):
         out_args[last_level_node] = edge_args[edge]
 
     return out_args
-
-
-def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
-    for pre_edge in pre_edges:
-        Xyrefs = edge_args[pre_edge]
-        exec_xyrefs = []
-        for xy_ref in Xyrefs:
-            inner_result = execute_or_node_inner.remote(node, mode, xy_ref)
-            exec_xyrefs.append(inner_result)
-
-        for post_edge in post_edges:
-            if post_edge not in edge_args.keys():
-                edge_args[post_edge] = []
-            edge_args[post_edge].extend(exec_xyrefs)
