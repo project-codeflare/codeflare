@@ -41,11 +41,11 @@ class XYRef:
     computed), these holders are essential to the pipeline constructs.
     """
 
-    def __init__(self, Xref, yref, prev_noderef=None, curr_noderef=None, prev_Xyrefs = None):
+    def __init__(self, Xref, yref, prev_node_state_ref=None, curr_node_state_ref=None, prev_Xyrefs = None):
         self.__Xref__ = Xref
         self.__yref__ = yref
-        self.__prevnoderef__ = prev_noderef
-        self.__currnoderef__ = curr_noderef
+        self.__prev_node_state_ref__ = prev_node_state_ref
+        self.__curr_node_state_ref__ = curr_node_state_ref
         self.__prev_Xyrefs__ = prev_Xyrefs
 
     def get_Xref(self):
@@ -60,11 +60,11 @@ class XYRef:
         """
         return self.__yref__
 
-    def get_prevnoderef(self):
-        return self.__prevnoderef__
+    def get_prev_node_state_ref(self):
+        return self.__prev_node_state_ref__
 
-    def get_currnoderef(self):
-        return self.__currnoderef__
+    def get_curr_node_state_ref(self):
+        return self.__curr_node_state_ref__
 
     def get_prev_xyrefs(self):
         return self.__prev_Xyrefs__
