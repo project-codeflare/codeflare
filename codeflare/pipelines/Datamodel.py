@@ -1,6 +1,9 @@
 from sklearn.base import BaseEstimator
 from abc import ABC, abstractmethod
 
+import sklearn.base as base
+import uuid
+
 
 class Xy:
     """
@@ -35,9 +38,11 @@ class XYRef:
     computed), these holders are essential to the pipeline constructs.
     """
 
-    def __init__(self, Xref, yref):
+    def __init__(self, Xref, yref, node=None, prev_Xyrefs = None):
         self.__Xref__ = Xref
         self.__yref__ = yref
+        self.__noderef__ = node
+        self.__prev_Xyrefs__ = prev_Xyrefs
 
     def get_Xref(self):
         """
@@ -51,6 +56,12 @@ class XYRef:
         """
         return self.__yref__
 
+    def get_noderef(self):
+        return self.__noderef__
+
+    def get_prev_xyrefs(self):
+        return self.__prev_Xyrefs__
+
 
 class Node(ABC):
     """
@@ -62,9 +73,16 @@ class Node(ABC):
     def __str__(self):
         return self.__node_name__
 
+    def get_id(self):
+        return self.__id__
+
     @abstractmethod
     def get_and_flag(self):
         raise NotImplementedError("Please implement this method")
+
+    @abstractmethod
+    def clone(self):
+        raise NotImplementedError("Please implement the clone method")
 
     def __hash__(self):
         """
@@ -72,7 +90,7 @@ class Node(ABC):
 
         :return: Hash code
         """
-        return self.__node_name__.__hash__()
+        return self.__id__.__hash__()
 
     def __eq__(self, other):
         """
@@ -84,6 +102,7 @@ class Node(ABC):
         """
         return (
                 self.__class__ == other.__class__ and
+                self.__id__ == other.__id__ and
                 self.__node_name__ == other.__node_name__
         )
 
@@ -93,7 +112,6 @@ class OrNode(Node):
     Or node, which is the basic node that would be the equivalent of any SKlearn pipeline
     stage. This node is initialized with an estimator that needs to extend sklearn.BaseEstimator.
     """
-    __estimator__ = None
 
     def __init__(self, node_name: str, estimator: BaseEstimator):
         """
@@ -104,6 +122,7 @@ class OrNode(Node):
         """
         self.__node_name__ = node_name
         self.__estimator__ = estimator
+        self.__id__ = uuid.uuid4()
 
     def get_estimator(self) -> BaseEstimator:
         """
@@ -121,6 +140,10 @@ class OrNode(Node):
         """
         return False
 
+    def clone(self):
+        cloned_estimator = base.clone(self.__estimator__)
+        return OrNode(self.__node_name__, cloned_estimator)
+
 
 class AndFunc(ABC):
     """
@@ -133,17 +156,19 @@ class AndFunc(ABC):
 
 
 class AndNode(Node):
-    __andfunc__ = None
-
     def __init__(self, node_name: str, and_func: AndFunc):
         self.__node_name__ = node_name
         self.__andfunc__ = and_func
+        self.__id__ = uuid.uuid4()
 
     def get_and_func(self) -> AndFunc:
         return self.__andfunc__
 
     def get_and_flag(self):
         return True
+
+    def clone(self):
+        return AndNode(self.__node_name__, self.__andfunc__)
 
 
 class Edge:

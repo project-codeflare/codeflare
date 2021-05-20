@@ -18,47 +18,53 @@ class ExecutionType(Enum):
 
 
 @ray.remote
-def execute_or_node_inner(node: OrNode, train_mode: ExecutionType, Xy: XYRef):
+def execute_or_node_inner(node: OrNode, train_mode: ExecutionType, xy_ref: XYRef):
     estimator = node.get_estimator()
     # Blocking operation -- not avoidable
-    X = ray.get(Xy.get_Xref())
-    y = ray.get(Xy.get_yref())
+    X = ray.get(xy_ref.get_Xref())
+    y = ray.get(xy_ref.get_yref())
 
     if train_mode == ExecutionType.FIT:
+        cloned_node = node.clone()
+        node_ptr = ray.put(cloned_node)
+
         if base.is_classifier(estimator) or base.is_regressor(estimator):
             # Always clone before fit, else fit is invalid
-            cloned_estimator = base.clone(estimator)
+            cloned_estimator = cloned_node.get_estimator()
             cloned_estimator.fit(X, y)
             # TODO: For now, make yref passthrough - this has to be fixed more comprehensively
             res_Xref = ray.put(cloned_estimator.predict(X))
-            result = XYRef(res_Xref, Xy.get_yref())
+            result = XYRef(res_Xref, xy_ref.get_yref(), node_ptr, [xy_ref])
             return result
         else:
-            # No need to clone as it is a transform pass through on the fitted estimator
-            res_Xref = ray.put(estimator.fit_transform(X, y))
-            result = XYRef(res_Xref, Xy.get_yref())
+            cloned_estimator = cloned_node.get_estimator()
+            res_Xref = ray.put(cloned_estimator.fit_transform(X, y))
+            result = XYRef(res_Xref, xy_ref.get_yref(), node_ptr, [xy_ref])
             return result
     elif train_mode == ExecutionType.SCORE:
+        cloned_node = node.clone()
+        node_ptr = ray.put(cloned_node)
+
         if base.is_classifier(estimator) or base.is_regressor(estimator):
-            cloned_estimator = base.clone(estimator)
+            cloned_estimator = cloned_node.get_estimator()
             cloned_estimator.fit(X, y)
             res_Xref = ray.put(cloned_estimator.score(X, y))
-            result = XYRef(res_Xref, Xy.get_yref())
+            result = XYRef(res_Xref, xy_ref.get_yref(), node_ptr, [xy_ref])
             return result
         else:
-            # No need to clone as it is a transform pass through on the fitted estimator
-            res_Xref = ray.put(estimator.fit_transform(X, y))
-            result = XYRef(res_Xref, Xy.get_yref())
+            cloned_estimator = cloned_node.get_estimator()
+            res_Xref = ray.put(cloned_estimator.fit_transform(X, y))
+            result = XYRef(res_Xref, xy_ref.get_yref(), node_ptr, [xy_ref])
             return result
     elif train_mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
         if base.is_classifier(estimator) or base.is_regressor(estimator):
             res_Xref = estimator.predict(X)
-            result = XYRef(res_Xref, Xy.get_yref())
+            result = XYRef(res_Xref, xy_ref.get_yref())
             return result
         else:
             res_Xref = estimator.transform(X)
-            result = XYRef(res_Xref, Xy.get_yref())
+            result = XYRef(res_Xref, xy_ref.get_yref())
             return result
 
 
@@ -78,21 +84,24 @@ def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType)
 
 
 @ray.remote
-def and_node_eval(and_func, Xyref_list):
+def and_node_eval(node: AndNode, Xyref_list):
     xy_list = []
     for Xyref in Xyref_list:
         X = ray.get(Xyref.get_Xref())
         y = ray.get(Xyref.get_yref())
         xy_list.append(Xy(X, y))
 
-    res_Xy = and_func.eval(xy_list)
+    cloned_node = node.clone()
+    node_ptr = ray.put(cloned_node)
+
+    cloned_and_func = cloned_node.get_and_func()
+    res_Xy = cloned_and_func.eval(xy_list)
     res_Xref = ray.put(res_Xy.get_x())
     res_yref = ray.put(res_Xy.get_y())
-    return XYRef(res_Xref, res_yref)
+    return XYRef(res_Xref, res_yref, node_ptr, Xyref_list)
 
 
 def execute_and_node_inner(node: AndNode, Xyref_ptrs):
-    and_func = node.get_and_func()
     result = []
 
     Xyref_list = []
@@ -100,7 +109,7 @@ def execute_and_node_inner(node: AndNode, Xyref_ptrs):
         Xyref = ray.get(Xyref_ptr)
         Xyref_list.append(Xyref)
 
-    Xyref_ptr = and_node_eval.remote(and_func, Xyref_list)
+    Xyref_ptr = and_node_eval.remote(node, Xyref_list)
     result.append(Xyref_ptr)
     return result
 
