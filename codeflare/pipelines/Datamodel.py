@@ -3,40 +3,61 @@ from abc import ABC, abstractmethod
 
 
 class Xy:
-    __X__ = None
-    __y__ = None
+    """
+    Holder class for Xy, where X is array-like and y is array-like. This is the base
+    data structure for fully materialized X and y.
+    """
 
     def __init__(self, X, y):
         self.__X__ = X
         self.__y__ = y
 
+    """
+    Returns the holder value of X
+    """
+
     def get_x(self):
         return self.__X__
+
+    """
+    Returns the holder value of y
+    """
 
     def get_y(self):
         return self.__y__
 
 
 class XYRef:
+    """
+    Holder class that maintains a pointer/reference to X and y. The goal of this is to provide
+    a holder to the object references of Ray. This is used for passing outputs from a transform/fit
+    to the next stage of the pipeline. Since the references can be potentially in flight (or being
+    computed), these holders are essential to the pipeline constructs.
+    """
+
     def __init__(self, Xref, yref):
-        self.Xref = Xref
-        self.yref = yref
+        self.__Xref__ = Xref
+        self.__yref__ = yref
 
     def get_Xref(self):
-        return self.Xref
+        """
+            Returns the object reference to X
+        """
+        return self.__Xref__
 
     def get_yref(self):
-        return self.yref
-
-
-class AndFunc(ABC):
-    @abstractmethod
-    def eval(self, xy_list: list) -> Xy:
-        raise NotImplementedError("Please implement this method")
+        """
+            Returns the object reference to y
+        """
+        return self.__yref__
 
 
 class Node(ABC):
-    __node_name__ = None
+    """
+    A node class that is an abstract one, this is capturing basic info re the Node.
+    The hash code of this node is the name of the node and equality is defined if the
+    node name and the type of the node match.
+    """
 
     def __str__(self):
         return self.__node_name__
@@ -46,9 +67,21 @@ class Node(ABC):
         raise NotImplementedError("Please implement this method")
 
     def __hash__(self):
+        """
+        Hash code, defined as the hash code of the node name
+
+        :return: Hash code
+        """
         return self.__node_name__.__hash__()
 
     def __eq__(self, other):
+        """
+        Equality with another node, defined as the class names match and the
+        node names match
+
+        :param other: Node to compare with
+        :return: True if nodes are equal, else False
+        """
         return (
                 self.__class__ == other.__class__ and
                 self.__node_name__ == other.__node_name__
@@ -56,17 +89,47 @@ class Node(ABC):
 
 
 class OrNode(Node):
+    """
+    Or node, which is the basic node that would be the equivalent of any SKlearn pipeline
+    stage. This node is initialized with an estimator that needs to extend sklearn.BaseEstimator.
+    """
     __estimator__ = None
 
     def __init__(self, node_name: str, estimator: BaseEstimator):
+        """
+        Init the OrNode with the name of the node and the etimator.
+
+        :param node_name: Name of the node
+        :param estimator: The base estimator
+        """
         self.__node_name__ = node_name
         self.__estimator__ = estimator
 
     def get_estimator(self) -> BaseEstimator:
+        """
+        Return the estimator that this was initialize with
+
+        :return: Estimator
+        """
         return self.__estimator__
 
     def get_and_flag(self):
+        """
+        A flag to check if node is AND or not. By definition, this is NOT
+        an AND node.
+        :return: False, always
+        """
         return False
+
+
+class AndFunc(ABC):
+    """
+    Or nodes are init-ed from the
+    """
+
+    @abstractmethod
+    def eval(self, xy_list: list) -> Xy:
+        raise NotImplementedError("Please implement this method")
 
 
 class AndNode(Node):
@@ -127,10 +190,9 @@ class KeyedObjectRef:
 
 
 class Pipeline:
-    __pre_graph__ = {}
-    __post_graph__ = {}
-    __node_levels__ = None
-    __level_nodes__ = None
+    """
+    The pipeline class that defines the DAG structure composed of Node(s). The
+    """
 
     def __init__(self):
         self.__pre_graph__ = {}

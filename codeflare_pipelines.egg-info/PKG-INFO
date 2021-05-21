@@ -1,10 +1,10 @@
 Metadata-Version: 1.0
-Name: ray-graphs
+Name: codeflare-pipelines
 Version: 1.0.0
-Summary: Ray
+Summary: Codeflare pipelines
 Home-page: UNKNOWN
-Author: rganti
+Author: Raghu Ganti, Mudhakar Srivatsa
 Author-email: rganti@us.ibm.com
-License: UNKNOWN
+License: Apache v2.0
 Description: UNKNOWN
 Platform: UNKNOWN

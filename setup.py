@@ -1,13 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='ray-graphs',
+    name='codeflare-pipelines',
     version='1.0.0',
-    packages=['com', 'com.ibm', 'com.ibm.research', 'com.ibm.research.ray', 'com.ibm.research.ray.graph',
-             ],
+    packages=['codeflare', 'codeflare.pipelines'],
     url='',
-    license='',
-    author='rganti',
+    license='Apache v2.0',
+    author='Raghu Ganti, Mudhakar Srivatsa',
     author_email='rganti@us.ibm.com',
-    description='Ray'
+    description='Codeflare pipelines'
 )

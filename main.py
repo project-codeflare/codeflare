@@ -3,17 +3,8 @@
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 
-from sklearn.preprocessing import FunctionTransformer
 from sklearn.base import ClassifierMixin
 from sklearn.ensemble import RandomForestClassifier
-
-
-class CTransformer(FunctionTransformer):
-    def transform(self, X):
-        retval = np.zeros(len(X[0]))
-        for x in X:
-            retval = retval + x
-        return retval
 
 
 class ScaleTestEstimator(ClassifierMixin):
