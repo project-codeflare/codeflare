@@ -5,11 +5,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from hercules.Datamodel import Xy
-from hercules.Datamodel import XYRef
-import hercules.Datamodel as dm
-import hercules.RuntimeNew as rt
-from hercules.RuntimeNew import ExecutionType
+from codeflare.pipelines.Datamodel import Xy
+from codeflare.pipelines.Datamodel import XYRef
+import codeflare.pipelines.Datamodel as dm
+import codeflare.pipelines.Runtime as rt
+from codeflare.pipelines.Runtime import ExecutionType
 
 def test_or():
 
