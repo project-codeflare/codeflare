@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-import uuid
 from enum import Enum
-
 
 import sklearn.base as base
 from sklearn.base import TransformerMixin
 from sklearn.base import BaseEstimator
+
+import ray
+import codeflare.pipelines.Exceptions as pe
 
 
 class Xy:
@@ -98,13 +99,9 @@ class Node(ABC):
         self.__node_input_type__ = node_input_type
         self.__node_firing_type__ = node_firing_type
         self.__node_state_type__ = node_state_type
-        self.__id__ = uuid.uuid4()
 
     def __str__(self):
         return self.__node_name__
-
-    def get_id(self):
-        return self.__id__
 
     def get_node_input_type(self):
         return self.__node_input_type__
@@ -125,7 +122,7 @@ class Node(ABC):
 
         :return: Hash code
         """
-        return self.__id__.__hash__()
+        return self.__node_name__.__hash__()
 
     def __eq__(self, other):
         """
@@ -137,7 +134,6 @@ class Node(ABC):
         """
         return (
                 self.__class__ == other.__class__ and
-                self.__id__ == other.__id__ and
                 self.__node_name__ == other.__node_name__
         )
 
@@ -373,3 +369,65 @@ class Pipeline:
     def is_terminal(self, node: Node):
         node_post_edges = self.get_post_edges(node)
         return len(node_post_edges) == 0
+
+    def get_terminal_nodes(self):
+        # dict from level to nodes
+        level_nodes = self.get_nodes_by_level()
+        max_level = self.compute_max_level()
+        return level_nodes[max_level]
+
+
+class PipelineOutput:
+    """
+    Pipeline output to keep reference counters so that pipelines can be materialized
+    """
+    def __init__(self, out_args, edge_args):
+        self.__out_args__ = out_args
+        self.__edge_args__ = edge_args
+
+    def get_xyrefs(self, node: Node):
+        if node in self.__out_args__:
+            xyrefs_ptr = self.__out_args__[node]
+        elif node in self.__edge_args__:
+            xyrefs_ptr = self.__edge_args__[node]
+        else:
+            raise pe.PipelineNodeNotFoundException("Node " + str(node) + " not found")
+
+        xyrefs = ray.get(xyrefs_ptr)
+        return xyrefs
+
+    def get_edge_args(self):
+        return self.__edge_args__
+
+
+class PipelineInput:
+    """
+    in_args is a dict from a node -> [Xy]
+    """
+    def __init__(self):
+        self.__in_args__ = {}
+
+    def add_xyref_ptr_arg(self, node: Node, xyref_ptr):
+        if node not in self.__in_args__:
+            self.__in_args__[node] = []
+
+        self.__in_args__[node].append(xyref_ptr)
+
+    def add_xyref_arg(self, node: Node, xyref: XYRef):
+        if node not in self.__in_args__:
+            self.__in_args__[node] = []
+
+        xyref_ptr = ray.put(xyref)
+        self.__in_args__[node].append(xyref_ptr)
+
+    def add_xy_arg(self, node: Node, xy: Xy):
+        if node not in self.__in_args__:
+            self.__in_args__[node] = []
+
+        x_ref = ray.put(xy.get_x())
+        y_ref = ray.put(xy.get_y())
+        xyref = XYRef(x_ref, y_ref)
+        self.add_xyref_arg(node, xyref)
+
+    def get_in_args(self):
+        return self.__in_args__
