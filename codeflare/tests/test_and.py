@@ -1,6 +1,6 @@
 import pytest
 import ray
-from hercules.Datamodel import Xy
-from hercules.Datamodel import XYRef
-import hercules.Datamodel as dm
+from codeflare.pipelines.Datamodel import Xy
+from codeflare.pipelines.Datamodel import XYRef
+import codeflare.pipelines.Datamodel as dm
 
