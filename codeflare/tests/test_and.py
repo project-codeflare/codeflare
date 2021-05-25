@@ -54,9 +54,12 @@ def test_and():
 
     ## retrieve node c
     out_Xyrefs = ray.get(out_args[node_c])
+    assert out_Xyrefs
+
     for out_xyref in out_Xyrefs:
         x = ray.get(out_xyref.get_Xref())
         and_func = ray.get(out_xyref.get_currnoderef()).get_and_func()
+        assert x.any()
         print(x)
 
     ray.shutdown()

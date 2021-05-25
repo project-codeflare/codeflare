@@ -58,6 +58,7 @@ def test_or():
     in_args={node_a: Xy_ref_ptrs}
     ## execute the codeflare pipeline
     out_args = rt.execute_pipeline(pipeline, ExecutionType.FIT, in_args)
+    assert out_args
 
     ## retrieve node b
     node_b_out_args = ray.get(out_args[node_b])
@@ -65,6 +66,7 @@ def test_or():
     ray.get(b_out_xyref.get_Xref())
     b_out_node = ray.get(b_out_xyref.get_currnoderef())
     sct_b = b_out_node.get_estimator()
+    assert sct_b
     print(sct_b.feature_importances_)
 
     ray.shutdown()
