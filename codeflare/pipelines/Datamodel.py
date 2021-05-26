@@ -367,14 +367,16 @@ class Pipeline:
         return post_edges
 
     def is_terminal(self, node: Node):
-        node_post_edges = self.get_post_edges(node)
-        return len(node_post_edges) == 0
+        post_nodes = self.__post_graph__[node]
+        return not post_nodes
 
     def get_terminal_nodes(self):
         # dict from level to nodes
-        level_nodes = self.get_nodes_by_level()
-        max_level = self.compute_max_level()
-        return level_nodes[max_level]
+        terminal_nodes = []
+        for node in self.__pre_graph__.keys():
+            if self.is_terminal(node):
+                terminal_nodes.append(node)
+        return terminal_nodes
 
 
 class PipelineOutput:

@@ -141,7 +141,8 @@ def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input:
         for pre_edge in pre_edges:
             edge_args[pre_edge] = node_in_args
 
-    for nodes in nodes_by_level:
+    for level in range(len(nodes_by_level)):
+        nodes = nodes_by_level[level]
         for node in nodes:
             pre_edges = pipeline.get_pre_edges(node)
             post_edges = pipeline.get_post_edges(node)
@@ -151,10 +152,10 @@ def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input:
                 execute_and_node(node, pre_edges, edge_args, post_edges)
 
     out_args = {}
-    last_level_nodes = nodes_by_level[pipeline.compute_max_level()]
-    for last_level_node in last_level_nodes:
-        edge = dm.Edge(last_level_node, None)
-        out_args[last_level_node] = edge_args[edge]
+    terminal_nodes = pipeline.get_terminal_nodes()
+    for terminal_node in terminal_nodes:
+        edge = dm.Edge(terminal_node, None)
+        out_args[terminal_node] = edge_args[edge]
 
     return dm.PipelineOutput(out_args, edge_args)
 
