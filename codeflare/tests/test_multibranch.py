@@ -74,8 +74,9 @@ def test_multibranch():
     pipeline.add_edge(node_a, node_c)
 
     pipeline.add_edge(node_a, node_d)
-    pipeline.add_edge(node_d, node_e)
+    pipeline.add_edge(node_a, node_e)
     pipeline.add_edge(node_d, node_f)
+    pipeline.add_edge(node_e, node_f)
 
     in_args={node_a: Xy_ref_ptrs}
     ## execute the codeflare pipeline
