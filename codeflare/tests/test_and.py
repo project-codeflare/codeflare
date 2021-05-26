@@ -45,8 +45,8 @@ def test_and():
     node_c = dm.AndNode('c', FeatureUnion())
 
     ## codeflare nodes are then connected by edges
-    pipeline.add_edge(node_a, node_b)
     pipeline.add_edge(node_a, node_c)
+    pipeline.add_edge(node_b, node_c)
 
     in_args={node_a: Xy_ref_ptrs, node_b: Xy_ref_ptrs}
     ## execute the codeflare pipeline
