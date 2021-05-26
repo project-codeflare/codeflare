@@ -1,6 +1,11 @@
-from sklearn.base import BaseEstimator
 from abc import ABC, abstractmethod
+import uuid
+from enum import Enum
 
+
+import sklearn.base as base
+from sklearn.base import TransformerMixin
+from sklearn.base import BaseEstimator
 
 class Xy:
     """
@@ -35,9 +40,12 @@ class XYRef:
     computed), these holders are essential to the pipeline constructs.
     """
 
-    def __init__(self, Xref, yref):
+    def __init__(self, Xref, yref, prev_noderef=None, curr_noderef=None, prev_Xyrefs = None):
         self.__Xref__ = Xref
         self.__yref__ = yref
+        self.__prevnoderef__ = prev_noderef
+        self.__currnoderef__ = curr_noderef
+        self.__prev_Xyrefs__ = prev_Xyrefs
 
     def get_Xref(self):
         """
@@ -51,6 +59,32 @@ class XYRef:
         """
         return self.__yref__
 
+    def get_prevnoderef(self):
+        return self.__prevnoderef__
+
+    def get_currnoderef(self):
+        return self.__currnoderef__
+
+    def get_prev_xyrefs(self):
+        return self.__prev_Xyrefs__
+
+
+class NodeInputType(Enum):
+    OR = 0,
+    AND = 1
+
+
+class NodeFiringType(Enum):
+    ANY = 0,
+    ALL = 1
+
+
+class NodeStateType(Enum):
+    STATELESS = 0,
+    IMMUTABLE = 1,
+    MUTABLE_SEQUENTIAL = 2,
+    MUTABLE_AGGREGATE = 3
+
 
 class Node(ABC):
     """
@@ -59,12 +93,31 @@ class Node(ABC):
     node name and the type of the node match.
     """
 
+    def __init__(self, node_name, node_input_type: NodeInputType, node_firing_type: NodeFiringType, node_state_type: NodeStateType):
+        self.__node_name__ = node_name
+        self.__node_input_type__ = node_input_type
+        self.__node_firing_type__ = node_firing_type
+        self.__node_state_type__ = node_state_type
+        self.__id__ = uuid.uuid4()
+
     def __str__(self):
         return self.__node_name__
 
+    def get_id(self):
+        return self.__id__
+
+    def get_node_input_type(self):
+        return self.__node_input_type__
+
+    def get_node_firing_type(self):
+        return self.__node_firing_type__
+
+    def get_node_state_type(self):
+        return self.__node_state_type__
+
     @abstractmethod
-    def get_and_flag(self):
-        raise NotImplementedError("Please implement this method")
+    def clone(self):
+        raise NotImplementedError("Please implement the clone method")
 
     def __hash__(self):
         """
@@ -72,7 +125,8 @@ class Node(ABC):
 
         :return: Hash code
         """
-        return self.__node_name__.__hash__()
+
+        return self.__id__.__hash__()
 
     def __eq__(self, other):
         """
@@ -84,16 +138,16 @@ class Node(ABC):
         """
         return (
                 self.__class__ == other.__class__ and
+                self.__id__ == other.__id__ and
                 self.__node_name__ == other.__node_name__
         )
 
 
-class OrNode(Node):
+class EstimatorNode(Node):
     """
     Or node, which is the basic node that would be the equivalent of any SKlearn pipeline
     stage. This node is initialized with an estimator that needs to extend sklearn.BaseEstimator.
     """
-    __estimator__ = None
 
     def __init__(self, node_name: str, estimator: BaseEstimator):
         """
@@ -102,7 +156,8 @@ class OrNode(Node):
         :param node_name: Name of the node
         :param estimator: The base estimator
         """
-        self.__node_name__ = node_name
+
+        super().__init__(node_name, NodeInputType.OR, NodeFiringType.ANY, NodeStateType.IMMUTABLE)
         self.__estimator__ = estimator
 
     def get_estimator(self) -> BaseEstimator:
@@ -113,37 +168,33 @@ class OrNode(Node):
         """
         return self.__estimator__
 
-    def get_and_flag(self):
-        """
-        A flag to check if node is AND or not. By definition, this is NOT
-        an AND node.
-        :return: False, always
-        """
-        return False
+    def clone(self):
+        cloned_estimator = base.clone(self.__estimator__)
+        return EstimatorNode(self.__node_name__, cloned_estimator)
 
 
-class AndFunc(ABC):
-    """
-    Or nodes are init-ed from the
-    """
-
+class AndTransform(TransformerMixin, BaseEstimator):
     @abstractmethod
-    def eval(self, xy_list: list) -> Xy:
+    def transform(self, xy_list: list) -> Xy:
+        raise NotImplementedError("Please implement this method")
+
+
+class GeneralTransform(TransformerMixin, BaseEstimator):
+    @abstractmethod
+    def transform(self, xy: Xy) -> Xy:
         raise NotImplementedError("Please implement this method")
 
 
 class AndNode(Node):
-    __andfunc__ = None
-
-    def __init__(self, node_name: str, and_func: AndFunc):
-        self.__node_name__ = node_name
+    def __init__(self, node_name: str, and_func: AndTransform):
+        super().__init__(node_name, NodeInputType.AND, NodeFiringType.ANY, NodeStateType.STATELESS)
         self.__andfunc__ = and_func
 
-    def get_and_func(self) -> AndFunc:
+    def get_and_func(self) -> AndTransform:
         return self.__andfunc__
 
-    def get_and_flag(self):
-        return True
+    def clone(self):
+        return AndNode(self.__node_name__, self.__andfunc__)
 
 
 class Edge:
