@@ -48,13 +48,6 @@ def test_multibranch():
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    X_ref = ray.put(X_train)
-    y_ref = ray.put(y_train)
-
-    Xy_ref = XYRef(X_ref, y_ref)
-    Xy_ref_ptr = ray.put(Xy_ref)
-    Xy_ref_ptrs = [Xy_ref_ptr]
-
     ## create two decision tree classifiers with different depth limit
     c_a = DecisionTreeClassifier(max_depth=3)
     c_b = DecisionTreeClassifier(max_depth=5)
@@ -78,23 +71,17 @@ def test_multibranch():
     pipeline.add_edge(node_d, node_f)
     pipeline.add_edge(node_e, node_f)
 
-    in_args={node_a: Xy_ref_ptrs}
+    pipeline_input = dm.PipelineInput()
+    xy = dm.Xy(X_train, y_train)
+    pipeline_input.add_xy_arg(node_a, xy)
+
     ## execute the codeflare pipeline
-    out_args = rt.execute_pipeline(pipeline, ExecutionType.FIT, in_args)
-    assert out_args
+    pipeline_output = rt.execute_pipeline(pipeline, ExecutionType.FIT, pipeline_input)
+    assert pipeline_output
 
     ## retrieve node b
-    node_b_out_args = ray.get(out_args[node_b])
-    b_out_xyref = node_b_out_args[0]
-    ray.get(b_out_xyref.get_Xref())
-    b_out_node = ray.get(b_out_xyref.get_currnoderef())
-    sct_b = b_out_node.get_estimator()
-    assert sct_b
-    print(sct_b.feature_importances_)
-
-	## retrieve node f
-    out_Xyrefs_f = ray.get(out_args[node_f])
-    assert out_Xyrefs_f
+    node_b_output = pipeline_output.get_xyrefs(node_b)
+    assert node_b_output
 
     ray.shutdown()
 

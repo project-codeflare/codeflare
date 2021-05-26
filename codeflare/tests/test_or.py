@@ -33,14 +33,7 @@ def test_or():
             ])
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-
-    X_ref = ray.put(X_train)
-    y_ref = ray.put(y_train)
-
-    Xy_ref = XYRef(X_ref, y_ref)
-    Xy_ref_ptr = ray.put(Xy_ref)
-    Xy_ref_ptrs = [Xy_ref_ptr]
-
+    
     ## create two decision tree classifiers with different depth limit
     c_a = DecisionTreeClassifier(max_depth=3)
     c_b = DecisionTreeClassifier(max_depth=5)
@@ -55,19 +48,16 @@ def test_or():
     pipeline.add_edge(node_a, node_b)
     pipeline.add_edge(node_a, node_c)
 
-    in_args={node_a: Xy_ref_ptrs}
-    ## execute the codeflare pipeline
-    out_args = rt.execute_pipeline(pipeline, ExecutionType.FIT, in_args)
-    assert out_args
+    pipeline_input = dm.PipelineInput()
+    xy = dm.Xy(X_train, y_train)
+    pipeline_input.add_xy_arg(node_a, xy)
 
-    ## retrieve node b
-    node_b_out_args = ray.get(out_args[node_b])
-    b_out_xyref = node_b_out_args[0]
-    ray.get(b_out_xyref.get_Xref())
-    b_out_node = ray.get(b_out_xyref.get_currnoderef())
-    sct_b = b_out_node.get_estimator()
-    assert sct_b
-    print(sct_b.feature_importances_)
+    pipeline_output = rt.execute_pipeline(pipeline, ExecutionType.FIT, pipeline_input)
+
+    node_b_output = pipeline_output.get_xyrefs(node_b)
+    node_c_output = pipeline_output.get_xyrefs(node_c)
+
+    assert node_b_output
 
     ray.shutdown()
 
