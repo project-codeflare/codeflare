@@ -7,7 +7,6 @@ import sklearn.base as base
 from sklearn.base import TransformerMixin
 from sklearn.base import BaseEstimator
 
-
 class Xy:
     """
     Holder class for Xy, where X is array-like and y is array-like. This is the base
@@ -93,6 +92,7 @@ class Node(ABC):
     The hash code of this node is the name of the node and equality is defined if the
     node name and the type of the node match.
     """
+
     def __init__(self, node_name, node_input_type: NodeInputType, node_firing_type: NodeFiringType, node_state_type: NodeStateType):
         self.__node_name__ = node_name
         self.__node_input_type__ = node_input_type
@@ -125,6 +125,7 @@ class Node(ABC):
 
         :return: Hash code
         """
+
         return self.__id__.__hash__()
 
     def __eq__(self, other):
@@ -155,6 +156,7 @@ class EstimatorNode(Node):
         :param node_name: Name of the node
         :param estimator: The base estimator
         """
+
         super().__init__(node_name, NodeInputType.OR, NodeFiringType.ANY, NodeStateType.IMMUTABLE)
         self.__estimator__ = estimator
 

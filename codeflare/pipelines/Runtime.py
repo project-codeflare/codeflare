@@ -1,5 +1,6 @@
 import ray
 
+
 from codeflare.pipelines.Datamodel import EstimatorNode
 from codeflare.pipelines.Datamodel import AndNode
 from codeflare.pipelines.Datamodel import Edge
@@ -64,6 +65,7 @@ def execute_or_node_remote(node: EstimatorNode, train_mode: ExecutionType, xy_re
             res_Xref = ray.put(cloned_estimator.fit_transform(X, y))
             curr_node_ptr = ray.put(cloned_node)
             result = XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, curr_node_ptr, [xy_ref])
+            
             return result
     elif train_mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
