@@ -77,9 +77,7 @@ class MultibranchTestCase(unittest.TestCase):
         pipeline_input.add_xy_arg(node_a, dm.Xy(X_train, y_train))
 
         terminal_nodes = pipeline.get_terminal_nodes()
-        print('Num terminal nodes: ' + str(len(terminal_nodes)))
-        for terminal_node in terminal_nodes:
-            print(str(terminal_node))
+        assert len(terminal_nodes) == 4
 
         ## execute the codeflare pipeline
         pipeline_output = rt.execute_pipeline(pipeline, ExecutionType.FIT, pipeline_input)
