@@ -53,6 +53,7 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
         else:
             res_Xref = ray.put(estimator.transform(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref())
+
             return result
     elif mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
