@@ -20,7 +20,7 @@ class FeatureUnion(dm.AndTransform):
         for xy in xy_list:
             X_list.append(xy.get_x())
             y_vec = xy.get_y()
-        X_concat = np.concatenate(X_list, axis=0)
+        X_concat = np.concatenate(X_list, axis=1)
 
         return Xy(X_concat, y_vec)
 
@@ -67,8 +67,8 @@ def test_two_tier_and():
     Xout = ray.get(node_g_output[0].get_Xref())
     yout = ray.get(node_g_output[0].get_yref())
 
-    assert Xout.shape == (40000, 4)
-    assert yout.shape == (10000, 1)
+    assert Xout.shape[0] == 10000
+    assert yout.shape[0] == 10000
 
     ray.shutdown()
 
@@ -111,8 +111,8 @@ def test_four_input_and():
     Xout = ray.get(node_e_output[0].get_Xref())
     yout = ray.get(node_e_output[0].get_yref())
 
-    assert Xout.shape == (40000, 4)
-    assert yout.shape == (10000, 1)
+    assert Xout.shape[0] == 10000
+    assert yout.shape[0] == 10000
 
     ray.shutdown()
 
@@ -148,8 +148,8 @@ def test_two_input_and():
     Xout = ray.get(node_c_output[0].get_Xref())
     yout = ray.get(node_c_output[0].get_yref())
 
-    assert Xout.shape == (20000, 4)
-    assert yout.shape == (10000, 1)
+    assert Xout.shape[0] == 10000
+    assert yout.shape[0] == 10000
 
     ray.shutdown()
 
