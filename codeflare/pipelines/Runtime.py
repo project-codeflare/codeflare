@@ -8,7 +8,6 @@ from sklearn.model_selection import BaseCrossValidator
 from enum import Enum
 
 from queue import SimpleQueue
-import pickle5 as pickle
 
 
 class ExecutionType(Enum):
@@ -59,11 +58,11 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     elif mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
         if base.is_classifier(estimator) or base.is_regressor(estimator):
-            res_Xref = estimator.predict(X)
+            res_Xref = ray.put(estimator.predict(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref())
             return result
         else:
-            res_Xref = estimator.transform(X)
+            res_Xref = ray.put(estimator.transform(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref())
             return result
 

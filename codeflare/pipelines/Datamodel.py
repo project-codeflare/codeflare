@@ -383,6 +383,18 @@ class Pipeline:
                 terminal_nodes.append(node)
         return terminal_nodes
 
+    def get_nodes(self):
+        nodes = {}
+        for node in self.__pre_graph__.keys():
+            nodes[node.get_node_name()] = node
+        return nodes
+
+    def get_pre_nodes(self, node):
+        return self.__pre_graph__[node]
+
+    def get_post_nodes(self, node):
+        return self.__post_graph__[node]
+
     def save(self, filehandle):
         nodes = {}
         edges = []
