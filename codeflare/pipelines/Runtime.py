@@ -8,6 +8,7 @@ from sklearn.model_selection import BaseCrossValidator
 from enum import Enum
 
 from queue import SimpleQueue
+import pickle5 as pickle
 
 
 class ExecutionType(Enum):
@@ -265,3 +266,8 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
         result_scores.append(out_x)
 
     return result_scores
+
+
+def save(pipeline_output: dm.PipelineOutput, xy_ref: dm.XYRef, filehandle):
+    pipeline = select_pipeline(pipeline_output, xy_ref)
+    pipeline.save(filehandle)
