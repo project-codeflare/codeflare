@@ -9,6 +9,7 @@ import ray
 import pickle5 as pickle
 import codeflare.pipelines.Exceptions as pe
 
+
 class Xy:
     """
     Holder class for Xy, where X is array-like and y is array-like. This is the base
@@ -16,21 +17,30 @@ class Xy:
     """
 
     def __init__(self, X, y):
+        """
+        Init this instance with the given X and y, X and y shapes are assumed to
+        be consistent.
+
+        :param X: Array-like X
+        :param y: Array-like y
+        """
         self.__X__ = X
         self.__y__ = y
 
-    """
-    Returns the holder value of X
-    """
-
     def get_x(self):
+        """
+        Getter for X
+
+        :return: Holder value of X
+        """
         return self.__X__
 
-    """
-    Returns the holder value of y
-    """
-
     def get_y(self):
+        """
+        Getter for y
+
+        :return: Holder value of y
+        """
         return self.__y__
 
 
@@ -40,34 +50,66 @@ class XYRef:
     a holder to the object references of Ray. This is used for passing outputs from a transform/fit
     to the next stage of the pipeline. Since the references can be potentially in flight (or being
     computed), these holders are essential to the pipeline constructs.
+
+    It also holds the state of the node itself, with the previous state of the node before a transform
+    operation is applied being held along with the next state. It also holds the previous
+    XYRef instances. In essence, this holder class is a bunch of pointers, but it is enough to reconstruct
+    the entire pipeline through appropriate traversals.
     """
 
-    def __init__(self, Xref, yref, prev_node_state_ref=None, curr_node_state_ref=None, prev_Xyrefs = None):
+    def __init__(self, Xref: ray.ObjectRef, yref: ray.ObjectRef, prev_node_state_ref: ray.ObjectRef=None, curr_node_state_ref: ray.ObjectRef=None, prev_Xyrefs = None):
+        """
+        Init, default is only references to X and y as object references
+        :param Xref: ObjectRef to X
+        :param yref: ObjectRef to y
+        :param prev_node_state_ref: ObjectRef to previous node state, default is None
+        :param curr_node_state_ref: ObjectRef to current node state, default in None
+        :param prev_Xyrefs: List of XYrefs
+        """
         self.__Xref__ = Xref
         self.__yref__ = yref
         self.__prev_node_state_ref__ = prev_node_state_ref
         self.__curr_node_state_ref__ = curr_node_state_ref
         self.__prev_Xyrefs__ = prev_Xyrefs
 
-    def get_Xref(self):
+    def get_Xref(self) -> ray.ObjectRef:
         """
-            Returns the object reference to X
+        Getter for the reference to X
+
+        :return: ObjectRef to X
         """
         return self.__Xref__
 
-    def get_yref(self):
+    def get_yref(self) -> ray.ObjectRef:
         """
-            Returns the object reference to y
+        Getter for the reference to y
+
+        :return: ObjectRef to y
         """
         return self.__yref__
 
-    def get_prev_node_state_ref(self):
+    def get_prev_node_state_ref(self) -> ray.ObjectRef:
+        """
+        Getter for the reference to previous node state
+
+        :return: ObjectRef to previous node state
+        """
         return self.__prev_node_state_ref__
 
-    def get_curr_node_state_ref(self):
+    def get_curr_node_state_ref(self) -> ray.ObjectRef:
+        """
+        Getter for the reference to current node state
+
+        :return: ObjectRef to current node state
+        """
         return self.__curr_node_state_ref__
 
     def get_prev_xyrefs(self):
+        """
+        Getter for the list of previous XYrefs
+
+        :return: List of XYRefs
+        """
         return self.__prev_Xyrefs__
 
 
