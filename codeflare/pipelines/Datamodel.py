@@ -60,6 +60,7 @@ class XYRef:
     def __init__(self, Xref: ray.ObjectRef, yref: ray.ObjectRef, prev_node_state_ref: ray.ObjectRef=None, curr_node_state_ref: ray.ObjectRef=None, prev_Xyrefs = None):
         """
         Init, default is only references to X and y as object references
+
         :param Xref: ObjectRef to X
         :param yref: ObjectRef to y
         :param prev_node_state_ref: ObjectRef to previous node state, default is None
