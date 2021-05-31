@@ -6,6 +6,7 @@ from sklearn.base import TransformerMixin
 from sklearn.base import BaseEstimator
 
 import ray
+import pickle5 as pickle
 import codeflare.pipelines.Exceptions as pe
 
 class Xy:
@@ -101,6 +102,9 @@ class Node(ABC):
         self.__node_state_type__ = node_state_type
 
     def __str__(self):
+        return self.__node_name__
+
+    def get_node_name(self):
         return self.__node_name__
 
     def get_node_input_type(self):
@@ -378,6 +382,64 @@ class Pipeline:
             if self.is_terminal(node):
                 terminal_nodes.append(node)
         return terminal_nodes
+
+    def get_nodes(self):
+        nodes = {}
+        for node in self.__pre_graph__.keys():
+            nodes[node.get_node_name()] = node
+        return nodes
+
+    def get_pre_nodes(self, node):
+        return self.__pre_graph__[node]
+
+    def get_post_nodes(self, node):
+        return self.__post_graph__[node]
+
+    def save(self, filehandle):
+        nodes = {}
+        edges = []
+
+        for node in self.__pre_graph__.keys():
+            nodes[node.get_node_name()] = node
+            pre_edges = self.get_pre_edges(node)
+            for edge in pre_edges:
+                # Since we are iterating on pre_edges, to_node cannot be None
+                from_node = edge.get_from_node()
+                if from_node is not None:
+                    to_node = edge.get_to_node()
+                    edge_tuple = (from_node.get_node_name(), to_node.get_node_name())
+                    edges.append(edge_tuple)
+        saved_pipeline = _SavedPipeline(nodes, edges)
+        pickle.dump(saved_pipeline, filehandle)
+
+    @staticmethod
+    def load(filehandle):
+        saved_pipeline = pickle.load(filehandle)
+        if not isinstance(saved_pipeline, _SavedPipeline):
+            raise pe.PipelineException("Filehandle is not a saved pipeline instance")
+
+        nodes = saved_pipeline.get_nodes()
+        edges = saved_pipeline.get_edges()
+
+        pipeline = Pipeline()
+        for edge in edges:
+            (from_node_str, to_node_str) = edge
+            from_node = nodes[from_node_str]
+            to_node = nodes[to_node_str]
+            pipeline.add_edge(from_node, to_node)
+        return pipeline
+
+
+class _SavedPipeline:
+    def __init__(self, nodes, edges):
+        self.__nodes__ = nodes
+        self.__edges__ = edges
+
+    def get_nodes(self):
+        return self.__nodes__
+
+    def get_edges(self):
+        return self.__edges__
 
 
 class PipelineOutput:

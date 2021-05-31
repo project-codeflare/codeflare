@@ -58,11 +58,11 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     elif mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
         if base.is_classifier(estimator) or base.is_regressor(estimator):
-            res_Xref = estimator.predict(X)
+            res_Xref = ray.put(estimator.predict(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref())
             return result
         else:
-            res_Xref = estimator.transform(X)
+            res_Xref = ray.put(estimator.transform(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref())
             return result
 
@@ -265,3 +265,8 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
         result_scores.append(out_x)
 
     return result_scores
+
+
+def save(pipeline_output: dm.PipelineOutput, xy_ref: dm.XYRef, filehandle):
+    pipeline = select_pipeline(pipeline_output, xy_ref)
+    pipeline.save(filehandle)
