@@ -14,6 +14,15 @@ class Xy:
     """
     Holder class for Xy, where X is array-like and y is array-like. This is the base
     data structure for fully materialized X and y.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        x = np.array([1.0, 2.0, 4.0, 5.0])
+        y = np.array(['odd', 'even', 'even', 'odd'])
+        xy = Xy(x, y)
+
     """
 
     def __init__(self, X, y):
