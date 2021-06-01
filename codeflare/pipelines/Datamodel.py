@@ -301,6 +301,7 @@ class Pipeline:
         self.__post_graph__ = {}
         self.__node_levels__ = None
         self.__level_nodes__ = None
+        self.__node_name_map__ = {}
 
     def add_node(self, node: Node):
         self.__node_levels__ = None
@@ -308,6 +309,7 @@ class Pipeline:
         if node not in self.__pre_graph__.keys():
             self.__pre_graph__[node] = []
             self.__post_graph__[node] = []
+            self.__node_name_map__[node.get_node_name()] = node
 
     def __str__(self):
         res = ''
@@ -333,23 +335,17 @@ class Pipeline:
         self.__pre_graph__[to_node].append(from_node)
         self.__post_graph__[from_node].append(to_node)
 
-    def get_preimage(self, node: Node):
-        return self.__pre_graph__[node]
-
-    def get_postimage(self, node: Node):
-        return self.__post_graph__[node]
-
     def compute_node_level(self, node: Node, result: dict):
         if node in result:
             return result[node]
 
-        node_preimage = self.get_preimage(node)
-        if not node_preimage:
+        pre_nodes = self.get_pre_nodes(node)
+        if not pre_nodes:
             result[node] = 0
             return 0
 
         max_level = 0
-        for p_node in node_preimage:
+        for p_node in pre_nodes:
             level = self.compute_node_level(p_node, result)
             max_level = max(level, max_level)
 
@@ -368,6 +364,10 @@ class Pipeline:
         self.__node_levels__ = result
 
         return self.__node_levels__
+
+    def get_node_level(self, node: Node):
+        self.compute_node_levels()
+        return self.__node_levels__[node]
 
     def compute_max_level(self):
         levels = self.compute_node_levels()
@@ -423,29 +423,41 @@ class Pipeline:
             post_edges.append(Edge(node, post_node))
         return post_edges
 
-    def is_terminal(self, node: Node):
-        post_nodes = self.__post_graph__[node]
+    def is_output(self, node: Node):
+        post_nodes = self.get_post_nodes(node)
         return not post_nodes
 
-    def get_terminal_nodes(self):
+    def get_output_nodes(self):
         # dict from level to nodes
         terminal_nodes = []
         for node in self.__pre_graph__.keys():
-            if self.is_terminal(node):
+            if self.is_output(node):
                 terminal_nodes.append(node)
         return terminal_nodes
 
     def get_nodes(self):
-        nodes = {}
-        for node in self.__pre_graph__.keys():
-            nodes[node.get_node_name()] = node
-        return nodes
+        return self.__node_name_map__
 
     def get_pre_nodes(self, node):
         return self.__pre_graph__[node]
 
     def get_post_nodes(self, node):
         return self.__post_graph__[node]
+
+    def is_input(self, node: Node):
+        pre_nodes = self.get_pre_nodes(node)
+        return not pre_nodes
+
+    def get_input_nodes(self):
+        input_nodes = []
+        for node in self.__node_name_map__.values():
+            if self.get_node_level() == 0:
+                input_nodes.append(node)
+
+        return input_nodes
+
+    def get_node(self, node_name: str) -> Node:
+        return self.__node_name_map__[node_name]
 
     def save(self, filehandle):
         nodes = {}

@@ -153,7 +153,7 @@ def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input:
                 execute_and_node(node, pre_edges, edge_args, post_edges)
 
     out_args = {}
-    terminal_nodes = pipeline.get_terminal_nodes()
+    terminal_nodes = pipeline.get_output_nodes()
     for terminal_node in terminal_nodes:
         edge = dm.Edge(terminal_node, None)
         out_args[terminal_node] = edge_args[edge]
@@ -182,6 +182,32 @@ def select_pipeline(pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef):
             xyref_queue.put(prev_xyref)
 
     return pipeline
+
+
+def get_pipeline_input(pipeline: dm.Pipeline, pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef):
+    pipeline_input = dm.PipelineInput()
+
+    xyref_queue = SimpleQueue()
+    xyref_queue.put(chosen_xyref)
+    while not xyref_queue.empty():
+        curr_xyref = xyref_queue.get()
+        curr_node_state_ptr = curr_xyref.get_curr_node_state_ref()
+        curr_node = ray.get(curr_node_state_ptr)
+        curr_node_level = pipeline.get_node_level(curr_node)
+        prev_xyrefs = curr_xyref.get_prev_xyrefs()
+
+        if curr_node_level == 0:
+            # This is an input node
+            for prev_xyref in prev_xyrefs:
+                pipeline_input.add_xyref_arg(curr_node, prev_xyref)
+
+        for prev_xyref in prev_xyrefs:
+            prev_node_state_ptr = prev_xyref.get_curr_node_state_ref()
+            if prev_node_state_ptr is None:
+                continue
+            xyref_queue.put(prev_xyref)
+
+    return pipeline_input
 
 
 @ray.remote(num_returns=2)
@@ -220,7 +246,7 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
 
     in_args = pipeline_input.get_in_args()
     for node, xyref_ptrs in in_args.items():
-        # NOTE: The assumption is that this node has only one input, the check earlier will ensure this!
+        # NOTE: The assumption is that this node has only one input!
         xyref_ptr = xyref_ptrs[0]
         xy_train_refs_ptr, xy_test_refs_ptr = split.remote(cross_validator, xyref_ptr)
         xy_train_refs = ray.get(xy_train_refs_ptr)
@@ -238,7 +264,7 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
     pipeline_output_train = execute_pipeline(pipeline, ExecutionType.FIT, pipeline_input_train)
 
     # Now we can choose the pipeline and then score for each of the chosen pipelines
-    out_nodes = pipeline.get_terminal_nodes()
+    out_nodes = pipeline.get_output_nodes()
     if len(out_nodes) > 1:
         raise pe.PipelineException("Cannot cross validate as output is not a single node")
 
@@ -265,6 +291,42 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
         result_scores.append(out_x)
 
     return result_scores
+
+
+def grid_search(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
+    pipeline_input_train = dm.PipelineInput()
+
+    pipeline_input_test = []
+    k = cross_validator.get_n_splits()
+    # add k pipeline inputs for testing
+    for i in range(k):
+        pipeline_input_test.append(dm.PipelineInput())
+
+    in_args = pipeline_input.get_in_args()
+    for node, xyref_ptrs in in_args.items():
+        # NOTE: The assumption is that this node has only one input!
+        xyref_ptr = xyref_ptrs[0]
+        if len(xyref_ptrs) > 1:
+            raise pe.PipelineException("Input to grid search is multiple objects, re-run with only single object")
+
+        xy_train_refs_ptr, xy_test_refs_ptr = split.remote(cross_validator, xyref_ptr)
+        xy_train_refs = ray.get(xy_train_refs_ptr)
+        xy_test_refs = ray.get(xy_test_refs_ptr)
+
+        for xy_train_ref in xy_train_refs:
+            pipeline_input_train.add_xyref_arg(node, xy_train_ref)
+
+        # for testing, add only to the specific input
+        for i in range(k):
+            pipeline_input_test[i].add_xyref_arg(node, xy_test_refs[i])
+
+    # Ready for execution now that data has been prepared! This execution happens in parallel
+    # because of the underlying pipeline graph and multiple input objects
+    pipeline_output_train = execute_pipeline(pipeline, ExecutionType.FIT, pipeline_input_train)
+
+    # For grid search, we will have multiple output nodes that need to be iterated on and select the pipeline
+    # that is "best"
+    out_nodes = pipeline.get_output_nodes()
 
 
 def save(pipeline_output: dm.PipelineOutput, xy_ref: dm.XYRef, filehandle):
