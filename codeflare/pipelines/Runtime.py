@@ -8,6 +8,7 @@ from sklearn.model_selection import BaseCrossValidator
 from enum import Enum
 
 from queue import SimpleQueue
+import pandas as pd
 
 
 class ExecutionType(Enum):
@@ -219,8 +220,15 @@ def split(cross_validator: BaseCrossValidator, xy_ref):
     xy_test_refs = []
 
     for train_index, test_index in cross_validator.split(x, y):
-        x_train, x_test = x[train_index], x[test_index]
-        y_train, y_test = y[train_index], y[test_index]
+        if isinstance(x, pd.DataFrame) or isinstance(x, pd.Series):
+            x_train, x_test = x.iloc[train_index], x.iloc[test_index]
+        else:
+            x_train, x_test = x[train_index], x[test_index]
+
+        if isinstance(y, pd.DataFrame) or isinstance(y, pd.Series):
+            y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+        else:
+            y_train, y_test = y[train_index], y[test_index]
 
         x_train_ref = ray.put(x_train)
         y_train_ref = ray.put(y_train)
@@ -236,64 +244,22 @@ def split(cross_validator: BaseCrossValidator, xy_ref):
 
 
 def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
-    pipeline_input_train = dm.PipelineInput()
+    has_single_estimator = pipeline.has_single_estimator()
+    if not has_single_estimator:
+        raise pe.PipelineException("Cross validation can only be done on pipelines with single estimator, "
+                                   "use grid_search_cv instead")
 
-    pipeline_input_test = []
-    k = cross_validator.get_n_splits()
-    # add k pipeline inputs for testing
-    for i in range(k):
-        pipeline_input_test.append(dm.PipelineInput())
-
-    in_args = pipeline_input.get_in_args()
-    for node, xyref_ptrs in in_args.items():
-        # NOTE: The assumption is that this node has only one input!
-        xyref_ptr = xyref_ptrs[0]
-        xy_train_refs_ptr, xy_test_refs_ptr = split.remote(cross_validator, xyref_ptr)
-        xy_train_refs = ray.get(xy_train_refs_ptr)
-        xy_test_refs = ray.get(xy_test_refs_ptr)
-
-        for xy_train_ref in xy_train_refs:
-            pipeline_input_train.add_xyref_arg(node, xy_train_ref)
-
-        # for testing, add only to the specific input
-        for i in range(k):
-            pipeline_input_test[i].add_xyref_arg(node, xy_test_refs[i])
-
-    # Ready for execution now that data has been prepared! This execution happens in parallel
-    # because of the underlying pipeline graph and multiple input objects
-    pipeline_output_train = execute_pipeline(pipeline, ExecutionType.FIT, pipeline_input_train)
-
-    # Now we can choose the pipeline and then score for each of the chosen pipelines
-    out_nodes = pipeline.get_output_nodes()
-    if len(out_nodes) > 1:
-        raise pe.PipelineException("Cannot cross validate as output is not a single node")
-
-    out_node = out_nodes[0]
-    out_xyref_ptrs = pipeline_output_train.get_xyrefs(out_node)
-
-    k = cross_validator.get_n_splits()
-    if len(out_xyref_ptrs) != k:
-        raise pe.PipelineException("Number of outputs from pipeline fit is not equal to the folds from cross validator")
-
-    pipeline_score_outputs = []
-    # Below, jobs get submitted and then we can collect the results in the next loop
-    for i in range(k):
-        selected_pipeline = select_pipeline(pipeline_output_train, out_xyref_ptrs[i])
-        selected_pipeline_output = execute_pipeline(selected_pipeline, ExecutionType.SCORE, pipeline_input_test[i])
-        pipeline_score_outputs.append(selected_pipeline_output)
-
-    result_scores = []
-    for pipeline_score_output in pipeline_score_outputs:
-        pipeline_out_xyrefs = pipeline_score_output.get_xyrefs(out_node)
-        # again, only single xyref to be gotten out
-        pipeline_out_xyref = pipeline_out_xyrefs[0]
-        out_x = ray.get(pipeline_out_xyref.get_Xref())
-        result_scores.append(out_x)
+    result_grid_search_cv = grid_search_cv(cross_validator, pipeline, pipeline_input)
+    # only one output here
+    result_scores = None
+    for scores in result_grid_search_cv.values():
+        result_scores = scores
+        break
 
     return result_scores
 
 
-def grid_search(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
+def grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
     pipeline_input_train = dm.PipelineInput()
 
     pipeline_input_test = []
@@ -303,18 +269,24 @@ def grid_search(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipe
         pipeline_input_test.append(dm.PipelineInput())
 
     in_args = pipeline_input.get_in_args()
+    # Keep a map from the pointer of train to test
+    train_test_mapper = {}
+
     for node, xyref_ptrs in in_args.items():
         # NOTE: The assumption is that this node has only one input!
         xyref_ptr = xyref_ptrs[0]
         if len(xyref_ptrs) > 1:
-            raise pe.PipelineException("Input to grid search is multiple objects, re-run with only single object")
+            raise pe.PipelineException("Grid search supports single object input only, multiple provided, number is " + str(len(xyref_ptrs)))
 
         xy_train_refs_ptr, xy_test_refs_ptr = split.remote(cross_validator, xyref_ptr)
         xy_train_refs = ray.get(xy_train_refs_ptr)
         xy_test_refs = ray.get(xy_test_refs_ptr)
 
-        for xy_train_ref in xy_train_refs:
+        for i in range(len(xy_train_refs)):
+            xy_train_ref = xy_train_refs[i]
+            xy_test_ref = xy_test_refs[i]
             pipeline_input_train.add_xyref_arg(node, xy_train_ref)
+            train_test_mapper[xy_train_ref] = xy_test_ref
 
         # for testing, add only to the specific input
         for i in range(k):
@@ -324,9 +296,42 @@ def grid_search(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipe
     # because of the underlying pipeline graph and multiple input objects
     pipeline_output_train = execute_pipeline(pipeline, ExecutionType.FIT, pipeline_input_train)
 
-    # For grid search, we will have multiple output nodes that need to be iterated on and select the pipeline
-    # that is "best"
+    # For grid search, we will have multiple output nodes that need to be iterated on
+    selected_pipeline_test_outputs = {}
     out_nodes = pipeline.get_output_nodes()
+    for out_node in out_nodes:
+        out_node_xyrefs = pipeline_output_train.get_xyrefs(out_node)
+        for out_node_xyref in out_node_xyrefs:
+            selected_pipeline = select_pipeline(pipeline_output_train, out_node_xyref)
+            selected_pipeline_input = get_pipeline_input(pipeline, pipeline_output_train, out_node_xyref)
+            selected_pipeline_inargs = selected_pipeline_input.get_in_args()
+            test_pipeline_input = dm.PipelineInput()
+            for node, train_xyref_ptr in selected_pipeline_inargs.items():
+                # xyrefs is a singleton by construction
+                train_xyrefs = ray.get(train_xyref_ptr)
+                test_xyref = train_test_mapper[train_xyrefs[0]]
+                test_pipeline_input.add_xyref_arg(node, test_xyref)
+            selected_pipeline_test_output = execute_pipeline(selected_pipeline, ExecutionType.SCORE, test_pipeline_input)
+            if selected_pipeline not in selected_pipeline_test_outputs.keys():
+                selected_pipeline_test_outputs[selected_pipeline] = []
+            selected_pipeline_test_outputs[selected_pipeline].append(selected_pipeline_test_output)
+
+    # now, test outputs can be materialized
+    result_scores = {}
+    for selected_pipeline, selected_pipeline_test_output_list in selected_pipeline_test_outputs.items():
+        output_nodes = selected_pipeline.get_output_nodes()
+        # by design, output_nodes will only have one node
+        output_node = output_nodes[0]
+        for selected_pipeline_test_output in selected_pipeline_test_output_list:
+            pipeline_out_xyrefs = selected_pipeline_test_output.get_xyrefs(output_node)
+            # again, only single xyref to be gotten out
+            pipeline_out_xyref = pipeline_out_xyrefs[0]
+            out_x = ray.get(pipeline_out_xyref.get_Xref())
+            if selected_pipeline not in result_scores.keys():
+                result_scores[selected_pipeline] = []
+            result_scores[selected_pipeline].append(out_x)
+
+    return result_scores
 
 
 def save(pipeline_output: dm.PipelineOutput, xy_ref: dm.XYRef, filehandle):

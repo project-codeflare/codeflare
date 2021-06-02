@@ -122,6 +122,16 @@ class XYRef:
         """
         return self.__prev_Xyrefs__
 
+    def __hash__(self):
+        return self.__Xref__.__hash__() ^ self.__yref__.__hash__()
+
+    def __eq__(self, other):
+        return (
+                self.__class__ == other.__class__ and
+                self.__Xref__ == other.__Xref__ and
+                self.__yref__ == other.__yref__
+        )
+
 
 class NodeInputType(Enum):
     OR = 0,
@@ -303,6 +313,18 @@ class Pipeline:
         self.__level_nodes__ = None
         self.__node_name_map__ = {}
 
+    def __hash__(self):
+        result = 1234
+        for node in self.__node_name_map__.keys():
+            result = result ^ node.__hash__()
+        return result
+
+    def __eq__(self, other):
+        return (
+                self.__class__ == other.__class__ and
+                other.__pre_graph__ == self.__pre_graph__
+        )
+
     def add_node(self, node: Node):
         self.__node_levels__ = None
         self.__level_nodes__ = None
@@ -459,6 +481,18 @@ class Pipeline:
     def get_node(self, node_name: str) -> Node:
         return self.__node_name_map__[node_name]
 
+    def has_single_estimator(self):
+        if len(self.get_output_nodes()) > 1:
+            return False
+
+        for node in self.__node_name_map__.keys():
+            is_node_estimator = (node.get_node_input_type() == NodeInputType.OR)
+            if is_node_estimator:
+                pre_nodes = self.get_pre_nodes(node)
+                if len(pre_nodes) > 1:
+                    return False
+        return True
+
     def save(self, filehandle):
         nodes = {}
         edges = []
@@ -527,6 +561,9 @@ class PipelineOutput:
 
     def get_edge_args(self):
         return self.__edge_args__
+
+    def get_out_args(self):
+        return self.__out_args__
 
 
 class PipelineInput:
