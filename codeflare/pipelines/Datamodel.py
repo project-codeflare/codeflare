@@ -57,13 +57,27 @@ class XYRef:
     """
     Holder class that maintains a pointer/reference to X and y. The goal of this is to provide
     a holder to the object references of Ray. This is used for passing outputs from a transform/fit
-    to the next stage of the pipeline. Since the references can be potentially in flight (or being
+    to the next stage of the pipeline. Since the object references can be potentially in flight (or being
     computed), these holders are essential to the pipeline constructs.
 
     It also holds the state of the node itself, with the previous state of the node before a transform
     operation is applied being held along with the next state. It also holds the previous
     XYRef instances. In essence, this holder class is a bunch of pointers, but it is enough to reconstruct
     the entire pipeline through appropriate traversals.
+
+    NOTE: Default constructor takes pointer to X and y. The more advanced constructs are pointer
+    holders for the pipeline during its execution and are not meant to be used outside by developers.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        x = np.array([1.0, 2.0, 4.0, 5.0])
+        y = np.array(['odd', 'even', 'even', 'odd'])
+        x_ref = ray.put(x)
+        y_ref = ray.put(y)
+
+        xy_ref = XYRef(x_ref, y_ref)
     """
 
     def __init__(self, Xref: ray.ObjectRef, yref: ray.ObjectRef, prev_node_state_ref: ray.ObjectRef=None, curr_node_state_ref: ray.ObjectRef=None, prev_Xyrefs = None):
@@ -124,16 +138,47 @@ class XYRef:
 
 
 class NodeInputType(Enum):
+    """
+    Defines the node input types, currently, it supports an OR and AND node. An OR node is backed by an
+    Estimator and an AND node is backed by an arbitrary lambda defined by an AndFunc. The key difference
+    is that for an OR node, the parallelism is defined at a single XYRef object, whereas for an AND node,
+    the parallelism is defined on a collection of objects coming "into" the AND node.
+
+    For details on parallelism and pipeline semantics, the reader is directed to the pipeline semantics
+    introduction of the User guide.
+    """
     OR = 0,
     AND = 1
 
 
 class NodeFiringType(Enum):
+    """
+    Defines the "firing" semantics of a node, there are two types of firing semantics, ANY and ALL. ANY
+    firing semantics means that upon the availability of a single object, the node will start executing
+    its work. Whereas, on ALL semantics, the node has to wait for ALL the objects ot be materialized
+    before the computation can begin, i.e. it is blocking.
+
+    For details on firing and pipeline semantics, the reader is directed to the pipeline semantics
+    introduction of the User guide.
+    """
     ANY = 0,
     ALL = 1
 
 
 class NodeStateType(Enum):
+    """
+    Defines the state type of a node, there are 4 types of state, which are STATELESS, IMMUTABLE, MUTABLE_SEQUENTIAL
+    and MUTABLE_AGGREGATE.
+
+    A STATELESS node is one that keeps no state and can be called any number of times without any change to the "model"
+    or "function" state.
+
+    A IMMUTABLE node is one that once a model has "fitted" cannot change, i.e. there is no partial fit available.
+
+    A MUTABLE_SEQUENTIAL node is one that can be updated with a sequence of input object(s) or a stream.
+
+    A MUTABLE_AGGREGATE node is one that can be updated in batches.
+    """
     STATELESS = 0,
     IMMUTABLE = 1,
     MUTABLE_SEQUENTIAL = 2,
@@ -156,16 +201,36 @@ class Node(ABC):
     def __str__(self):
         return self.__node_name__
 
-    def get_node_name(self):
+    def get_node_name(self) -> str:
+        """
+        Returns the node name
+
+        :return: The name of this node
+        """
         return self.__node_name__
 
-    def get_node_input_type(self):
+    def get_node_input_type(self) -> NodeInputType:
+        """
+        Return the node input type
+
+        :return: The node input type
+        """
         return self.__node_input_type__
 
-    def get_node_firing_type(self):
+    def get_node_firing_type(self) -> NodeFiringType:
+        """
+        Return the node firing type
+
+        :return: The node firing type
+        """
         return self.__node_firing_type__
 
-    def get_node_state_type(self):
+    def get_node_state_type(self) -> NodeStateType:
+        """
+        Return the node state type
+
+        :return: The node state type
+        """
         return self.__node_state_type__
 
     @abstractmethod
@@ -196,8 +261,11 @@ class Node(ABC):
 
 class EstimatorNode(Node):
     """
-    Or node, which is the basic node that would be the equivalent of any SKlearn pipeline
+    Basic estimator node, which is the basic node that would be the equivalent of any SKlearn pipeline
     stage. This node is initialized with an estimator that needs to extend sklearn.BaseEstimator.
+
+    This estimator node is typically an OR node, with ANY firing semantics, and IMMUTABLE state. For
+    partial fit, we will have to define a different node type to keep semantics very clear.
     """
 
     def __init__(self, node_name: str, estimator: BaseEstimator):
