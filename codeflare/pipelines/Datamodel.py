@@ -199,6 +199,11 @@ class Node(ABC):
         self.__node_state_type__ = node_state_type
 
     def __str__(self):
+        """
+        The string representation, which is the node name itself
+
+        :return: Node string
+        """
         return self.__node_name__
 
     def get_node_name(self) -> str:
@@ -266,6 +271,17 @@ class EstimatorNode(Node):
 
     This estimator node is typically an OR node, with ANY firing semantics, and IMMUTABLE state. For
     partial fit, we will have to define a different node type to keep semantics very clear.
+
+    .. code-block:: python
+
+        random_forest = RandomForestClassifier(n_estimators=200)
+        node_rf = dm.EstimatorNode('randomforest', random_forest)
+
+        # get the estimator
+        node_rf_estimator = node_rf.get_estimator()
+
+        # clone the node, clones the estimator as well
+        node_rf_cloned = node_rf.clone()
     """
 
     def __init__(self, node_name: str, estimator: BaseEstimator):
@@ -283,11 +299,16 @@ class EstimatorNode(Node):
         """
         Return the estimator that this was initialize with
 
-        :return: Estimator
+        :return: Estimator that was initialized
         """
         return self.__estimator__
 
     def clone(self):
+        """
+        Clones the given node and the underlying estimator as well, if it was initialized with
+
+        :return: A cloned node
+        """
         cloned_estimator = base.clone(self.__estimator__)
         return EstimatorNode(self.__node_name__, cloned_estimator)
 
@@ -317,17 +338,31 @@ class AndNode(Node):
 
 
 class Edge:
-    __from_node__ = None
-    __to_node__ = None
+    """
+    An edge connects two nodes, it's an internal data structure  for pipeline construction. An edge
+    is a directed edge and has a "from_node" and a "to_node".
 
+    An edge also defines a hash function and an equality, where the equality is on the from and to
+    node names being the same.
+    """
     def __init__(self, from_node: Node, to_node: Node):
         self.__from_node__ = from_node
         self.__to_node__ = to_node
 
     def get_from_node(self) -> Node:
+        """
+        The from_node of this edge (originating node)
+
+        :return:  The from_node of this edge
+        """
         return self.__from_node__
 
     def get_to_node(self) -> Node:
+        """
+        The to_node of this edge (terminating node)
+
+        :return: The to_node of this edge
+        """
         return self.__to_node__
 
     def __str__(self):
@@ -361,7 +396,62 @@ class KeyedObjectRef:
 
 class Pipeline:
     """
-    The pipeline class that defines the DAG structure composed of Node(s). The
+    The pipeline class that defines the DAG structure composed of Node(s). This is the core data structure that
+    defines the computation graph. A key note is that unlike SKLearn pipeline, CodeFlare pipelines are "abstract"
+    graphs and get realized only when executed. Upon execution, they can potentially be multiple pathways in
+    the pipeline, i.e. multiple "single" pipelines can be realized.
+
+    Examples
+    --------
+    Pipelines can be constructed quite simply using the builder paradigm with add_node and/or add_edge. In its
+    simplest form, one can create nodes and then wire the DAG by adding edges. An example that does a simple
+    pipeline is below:
+
+    .. code-block:: python
+
+        feature_union = FeatureUnion(transformer_list=[('PCA', PCA()),
+            ('Nystroem', Nystroem()), ('SelectKBest', SelectKBest(k=3))])
+        random_forest = RandomForestClassifier(n_estimators=200)
+        node_fu = dm.EstimatorNode('feature_union', feature_union)
+        node_rf = dm.EstimatorNode('randomforest', random_forest)
+        pipeline.add_edge(node_fu, node_rf)
+
+    One can of course construct complex pipelines with multiple outgoing edges as well. An example of one that
+    explores multiple models is shown below:
+
+    .. code-block:: python
+
+        preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numeric_transformer, numeric_features),
+            ('cat', categorical_transformer, categorical_features)])
+
+        classifiers = [
+            RandomForestClassifier(),
+            GradientBoostingClassifier()
+        ]
+        pipeline = dm.Pipeline()
+        node_pre = dm.EstimatorNode('preprocess', preprocessor)
+        node_rf = dm.EstimatorNode('random_forest', classifiers[0])
+        node_gb = dm.EstimatorNode('gradient_boost', classifiers[1])
+
+        pipeline.add_edge(node_pre, node_rf)
+        pipeline.add_edge(node_pre, node_gb)
+
+    A pipeline can be saved and loaded, which in essence saves the "graph" and not the state of this pipeline.
+    For saving the state of the pipeline, one can use the Runtime's save method! Save/load of pipeline uses
+    Pickle protocol 5.
+
+    .. code-block:: python
+
+        fname = 'save_pipeline.cfp'
+        fh = open(fname, 'wb')
+        pipeline.save(fh)
+        fh.close()
+
+        r_fh = open(fname, 'rb')
+        saved_pipeline = dm.Pipeline.load(r_fh)
+
     """
 
     def __init__(self):
@@ -371,6 +461,12 @@ class Pipeline:
         self.__level_nodes__ = None
 
     def add_node(self, node: Node):
+        """
+        Adds a node to this pipeline
+
+        :param node: The node to add
+        :return: None
+        """
         self.__node_levels__ = None
         self.__level_nodes__ = None
         if node not in self.__pre_graph__.keys():
@@ -395,6 +491,13 @@ class Pipeline:
         return res
 
     def add_edge(self, from_node: Node, to_node: Node):
+        """
+        Adds an edge to this pipeline
+
+        :param from_node: The from node
+        :param to_node: The to node
+        :return: None
+        """
         self.add_node(from_node)
         self.add_node(to_node)
 
@@ -408,6 +511,14 @@ class Pipeline:
         return self.__post_graph__[node]
 
     def compute_node_level(self, node: Node, result: dict):
+        """
+        Computes the node levels for a given node, an internal supporting function that is recursive, so it
+        takes the result computed so far.
+
+        :param node: The node for which level needs to be computed
+        :param result: The node levels that have already been computed
+        :return: The level for this node
+        """
         if node in result:
             return result[node]
 
@@ -426,6 +537,13 @@ class Pipeline:
         return max_level + 1
 
     def compute_node_levels(self):
+        """
+        Computes node levels for all nodes. If a cache of node levels from previous calls exists, it will return
+        the cache to avoid repeated computation.
+
+        :return: The mapping from node to its level as a dict
+        """
+        # TODO: This is incorrect when pipelines are mutable
         if self.__node_levels__:
             return self.__node_levels__
 
@@ -438,6 +556,11 @@ class Pipeline:
         return self.__node_levels__
 
     def compute_max_level(self):
+        """
+        Get the max depth of this pipeline graph.
+
+        :return: The max depth of pipeline
+        """
         levels = self.compute_node_levels()
         max_level = 0
         for node, node_level in levels.items():
@@ -445,6 +568,12 @@ class Pipeline:
         return max_level
 
     def get_nodes_by_level(self):
+        """
+        A mapping from level to a list of nodes, useful for pipeline execution time. Similar to compute_levels,
+        this method will return a cache if it exists, else will compute the levels and cache it.
+
+        :return: The mapping from level to a list of nodes at that level
+        """
         if self.__level_nodes__:
             return self.__level_nodes__
 
@@ -460,9 +589,6 @@ class Pipeline:
         self.__level_nodes__ = result
         return self.__level_nodes__
 
-    ###
-    # Get downstream node
-    ###
     def get_post_nodes(self, node: Node):
         return self.__post_graph__[node]
 
@@ -470,6 +596,12 @@ class Pipeline:
         return self.__pre_graph__[node]
 
     def get_pre_edges(self, node: Node):
+        """
+        Get the incoming edges to a specific node.
+
+        :param node: Given node
+        :return: Incoming edges for the node
+        """
         pre_edges = []
         pre_nodes = self.__pre_graph__[node]
         # Empty pre
@@ -481,6 +613,12 @@ class Pipeline:
         return pre_edges
 
     def get_post_edges(self, node: Node):
+        """
+        Get the outgoing edges for the given node
+
+        :param node: Given node
+        :return: Outgoing edges for the node
+        """
         post_edges = []
         post_nodes = self.__post_graph__[node]
         # Empty post
@@ -492,10 +630,21 @@ class Pipeline:
         return post_edges
 
     def is_terminal(self, node: Node):
+        """
+        Checks if the given node is a terminal node, i.e. has no outgoing edges
+
+        :param node: Node to check terminal condition on
+        :return: True if terminal else False
+        """
         post_nodes = self.__post_graph__[node]
         return not post_nodes
 
     def get_terminal_nodes(self):
+        """
+        Get all the terminal nodes for this pipeline
+
+        :return: List of all terminal nodes
+        """
         # dict from level to nodes
         terminal_nodes = []
         for node in self.__pre_graph__.keys():
@@ -504,18 +653,42 @@ class Pipeline:
         return terminal_nodes
 
     def get_nodes(self):
+        """
+        Get the nodes in this pipeline
+
+        :return: Node name to node dict
+        """
         nodes = {}
         for node in self.__pre_graph__.keys():
             nodes[node.get_node_name()] = node
         return nodes
 
     def get_pre_nodes(self, node):
+        """
+        Get the nodes that have edges incoming to the given node
+
+        :param node: Given node
+        :return: List of nodes with incoming edges to the provided node
+        """
         return self.__pre_graph__[node]
 
     def get_post_nodes(self, node):
+        """
+        Get the nodes that have edges outgoing to the given node
+
+        :param node: Given node
+        :return: List of nodes with outgoing edges from the provided node
+        """
         return self.__post_graph__[node]
 
     def save(self, filehandle):
+        """
+        Saves the pipeline graph (without state) to a file. A filehandle with write and binary mode
+        is expected.
+
+        :param filehandle: Filehandle with wb mode
+        :return: None
+        """
         nodes = {}
         edges = []
 
@@ -534,6 +707,12 @@ class Pipeline:
 
     @staticmethod
     def load(filehandle):
+        """
+        Loads a pipeline that has been saved given the filehandle. Filehandle is in rb format.
+
+        :param filehandle: Filehandle to load pipeline from
+        :return:
+        """
         saved_pipeline = pickle.load(filehandle)
         if not isinstance(saved_pipeline, _SavedPipeline):
             raise pe.PipelineException("Filehandle is not a saved pipeline instance")
@@ -551,14 +730,28 @@ class Pipeline:
 
 
 class _SavedPipeline:
+    """
+    Internal class that serializes the pipeline so that it can be pickled. As noted, this only captures
+    the graph and not the state of the pipeline.
+    """
     def __init__(self, nodes, edges):
         self.__nodes__ = nodes
         self.__edges__ = edges
 
     def get_nodes(self):
+        """
+        Nodes of the saved pipeline
+
+        :return: Dict of node name to node mapping
+        """
         return self.__nodes__
 
     def get_edges(self):
+        """
+        Edges of the saved pipeline
+
+        :return: List of edges
+        """
         return self.__edges__
 
 
