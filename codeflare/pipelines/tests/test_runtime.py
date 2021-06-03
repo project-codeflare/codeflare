@@ -60,7 +60,8 @@ def test_grid_search():
     xy = dm.Xy(X_train, y_train)
     pipeline_input.add_xy_arg(input_node, xy)
 
-    kf = KFold(2)
+    k = 2
+    kf = KFold(k)
     result = rt.grid_search_cv(kf, pipeline, pipeline_input)
     node_rf = pipeline.get_node('random_forest')
     node_gb = pipeline.get_node('gradient_boost')
@@ -73,7 +74,7 @@ def test_grid_search():
             node_rf_pipeline = True
         elif out_node.get_node_name() == node_gb.get_node_name():
             node_gb_pipeline = True
-        if len(scores) != 2:
+        if len(scores) != k:
             assert False
     assert node_rf_pipeline
     assert node_gb_pipeline

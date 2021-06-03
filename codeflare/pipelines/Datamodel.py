@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 from enum import Enum
 
 import sklearn.base as base
+from codeflare.pipelines.Datamodel import PipelineParam
 from sklearn.base import TransformerMixin
 from sklearn.base import BaseEstimator
+from sklearn.model_selection import ParameterGrid
 
 import ray
 import pickle5 as pickle
@@ -158,6 +160,8 @@ class Node(ABC):
     """
 
     def __init__(self, node_name, node_input_type: NodeInputType, node_firing_type: NodeFiringType, node_state_type: NodeStateType):
+        if '__' in node_name:
+            raise pe.PipelineException("Node name cannot have __, please rename")
         self.__node_name__ = node_name
         self.__node_input_type__ = node_input_type
         self.__node_firing_type__ = node_firing_type
@@ -510,6 +514,24 @@ class Pipeline:
         saved_pipeline = _SavedPipeline(nodes, edges)
         pickle.dump(saved_pipeline, filehandle)
 
+    def set_param_grid(self, pipeline_param: PipelineParam):
+        result = Pipeline()
+        pipeline_params = pipeline_param.get_all_params()
+        parameterized_nodes = {}
+        for node_name, params in pipeline_params.items():
+            node_name_part, num = node_name.split('__', 1)
+            if node_name_part not in parameterized_nodes.keys():
+                parameterized_nodes[node_name_part] = []
+            node = self.__node_name_map__[node_name_part]
+            estimator = node.get_estimator()
+            cloned_estimator = estimator.clone()
+            cloned_estimator.set_params(**params)
+
+            parameterized_nodes[node_name_part].append()
+            result.add_node()
+
+        # construct nodes
+
     @staticmethod
     def load(filehandle):
         saved_pipeline = pickle.load(filehandle)
@@ -597,3 +619,46 @@ class PipelineInput:
 
     def get_in_args(self):
         return self.__in_args__
+
+
+class PipelineParam:
+    def __init__(self):
+        self.__node_name_param_map__ = {}
+
+    @staticmethod
+    def from_param_grid(fit_params: dict):
+        pipeline_param = PipelineParam()
+        fit_params_nodes = {}
+        for pname, pval in fit_params.items():
+            if '__' not in pname:
+                raise ValueError(
+                    "Pipeline.fit does not accept the {} parameter. "
+                    "You can pass parameters to specific steps of your "
+                    "pipeline using the stepname__parameter format, e.g. "
+                    "`Pipeline.fit(X, y, logisticregression__sample_weight"
+                    "=sample_weight)`.".format(pname))
+            node_name, param = pname.split('__', 1)
+            if node_name not in fit_params_nodes.keys():
+                fit_params_nodes[node_name] = {}
+
+            fit_params_nodes[node_name][param] = pval
+
+        # we have the split based on convention, now to create paramter grid for each node
+        for node_name, param in fit_params_nodes.items():
+            pg = ParameterGrid(param)
+            pg_list = list(pg)
+            for i in range(len(pg_list)):
+                p = pg_list[i]
+                curr_node_name = node_name + '__' + str(i)
+                pipeline_param.add_param(curr_node_name, p)
+
+        return pipeline_param
+
+    def add_param(self, node_name: str, params: dict):
+        self.__node_name_param_map__[node_name] = params
+
+    def get_param(self, node_name: str):
+        return self.__node_name_param_map__[node_name]
+
+    def get_all_params(self):
+        return self.__node_name_param_map__
