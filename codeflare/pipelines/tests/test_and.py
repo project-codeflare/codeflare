@@ -9,9 +9,12 @@ from codeflare.pipelines.Datamodel import Xy
 from codeflare.pipelines.Datamodel import XYRef
 from codeflare.pipelines.Runtime import ExecutionType
 
-class FeatureUnion(dm.AndTransform):
+class FeatureUnion(dm.AndEstimator):
     def __init__(self):
         pass
+
+    def get_estimator_type(self):
+        return 'transform'
 
     def transform(self, xy_list):
         X_list = []

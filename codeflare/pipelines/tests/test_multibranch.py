@@ -14,7 +14,7 @@ from codeflare.pipelines.Datamodel import Xy
 from codeflare.pipelines.Datamodel import XYRef
 from codeflare.pipelines.Runtime import ExecutionType
 
-class FeatureUnion(dm.AndTransform):
+class FeatureUnion(dm.AndEstimator):
     def __init__(self):
         pass
 
