@@ -1,5 +1,4 @@
 import unittest
-import pytest
 import ray
 import pandas as pd
 import numpy as np
@@ -11,13 +10,18 @@ from sklearn.tree import DecisionTreeClassifier
 import codeflare.pipelines.Datamodel as dm
 import codeflare.pipelines.Runtime as rt
 from codeflare.pipelines.Datamodel import Xy
-from codeflare.pipelines.Datamodel import XYRef
 from codeflare.pipelines.Runtime import ExecutionType
 
 
-class FeatureUnion(dm.AndTransform):
+class FeatureUnion(dm.AndEstimator):
     def __init__(self):
         pass
+
+    def fit_transform(self, xy_list: list):
+        return self.transform(xy_list)
+
+    def get_estimator_type(self):
+        return 'transform'
 
     def transform(self, xy_list):
         X_list = []
@@ -97,6 +101,34 @@ class MultibranchTestCase(unittest.TestCase):
         assert node_f_xyrefs
 
         ray.shutdown()
+
+
+def test_param_grid():
+    from sklearn import datasets
+    from sklearn.decomposition import PCA
+    from sklearn.linear_model import LogisticRegression
+
+    pca = PCA()
+    # set the tolerance to a large value to make the example faster
+    logistic = LogisticRegression(max_iter=10000, tol=0.1)
+
+    pipeline = dm.Pipeline()
+    node_pca = dm.EstimatorNode('pca', pca)
+    node_logistic = dm.EstimatorNode('logistic', logistic)
+
+    pipeline.add_edge(node_pca, node_logistic)
+
+    param_grid = {
+        'pca__n_components': [5, 15, 30, 45, 64],
+        'logistic__C': np.logspace(-4, 4, 4),
+    }
+
+    pipeline_param = dm.PipelineParam.from_param_grid(param_grid)
+
+    param_grid_pipeline = pipeline.get_parameterized_pipeline(pipeline_param)
+    # num nodes should be 9 by construction
+    num_nodes = len(param_grid_pipeline.get_nodes())
+    assert num_nodes == 9
 
 
 if __name__ == '__main__':

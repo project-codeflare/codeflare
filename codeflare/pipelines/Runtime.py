@@ -23,11 +23,11 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     # Blocking operation -- not avoidable
     X = ray.get(xy_ref.get_Xref())
     y = ray.get(xy_ref.get_yref())
+    prev_node_ptr = ray.put(node)
 
     # TODO: Can optimize the node pointers without replicating them
     if mode == ExecutionType.FIT:
         cloned_node = node.clone()
-        prev_node_ptr = ray.put(node)
 
         if base.is_classifier(estimator) or base.is_regressor(estimator):
             # Always clone before fit, else fit is invalid
@@ -49,22 +49,22 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
         if base.is_classifier(estimator) or base.is_regressor(estimator):
             estimator = node.get_estimator()
             res_Xref = ray.put(estimator.score(X, y))
-            result = dm.XYRef(res_Xref, xy_ref.get_yref())
+            result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
             return result
         else:
             res_Xref = ray.put(estimator.transform(X))
-            result = dm.XYRef(res_Xref, xy_ref.get_yref())
+            result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
 
             return result
     elif mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
         if base.is_classifier(estimator) or base.is_regressor(estimator):
             res_Xref = ray.put(estimator.predict(X))
-            result = dm.XYRef(res_Xref, xy_ref.get_yref())
+            result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
             return result
         else:
             res_Xref = ray.put(estimator.transform(X))
-            result = dm.XYRef(res_Xref, xy_ref.get_yref())
+            result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
             return result
 
 
@@ -84,7 +84,7 @@ def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType)
 
 
 @ray.remote
-def execute_and_node_remote(node: dm.AndNode, Xyref_list):
+def execute_and_node_remote(node: dm.AndNode, mode: ExecutionType, Xyref_list):
     xy_list = []
     prev_node_ptr = ray.put(node)
     for Xyref in Xyref_list:
@@ -92,17 +92,67 @@ def execute_and_node_remote(node: dm.AndNode, Xyref_list):
         y = ray.get(Xyref.get_yref())
         xy_list.append(dm.Xy(X, y))
 
-    cloned_node = node.clone()
-    curr_node_ptr = ray.put(cloned_node)
+    estimator = node.get_estimator()
 
-    cloned_and_func = cloned_node.get_and_func()
-    res_Xy = cloned_and_func.transform(xy_list)
-    res_Xref = ray.put(res_Xy.get_x())
-    res_yref = ray.put(res_Xy.get_y())
-    return dm.XYRef(res_Xref, res_yref, prev_node_ptr, curr_node_ptr, Xyref_list)
+    # TODO: Can optimize the node pointers without replicating them
+    if mode == ExecutionType.FIT:
+        cloned_node = node.clone()
+
+        if base.is_classifier(estimator) or base.is_regressor(estimator):
+            # Always clone before fit, else fit is invalid
+            cloned_estimator = cloned_node.get_estimator()
+            cloned_estimator.fit(xy_list)
+
+            curr_node_ptr = ray.put(cloned_node)
+            res_xy = cloned_estimator.predict(xy_list)
+            res_xref = ray.put(res_xy.get_x())
+            res_yref = ray.put(res_xy.get_y())
+
+            result = dm.XYRef(res_xref, res_yref, prev_node_ptr, curr_node_ptr, Xyref_list)
+            return result
+        else:
+            cloned_estimator = cloned_node.get_estimator()
+            res_xy = cloned_estimator.fit_transform(xy_list)
+            res_xref = ray.put(res_xy.get_x())
+            res_yref = ray.put(res_xy.get_y())
+
+            curr_node_ptr = ray.put(cloned_node)
+            result = dm.XYRef(res_xref, res_yref, prev_node_ptr, curr_node_ptr, Xyref_list)
+            return result
+    elif mode == ExecutionType.SCORE:
+        if base.is_classifier(estimator) or base.is_regressor(estimator):
+            estimator = node.get_estimator()
+            res_xy = estimator.score(xy_list)
+            res_xref = ray.put(res_xy.get_x())
+            res_yref = ray.put(res_xy.get_y())
+
+            result = dm.XYRef(res_xref, res_yref, prev_node_ptr, prev_node_ptr, Xyref_list)
+            return result
+        else:
+            res_xy = estimator.transform(xy_list)
+            res_xref = ray.put(res_xy.get_x())
+            res_yref = ray.put(res_xy.get_y())
+            result = dm.XYRef(res_xref, res_yref, prev_node_ptr, prev_node_ptr, Xyref_list)
+
+            return result
+    elif mode == ExecutionType.PREDICT:
+        # Test mode does not clone as it is a simple predict or transform
+        if base.is_classifier(estimator) or base.is_regressor(estimator):
+            res_xy = estimator.predict(xy_list)
+            res_xref = ray.put(res_xy.get_x())
+            res_yref = ray.put(res_xy.get_y())
+
+            result = dm.XYRef(res_xref, res_yref, prev_node_ptr, prev_node_ptr, Xyref_list)
+            return result
+        else:
+            res_xy = estimator.transform(xy_list)
+            res_xref = ray.put(res_xy.get_x())
+            res_yref = ray.put(res_xy.get_y())
+            result = dm.XYRef(res_xref, res_yref, prev_node_ptr, prev_node_ptr, Xyref_list)
+            return result
 
 
-def execute_and_node_inner(node: dm.AndNode, Xyref_ptrs):
+def execute_and_node_inner(node: dm.AndNode, mode: ExecutionType, Xyref_ptrs):
     result = []
 
     Xyref_list = []
@@ -110,12 +160,12 @@ def execute_and_node_inner(node: dm.AndNode, Xyref_ptrs):
         Xyref = ray.get(Xyref_ptr)
         Xyref_list.append(Xyref)
 
-    Xyref_ptr = execute_and_node_remote.remote(node, Xyref_list)
+    Xyref_ptr = execute_and_node_remote.remote(node, mode, Xyref_list)
     result.append(Xyref_ptr)
     return result
 
 
-def execute_and_node(node, pre_edges, edge_args, post_edges):
+def execute_and_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
     edge_args_lists = list()
     for pre_edge in pre_edges:
         edge_args_lists.append(edge_args[pre_edge])
@@ -125,7 +175,7 @@ def execute_and_node(node, pre_edges, edge_args, post_edges):
     cross_product = itertools.product(*edge_args_lists)
 
     for element in cross_product:
-        exec_xyref_ptrs = execute_and_node_inner(node, element)
+        exec_xyref_ptrs = execute_and_node_inner(node, mode, element)
         for post_edge in post_edges:
             if post_edge not in edge_args.keys():
                 edge_args[post_edge] = []
@@ -151,7 +201,7 @@ def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input:
             if node.get_node_input_type() == dm.NodeInputType.OR:
                 execute_or_node(node, pre_edges, edge_args, post_edges, mode)
             elif node.get_node_input_type() == dm.NodeInputType.AND:
-                execute_and_node(node, pre_edges, edge_args, post_edges)
+                execute_and_node(node, pre_edges, edge_args, post_edges, mode)
 
     out_args = {}
     terminal_nodes = pipeline.get_output_nodes()
@@ -249,7 +299,7 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
         raise pe.PipelineException("Cross validation can only be done on pipelines with single estimator, "
                                    "use grid_search_cv instead")
 
-    result_grid_search_cv = grid_search_cv(cross_validator, pipeline, pipeline_input)
+    result_grid_search_cv = _grid_search_cv(cross_validator, pipeline, pipeline_input)
     # only one output here
     result_scores = None
     for scores in result_grid_search_cv.values():
@@ -259,7 +309,13 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
     return result_scores
 
 
-def grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
+def grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput, pipeline_params: dm.PipelineParam):
+    parameterized_pipeline = pipeline.get_parameterized_pipeline(pipeline_params)
+    parameterized_pipeline_input = pipeline_input.get_parameterized_input(pipeline, parameterized_pipeline)
+    return _grid_search_cv(cross_validator, parameterized_pipeline, parameterized_pipeline_input)
+
+
+def _grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
     pipeline_input_train = dm.PipelineInput()
 
     pipeline_input_test = []

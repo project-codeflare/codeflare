@@ -62,7 +62,7 @@ def test_grid_search():
 
     k = 2
     kf = KFold(k)
-    result = rt.grid_search_cv(kf, pipeline, pipeline_input)
+    result = rt._grid_search_cv(kf, pipeline, pipeline_input)
     node_rf = pipeline.get_node('random_forest')
     node_gb = pipeline.get_node('gradient_boost')
     # result should have two pipelines, with two scored outputs each
@@ -78,3 +78,46 @@ def test_grid_search():
             assert False
     assert node_rf_pipeline
     assert node_gb_pipeline
+
+
+def test_param_grid_search():
+    from sklearn.decomposition import PCA
+    from sklearn.linear_model import LogisticRegression
+    import numpy as np
+    from sklearn import datasets
+
+    import ray
+    ray.shutdown()
+
+    ray.init()
+
+    X_digits, y_digits = datasets.load_digits(return_X_y=True)
+
+    pca = PCA()
+    # set the tolerance to a large value to make the example faster
+    logistic = LogisticRegression(max_iter=10000, tol=0.1)
+
+    pipeline = dm.Pipeline()
+    node_pca = dm.EstimatorNode('pca', pca)
+    node_logistic = dm.EstimatorNode('logistic', logistic)
+
+    pipeline.add_edge(node_pca, node_logistic)
+
+    # input to pipeline
+    pipeline_input = dm.PipelineInput()
+    pipeline_input.add_xy_arg(node_pca, dm.Xy(X_digits, y_digits))
+
+    param_grid = {
+        'pca__n_components': [5, 15, 30, 45, 64],
+        'logistic__C': np.logspace(-4, 4, 4),
+    }
+
+    pipeline_param = dm.PipelineParam.from_param_grid(param_grid)
+
+    k = 2
+    kf = KFold(k)
+
+    result = rt.grid_search_cv(kf, pipeline, pipeline_input, pipeline_param)
+    # 4 x 5 pipelines have to be explored
+    assert(len(result) == 20)
+

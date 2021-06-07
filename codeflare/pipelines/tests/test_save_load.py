@@ -8,7 +8,7 @@ import os
 from codeflare.pipelines.tests import test_helper
 
 
-class FeatureUnion(dm.AndTransform):
+class FeatureUnion(dm.AndEstimator):
     def __init__(self):
         pass
 
