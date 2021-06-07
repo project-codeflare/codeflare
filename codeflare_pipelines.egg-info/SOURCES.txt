@@ -5,7 +5,6 @@ codeflare/pipelines/Datamodel.py
 codeflare/pipelines/Exceptions.py
 codeflare/pipelines/Runtime.py
 codeflare/pipelines/__init__.py
-codeflare/pipelines/test_Datamodel.py
 codeflare_pipelines.egg-info/PKG-INFO
 codeflare_pipelines.egg-info/SOURCES.txt
 codeflare_pipelines.egg-info/dependency_links.txt

@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 
 import sklearn.base as base
-from sklearn.base import TransformerMixin
 from sklearn.base import BaseEstimator
+from sklearn.model_selection import ParameterGrid
 
 import ray
 import pickle5 as pickle
@@ -136,6 +136,16 @@ class XYRef:
         """
         return self.__prev_Xyrefs__
 
+    def __hash__(self):
+        return self.__Xref__.__hash__() ^ self.__yref__.__hash__()
+
+    def __eq__(self, other):
+        return (
+                self.__class__ == other.__class__ and
+                self.__Xref__ == other.__Xref__ and
+                self.__yref__ == other.__yref__
+        )
+
 
 class NodeInputType(Enum):
     """
@@ -192,19 +202,17 @@ class Node(ABC):
     node name and the type of the node match.
     """
 
-    def __init__(self, node_name, node_input_type: NodeInputType, node_firing_type: NodeFiringType, node_state_type: NodeStateType):
+    def __init__(self, node_name, estimator: BaseEstimator, node_input_type: NodeInputType, node_firing_type: NodeFiringType, node_state_type: NodeStateType):
         self.__node_name__ = node_name
+        self.__estimator__ = estimator
         self.__node_input_type__ = node_input_type
         self.__node_firing_type__ = node_firing_type
         self.__node_state_type__ = node_state_type
 
     def __str__(self):
-        """
-        The string representation, which is the node name itself
-
-        :return: Node string
-        """
-        return self.__node_name__
+        estimator_params_str = str(self.get_estimator().get_params())
+        retval = self.__node_name__ + estimator_params_str
+        return retval
 
     def get_node_name(self) -> str:
         """
@@ -237,6 +245,16 @@ class Node(ABC):
         :return: The node state type
         """
         return self.__node_state_type__
+
+    def get_estimator(self):
+        return self.__estimator__
+
+    def get_parameterized_node(self, node_name, **params):
+        cloned_node = self.clone()
+        cloned_node.__node_name__ = node_name
+        estimator = cloned_node.get_estimator()
+        estimator.set_params(**params)
+        return cloned_node
 
     @abstractmethod
     def clone(self):
@@ -291,17 +309,8 @@ class EstimatorNode(Node):
         :param node_name: Name of the node
         :param estimator: The base estimator
         """
+        super().__init__(node_name, estimator, NodeInputType.OR, NodeFiringType.ANY, NodeStateType.IMMUTABLE)
 
-        super().__init__(node_name, NodeInputType.OR, NodeFiringType.ANY, NodeStateType.IMMUTABLE)
-        self.__estimator__ = estimator
-
-    def get_estimator(self) -> BaseEstimator:
-        """
-        Return the estimator that this was initialize with
-
-        :return: Estimator that was initialized
-        """
-        return self.__estimator__
 
     def clone(self):
         """
@@ -313,28 +322,43 @@ class EstimatorNode(Node):
         return EstimatorNode(self.__node_name__, cloned_estimator)
 
 
-class AndTransform(TransformerMixin, BaseEstimator):
+class AndEstimator(BaseEstimator):
     @abstractmethod
     def transform(self, xy_list: list) -> Xy:
-        raise NotImplementedError("Please implement this method")
+        raise NotImplementedError("And estimator needs to implement a transform method")
 
-
-class GeneralTransform(TransformerMixin, BaseEstimator):
     @abstractmethod
-    def transform(self, xy: Xy) -> Xy:
-        raise NotImplementedError("Please implement this method")
+    def fit(self, xy_list: list):
+        raise NotImplementedError("And estimator needs to implement a fit method")
+
+    @abstractmethod
+    def fit_transform(self, xy_list: list):
+        raise NotImplementedError("And estimator needs to implement a fit method")
+
+    @abstractmethod
+    def predict(self, xy_list: list) -> Xy:
+        raise NotImplementedError("And classifier needs to implement the predict method")
+
+    @abstractmethod
+    def score(self, xy_list: list) -> Xy:
+        raise NotImplementedError("And classifier needs to implement the score method")
+
+    @abstractmethod
+    def get_estimator_type(self):
+        raise NotImplementedError("And classifier needs to implement the get_estimator_type method")
+
+    @abstractmethod
+    def clone(self):
+        raise NotImplementedError("And estimator needs to implement a clone method")
 
 
 class AndNode(Node):
-    def __init__(self, node_name: str, and_func: AndTransform):
-        super().__init__(node_name, NodeInputType.AND, NodeFiringType.ANY, NodeStateType.STATELESS)
-        self.__andfunc__ = and_func
-
-    def get_and_func(self) -> AndTransform:
-        return self.__andfunc__
+    def __init__(self, node_name: str, and_estimator: AndEstimator):
+        super().__init__(node_name, and_estimator, NodeInputType.AND, NodeFiringType.ANY, NodeStateType.STATELESS)
 
     def clone(self):
-        return AndNode(self.__node_name__, self.__andfunc__)
+        cloned_estimator = self.__estimator__.clone()
+        return AndNode(self.__node_name__, cloned_estimator)
 
 
 class Edge:
@@ -459,6 +483,19 @@ class Pipeline:
         self.__post_graph__ = {}
         self.__node_levels__ = None
         self.__level_nodes__ = None
+        self.__node_name_map__ = {}
+
+    def __hash__(self):
+        result = 1234
+        for node in self.__node_name_map__.keys():
+            result = result ^ node.__hash__()
+        return result
+
+    def __eq__(self, other):
+        return (
+                self.__class__ == other.__class__ and
+                other.__pre_graph__ == self.__pre_graph__
+        )
 
     def add_node(self, node: Node):
         """
@@ -472,6 +509,7 @@ class Pipeline:
         if node not in self.__pre_graph__.keys():
             self.__pre_graph__[node] = []
             self.__post_graph__[node] = []
+            self.__node_name_map__[node.get_node_name()] = node
 
     def __str__(self):
         res = ''
@@ -504,12 +542,6 @@ class Pipeline:
         self.__pre_graph__[to_node].append(from_node)
         self.__post_graph__[from_node].append(to_node)
 
-    def get_preimage(self, node: Node):
-        return self.__pre_graph__[node]
-
-    def get_postimage(self, node: Node):
-        return self.__post_graph__[node]
-
     def compute_node_level(self, node: Node, result: dict):
         """
         Computes the node levels for a given node, an internal supporting function that is recursive, so it
@@ -522,13 +554,13 @@ class Pipeline:
         if node in result:
             return result[node]
 
-        node_preimage = self.get_preimage(node)
-        if not node_preimage:
+        pre_nodes = self.get_pre_nodes(node)
+        if not pre_nodes:
             result[node] = 0
             return 0
 
         max_level = 0
-        for p_node in node_preimage:
+        for p_node in pre_nodes:
             level = self.compute_node_level(p_node, result)
             max_level = max(level, max_level)
 
@@ -554,6 +586,10 @@ class Pipeline:
         self.__node_levels__ = result
 
         return self.__node_levels__
+
+    def get_node_level(self, node: Node):
+        self.compute_node_levels()
+        return self.__node_levels__[node]
 
     def compute_max_level(self):
         """
@@ -629,39 +665,20 @@ class Pipeline:
             post_edges.append(Edge(node, post_node))
         return post_edges
 
-    def is_terminal(self, node: Node):
-        """
-        Checks if the given node is a terminal node, i.e. has no outgoing edges
-
-        :param node: Node to check terminal condition on
-        :return: True if terminal else False
-        """
-        post_nodes = self.__post_graph__[node]
+    def is_output(self, node: Node):
+        post_nodes = self.get_post_nodes(node)
         return not post_nodes
 
-    def get_terminal_nodes(self):
-        """
-        Get all the terminal nodes for this pipeline
-
-        :return: List of all terminal nodes
-        """
+    def get_output_nodes(self):
         # dict from level to nodes
         terminal_nodes = []
         for node in self.__pre_graph__.keys():
-            if self.is_terminal(node):
+            if self.is_output(node):
                 terminal_nodes.append(node)
         return terminal_nodes
 
     def get_nodes(self):
-        """
-        Get the nodes in this pipeline
-
-        :return: Node name to node dict
-        """
-        nodes = {}
-        for node in self.__pre_graph__.keys():
-            nodes[node.get_node_name()] = node
-        return nodes
+        return self.__node_name_map__
 
     def get_pre_nodes(self, node):
         """
@@ -680,6 +697,33 @@ class Pipeline:
         :return: List of nodes with outgoing edges from the provided node
         """
         return self.__post_graph__[node]
+
+    def is_input(self, node: Node):
+        pre_nodes = self.get_pre_nodes(node)
+        return not pre_nodes
+
+    def get_input_nodes(self):
+        input_nodes = []
+        for node in self.__node_name_map__.values():
+            if self.get_node_level(node) == 0:
+                input_nodes.append(node)
+
+        return input_nodes
+
+    def get_node(self, node_name: str) -> Node:
+        return self.__node_name_map__[node_name]
+
+    def has_single_estimator(self):
+        if len(self.get_output_nodes()) > 1:
+            return False
+
+        for node in self.__node_name_map__.keys():
+            is_node_estimator = (node.get_node_input_type() == NodeInputType.OR)
+            if is_node_estimator:
+                pre_nodes = self.get_pre_nodes(node)
+                if len(pre_nodes) > 1:
+                    return False
+        return True
 
     def save(self, filehandle):
         """
@@ -704,6 +748,37 @@ class Pipeline:
                     edges.append(edge_tuple)
         saved_pipeline = _SavedPipeline(nodes, edges)
         pickle.dump(saved_pipeline, filehandle)
+
+    def get_parameterized_pipeline(self, pipeline_param):
+        result = Pipeline()
+        pipeline_params = pipeline_param.get_all_params()
+        parameterized_nodes = {}
+        for node_name, params in pipeline_params.items():
+            node_name_part, num = node_name.split('__', 1)
+            if node_name_part not in parameterized_nodes.keys():
+                parameterized_nodes[node_name_part] = []
+            node = self.__node_name_map__[node_name_part]
+            parameterized_node = node.get_parameterized_node(node_name, **params)
+            parameterized_nodes[node_name_part].append(parameterized_node)
+
+        # update parameterized nodes with missing non-parameterized nodes for completeness
+        for node in self.__pre_graph__.keys():
+            node_name = node.get_node_name()
+            if node_name not in parameterized_nodes.keys():
+                parameterized_nodes[node_name] = [node]
+
+        # loop through the graph and add edges
+        for node, pre_nodes in self.__pre_graph__.items():
+            node_name = node.get_node_name()
+            expanded_nodes = parameterized_nodes[node_name]
+            for pre_node in pre_nodes:
+                pre_node_name = pre_node.get_node_name()
+                expanded_pre_nodes = parameterized_nodes[pre_node_name]
+                for expanded_pre_node in expanded_pre_nodes:
+                    for expanded_node in expanded_nodes:
+                        result.add_edge(expanded_pre_node, expanded_node)
+
+        return result
 
     @staticmethod
     def load(filehandle):
@@ -777,6 +852,9 @@ class PipelineOutput:
     def get_edge_args(self):
         return self.__edge_args__
 
+    def get_out_args(self):
+        return self.__out_args__
+
 
 class PipelineInput:
     """
@@ -807,5 +885,66 @@ class PipelineInput:
         xyref = XYRef(x_ref, y_ref)
         self.add_xyref_arg(node, xyref)
 
+    def add_all(self, node, node_inargs):
+        self.__in_args__[node] = node_inargs
+
     def get_in_args(self):
         return self.__in_args__
+
+    def get_parameterized_input(self, pipeline: Pipeline, parameterized_pipeline: Pipeline):
+        input_nodes = parameterized_pipeline.get_input_nodes()
+        parameterized_pipeline_input = PipelineInput()
+        for input_node in input_nodes:
+            input_node_name = input_node.get_node_name()
+            if '__' not in input_node_name:
+                node_name = input_node_name
+            else:
+                node_name, param = input_node.get_node_name().split('__', 1)
+
+            pipeline_node = pipeline.get_node(node_name)
+            if pipeline_node in self.__in_args__:
+                parameterized_pipeline_input.add_all(input_node, self.__in_args__[pipeline_node])
+        return parameterized_pipeline_input
+
+
+class PipelineParam:
+    def __init__(self):
+        self.__node_name_param_map__ = {}
+
+    @staticmethod
+    def from_param_grid(fit_params: dict):
+        pipeline_param = PipelineParam()
+        fit_params_nodes = {}
+        for pname, pval in fit_params.items():
+            if '__' not in pname:
+                raise ValueError(
+                    "Pipeline.fit does not accept the {} parameter. "
+                    "You can pass parameters to specific steps of your "
+                    "pipeline using the stepname__parameter format, e.g. "
+                    "`Pipeline.fit(X, y, logisticregression__sample_weight"
+                    "=sample_weight)`.".format(pname))
+            node_name, param = pname.split('__', 1)
+            if node_name not in fit_params_nodes.keys():
+                fit_params_nodes[node_name] = {}
+
+            fit_params_nodes[node_name][param] = pval
+
+        # we have the split based on convention, now to create paramter grid for each node
+        for node_name, param in fit_params_nodes.items():
+            pg = ParameterGrid(param)
+            pg_list = list(pg)
+            for i in range(len(pg_list)):
+                p = pg_list[i]
+                curr_node_name = node_name + '__' + str(i)
+                pipeline_param.add_param(curr_node_name, p)
+
+        return pipeline_param
+
+    def add_param(self, node_name: str, params: dict):
+        self.__node_name_param_map__[node_name] = params
+
+    def get_param(self, node_name: str):
+        return self.__node_name_param_map__[node_name]
+
+    def get_all_params(self):
+        return self.__node_name_param_map__
