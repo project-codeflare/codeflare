@@ -7,32 +7,29 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.tree import DecisionTreeClassifier
+import sklearn.base as base
 import codeflare.pipelines.Datamodel as dm
 import codeflare.pipelines.Runtime as rt
 from codeflare.pipelines.Datamodel import Xy
 from codeflare.pipelines.Runtime import ExecutionType
 
-
 class FeatureUnion(dm.AndEstimator):
     def __init__(self):
         pass
-
-    def fit_transform(self, xy_list: list):
-        return self.transform(xy_list)
-
     def get_estimator_type(self):
         return 'transform'
-
+    def clone(self):
+        return base.clone(self)
+    def fit_transform(self, xy_list):
+        return self.transform(xy_list)
     def transform(self, xy_list):
         X_list = []
-        y_list = []
-
+        y_vec = None
         for xy in xy_list:
             X_list.append(xy.get_x())
-        X_concat = np.concatenate(X_list, axis=0)
-
-        return Xy(X_concat, None)
-
+            y_vec = xy.get_y()
+        X_concat = np.concatenate(X_list, axis=1)
+        return Xy(X_concat, y_vec)
 
 class MultibranchTestCase(unittest.TestCase):
 
