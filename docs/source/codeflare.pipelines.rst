@@ -36,14 +36,6 @@ codeflare.pipelines.Runtime module
    :undoc-members:
    :show-inheritance:
 
-codeflare.pipelines.test\_Datamodel module
-------------------------------------------
-
-.. automodule:: codeflare.pipelines.test_Datamodel
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

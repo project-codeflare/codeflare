@@ -1,18 +1,9 @@
-from abc import ABC, abstractmethod
-from enum import Enum
+"""Data Model
 
-import sklearn.base as base
-from sklearn.base import BaseEstimator
-from sklearn.model_selection import ParameterGrid
-
-import ray
-import pickle5 as pickle
-import codeflare.pipelines.Exceptions as pe
-
-"""
 The core data model structures are defined here. These include the various aspects for creating a DAG, the
 input and output to the DAG itself.
 
+- :class:`~codeflare.pipelines.Datamodel.Pipeline`
 The pipeline graph is captured in Pipeline class with the supporting constructs of Node and Edge. There are
 different types of nodes, the key ones are EstimatorNode and an AndNode. The details of the kind of nodes
 are captured in a separate document that also outlines the type, the firing semantics (when a node gets executed),
@@ -26,6 +17,17 @@ output defines what nodes produce the outputs.
 Finally, the data model allows for morphing of pipeline based on parameterizations, these parameterizations can
 be for grid search or for other such similar reasons.
 """
+
+from abc import ABC, abstractmethod
+from enum import Enum
+
+import sklearn.base as base
+from sklearn.base import BaseEstimator
+from sklearn.model_selection import ParameterGrid
+
+import ray
+import pickle5 as pickle
+import codeflare.pipelines.Exceptions as pe
 
 
 class Xy:
@@ -486,7 +488,12 @@ class AndNode(Node):
 
     Examples
     --------
+    An example building on the one from AndEstimator:
 
+    .. code-block:: python
+
+        feature_union_and_estimator = FeatureUnion()
+        node_union_and = dm.AndNode('and_node_sample', feature_union_and_estimator)
 
     """
     def __init__(self, node_name: str, and_estimator: AndEstimator):
