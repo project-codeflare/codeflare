@@ -9,9 +9,29 @@ import ray
 import pickle5 as pickle
 import codeflare.pipelines.Exceptions as pe
 
+"""
+The core data model structures are defined here. These include the various aspects for creating a DAG, the
+input and output to the DAG itself.
+
+The pipeline graph is captured in Pipeline class with the supporting constructs of Node and Edge. There are
+different types of nodes, the key ones are EstimatorNode and an AndNode. The details of the kind of nodes
+are captured in a separate document that also outlines the type, the firing semantics (when a node gets executed),
+and the state of it.
+
+The input and output for the pipeline are captured in the PipelineInput and PipelineOutput classes, which are
+supported by the Xy and XYRef classes. The basic data are captured in Xy and XYRef, where XYRef is a holder for
+pointers to X and y. The input to the pipeline defines which nodes take what Xy pointers, whereas the pipeline
+output defines what nodes produce the outputs.
+
+Finally, the data model allows for morphing of pipeline based on parameterizations, these parameterizations can
+be for grid search or for other such similar reasons.
+"""
+
 
 class Xy:
     """
+    .. _xy
+
     Holder class for Xy, where X is array-like and y is array-like. This is the base
     data structure for fully materialized X and y.
 
