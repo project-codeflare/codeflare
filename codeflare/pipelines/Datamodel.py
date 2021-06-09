@@ -619,6 +619,12 @@ class Pipeline:
         return self.__node_levels__
 
     def get_node_level(self, node: Node):
+        """
+        Returns the node level for the given node, a number between 0 and max_level (depth of the DAG/Pipeline).
+
+        :param node: Given node
+        :return: Level between 0 and max_depth of pipeline
+        """
         self.compute_node_levels()
         return self.__node_levels__[node]
 
@@ -657,9 +663,23 @@ class Pipeline:
         return self.__level_nodes__
 
     def get_post_nodes(self, node: Node):
+        """
+        Returns the nodes which are "below" the given node, i.e., have incoming edges from the
+        given node, empty if it is an output node
+
+        :param node: Given node
+        :return: List of nodes that have incoming edges to the given node
+        """
         return self.__post_graph__[node]
 
     def get_pre_nodes(self, node: Node):
+        """
+        Returns the nodes which are "above" the given node, i.e., have outgoing edges from the given
+        node, empty if it is an input node
+
+        :param node: Given node
+        :return: List of nodes that have outgoing edges to the given node
+        """
         return self.__pre_graph__[node]
 
     def get_pre_edges(self, node: Node):
@@ -697,10 +717,21 @@ class Pipeline:
         return post_edges
 
     def is_output(self, node: Node):
+        """
+        Checks if the given node is an output node
+
+        :param node: Given node
+        :return: True if output else False
+        """
         post_nodes = self.get_post_nodes(node)
         return not post_nodes
 
     def get_output_nodes(self):
+        """
+        Gets all the output nodes for this pipeline
+
+        :return: List of output nodes
+        """
         # dict from level to nodes
         terminal_nodes = []
         for node in self.__pre_graph__.keys():
@@ -709,31 +740,29 @@ class Pipeline:
         return terminal_nodes
 
     def get_nodes(self):
+        """
+        Returns all the nodes of this pipeline in a dict from node_name to the node
+
+        :return: Dict of node_name to node
+        """
         return self.__node_name_map__
 
-    def get_pre_nodes(self, node):
-        """
-        Get the nodes that have edges incoming to the given node
-
-        :param node: Given node
-        :return: List of nodes with incoming edges to the provided node
-        """
-        return self.__pre_graph__[node]
-
-    def get_post_nodes(self, node):
-        """
-        Get the nodes that have edges outgoing to the given node
-
-        :param node: Given node
-        :return: List of nodes with outgoing edges from the provided node
-        """
-        return self.__post_graph__[node]
-
     def is_input(self, node: Node):
+        """
+        Checks if the given node is an input node of this pipeline
+
+        :param node: Given node
+        :return: True if input node else False
+        """
         pre_nodes = self.get_pre_nodes(node)
         return not pre_nodes
 
     def get_input_nodes(self):
+        """
+        Returns all the input nodes of this pipeline
+
+        :return: List of input nodes
+        """
         input_nodes = []
         for node in self.__node_name_map__.values():
             if self.get_node_level(node) == 0:
@@ -742,9 +771,21 @@ class Pipeline:
         return input_nodes
 
     def get_node(self, node_name: str) -> Node:
+        """
+        Return the node given a node name
+
+        :param node_name: Node name
+        :return: The node with this node name
+        """
         return self.__node_name_map__[node_name]
 
     def has_single_estimator(self):
+        """
+        Checks if this pipeline has only a single OR estimator, this is useful to know when picking a specific
+        pipeline
+
+        :return: True if only one OR estimator else False
+        """
         if len(self.get_output_nodes()) > 1:
             return False
 
@@ -781,6 +822,41 @@ class Pipeline:
         pickle.dump(saved_pipeline, filehandle)
 
     def get_parameterized_pipeline(self, pipeline_param):
+        """
+        Parameterizes the current pipeline with the provided pipeline_param and returns the newly parameterized
+        pipeline. The pipeline_param is explored for all the parameters associated with a given node, which is
+        then expanded to multiple nodes with generated node names. The graph is created using the existing
+        connections, i.e. if there is an edge between node A and node B and with parameterization node B became
+        node B1, node B2, an edge is created between node A and node B1 as well as node A and node B2.
+
+        Depending on the strategy of searches, the appropriate pipeline_param can create the right expansion.
+        For example, grid search can expand the cross product of parameters and the pipeline will get expanded.
+
+        Examples
+        --------
+        The below code shows an example of how a 2 step pipeline gets expanded to a 9 node pipeline for grid
+        search.
+
+        .. code-block:: python
+
+            pipeline = dm.Pipeline()
+            node_pca = dm.EstimatorNode('pca', pca)
+            node_logistic = dm.EstimatorNode('logistic', logistic)
+
+            pipeline.add_edge(node_pca, node_logistic)
+
+            param_grid = {
+                'pca__n_components': [5, 15, 30, 45, 64],
+                'logistic__C': np.logspace(-4, 4, 4),
+            }
+
+            pipeline_param = dm.PipelineParam.from_param_grid(param_grid)
+
+            param_grid_pipeline = pipeline.get_parameterized_pipeline(pipeline_param)
+
+        :param pipeline_param: The pipeline parameters
+        :return: A parameterized pipeline
+        """
         result = Pipeline()
         pipeline_params = pipeline_param.get_all_params()
         parameterized_nodes = {}
