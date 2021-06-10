@@ -200,6 +200,9 @@ class Node(ABC):
     A node class that is an abstract one, this is capturing basic info re the Node.
     The hash code of this node is the name of the node and equality is defined if the
     node name and the type of the node match.
+
+    When doing a grid search, a node can be parameterized with new params for the estimator and updated. This
+    is an internal method used by grid search.
     """
 
     def __init__(self, node_name, estimator: BaseEstimator, node_input_type: NodeInputType, node_firing_type: NodeFiringType, node_state_type: NodeStateType):
@@ -210,6 +213,11 @@ class Node(ABC):
         self.__node_state_type__ = node_state_type
 
     def __str__(self):
+        """
+        Returns a string representation of the node along with the parameters of the estimator of the node.
+
+        :return: String representation of the node
+        """
         estimator_params_str = str(self.get_estimator().get_params())
         retval = self.__node_name__ + estimator_params_str
         return retval
@@ -247,9 +255,22 @@ class Node(ABC):
         return self.__node_state_type__
 
     def get_estimator(self):
+        """
+        Return the estimator of the node
+
+        :return: The node's estimator
+        """
         return self.__estimator__
 
     def get_parameterized_node(self, node_name, **params):
+        """
+        Get a parameterized node, given kwargs **params, convert this node and update the estimator with the
+        new set of parameters. It will clone the node and its underlying estimator.
+
+        :param node_name: New node name
+        :param params: Updated parameters
+        :return:
+        """
         cloned_node = self.clone()
         cloned_node.__node_name__ = node_name
         estimator = cloned_node.get_estimator()
@@ -311,7 +332,6 @@ class EstimatorNode(Node):
         """
         super().__init__(node_name, estimator, NodeInputType.OR, NodeFiringType.ANY, NodeStateType.IMMUTABLE)
 
-
     def clone(self):
         """
         Clones the given node and the underlying estimator as well, if it was initialized with
@@ -323,6 +343,17 @@ class EstimatorNode(Node):
 
 
 class AndEstimator(BaseEstimator):
+    """
+    An and estimator, is part of the AndNode, it is very similar to a standard estimator, however the key
+    difference is that it takes a `xy_list` as input and outputs an `xy`, contrasting to the EstimatorNode,
+    which takes an input as `xy` and outputs `xy_t`.
+
+    In the pipeline execution, we expect three modes: (a) FIT: A regressor or classifier will call the fit
+    and then pass on the transform results downstream, a non-regressor/classifier will call the fit_transform
+    method, (b) PREDICT: A regressor or classifier will call the predict method, whereas a non-regressor/classifier
+    will call the transform method, and (c) SCORE: A regressor will call the score method, and a non-regressor/classifer
+    will call the transform method.
+    """
     @abstractmethod
     def transform(self, xy_list: list) -> Xy:
         raise NotImplementedError("And estimator needs to implement a transform method")

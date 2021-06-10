@@ -13,6 +13,8 @@ This project is under active development. Keep an eye on this page for our first
 
 See the [design document](https://docs.google.com/document/d/1t1K8N07TcbBKBgrcI6jf9tPow00cOKE9whnEVxOd4-U/edit) for more information on our design goals.
 
+This project uses ZenHub for tracking of issues and roadmap.
+
 ## Example notebooks
 
 **TODO:** Add instructions for running the notebooks in the `notebooks` directory.
