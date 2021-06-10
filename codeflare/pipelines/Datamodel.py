@@ -1,22 +1,21 @@
-"""Data Model
-
+"""codeflare.pipelines.Datamodel
 The core data model structures are defined here. These include the various aspects for creating a DAG, the
 input and output to the DAG itself.
 
-- :class:`~codeflare.pipelines.Datamodel.Pipeline`
-The pipeline graph is captured in Pipeline class with the supporting constructs of Node and Edge. There are
-different types of nodes, the key ones are EstimatorNode and an AndNode. The details of the kind of nodes
-are captured in a separate document that also outlines the type, the firing semantics (when a node gets executed),
-and the state of it.
-
-The input and output for the pipeline are captured in the PipelineInput and PipelineOutput classes, which are
-supported by the Xy and XYRef classes. The basic data are captured in Xy and XYRef, where XYRef is a holder for
-pointers to X and y. The input to the pipeline defines which nodes take what Xy pointers, whereas the pipeline
-output defines what nodes produce the outputs.
-
-Finally, the data model allows for morphing of pipeline based on parameterizations, these parameterizations can
-be for grid search or for other such similar reasons.
+- :class:`~codeflare.pipelines.Datamodel.Pipeline`: The class that defines the pipeline graph is captured, which is supported by Node and Edge constructs.
+- :class:`~codeflare.pipelines.Datamodel.Node`: The node class that has two implementations, :class:`~codeflare.pipelines.Datamodel.EstimatorNode` and :class:`~codeflare.pipelines.Datamodel.AndNode`, the details of these are captured in a separate document on nodes and their semantics defined by the type, firing semantics, and state.
+- :class:`~codeflare.pipelines.Datamodel.PipelineInput`: The input for pipeline, supported by Xy and XYRef holder classes.
+- :class:`~codeflare.pipelines.Datamodel.PipelineOutput`: The output for pipeline (after execution), supported by Xy and XYRef holder classes.
+- :class:`~codeflare.pipelines.Datamodel.Xy`: A basic holder class for X and y, both of which are numpy arrays.
+- :class:`~codeflare.pipelines.Datamodel.XYRef`: A basic holder class for pointers to X and y, pointers are reference to objects in Plasma store of Ray.
+- :class:`~codeflare.pipelines.Datamodel.PipelineParam`: Finally, the data model allows for morphing of pipeline based on parameterizations, these parameterizations can be for grid search or for other such similar reasons.
 """
+
+# Authors: Mudhakar Srivatsa <msrivats@us.ibm.com>
+#           Raghu Ganti <rganti@us.ibm.com>
+#           Carlos Costa <chcost@us.ibm.com>
+#
+# License: Apache v2.0
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -32,8 +31,6 @@ import codeflare.pipelines.Exceptions as pe
 
 class Xy:
     """
-    .. _xy
-
     Holder class for Xy, where X is array-like and y is array-like. This is the base
     data structure for fully materialized X and y.
 
