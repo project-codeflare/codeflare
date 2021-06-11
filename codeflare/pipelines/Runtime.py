@@ -285,6 +285,15 @@ def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input:
     A selected pipeline can be executed in SCORE and PREDICT modes for evaluating the results or saving them for future
     reuse.
 
+    Examples
+    --------
+    Execution of pipeline is fairly simple and getting the output can be done:
+
+    .. code-block:: python
+
+        pipeline_output = rt.execute_pipeline(pipeline, rt.ExecutionType.FIT, pipeline_input)
+        node_rf_xyrefs = pipeline_output.get_xyrefs(node_rf)
+
     :param pipeline: Abstract DAG representation of the pipeline
     :param mode: Execution mode
     :param pipeline_input: The input to this pipeline
@@ -328,6 +337,16 @@ def select_pipeline(pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef) 
     Internally, the runtime has generated "trackers" to keep a lineage for every input and output and which node
     generated it. These are then selected to create the appropriate pipeline that can be scored, predicted, and saved.
 
+    Examples
+    --------
+    Selecting a pipeline can be done by identifying an output object of interest. One can select the pipeline without
+    going to the output node, i.e. looking at some internal nodes as well
+
+    .. code-block:: python
+
+        # one can examine the output in more detail and select a pipeline of interest
+        selected_pipeline = rt.select_pipeline(pipeline_output, node_rf_xyrefs[0])
+
     :param pipeline_output: Pipeline output from execute pipeline
     :param chosen_xyref: The XYref for which the pipeline needs to be selected
     :return: Selected pipeline
@@ -356,11 +375,17 @@ def select_pipeline(pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef) 
 
 def get_pipeline_input(pipeline: dm.Pipeline, pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef) -> dm.PipelineInput:
     """
-    
-    :param pipeline:
-    :param pipeline_output:
-    :param chosen_xyref:
-    :return:
+    Given the output from a pipeline and a chosen output object, this method gets the inputs that were used to
+    generate this output. Combining the input and the selected pipeline, one can then actually recreate the full
+    provenance -- graph and data to execute the selected pipeline.
+
+    Note that once the persistence of objects in memory or other persistent stores is lost, it is not possible to
+    get the data.
+
+    :param pipeline: Executed pipeline
+    :param pipeline_output: Output from the executed pipeline
+    :param chosen_xyref: Chosen object from the output
+    :return: The pipeline input (for the given chosen object)
     """
     pipeline_input = dm.PipelineInput()
 
@@ -389,6 +414,14 @@ def get_pipeline_input(pipeline: dm.Pipeline, pipeline_output: dm.PipelineOutput
 
 @ray.remote(num_returns=2)
 def split(cross_validator: BaseCrossValidator, xy_ref):
+    """
+    A remote function that splits the data based on the provided cross validator. This allows for remote
+    data to be split without having to "collect" the data to a driver.
+
+    :param cross_validator: Cross validator
+    :param xy_ref: XYRef that needs to be split
+    :return: List of train and test XYRefs, the number determined by the cross validator get_n_splits
+    """
     x = ray.get(xy_ref.get_Xref())
     y = ray.get(xy_ref.get_yref())
 
@@ -420,6 +453,25 @@ def split(cross_validator: BaseCrossValidator, xy_ref):
 
 
 def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
+    """
+    Similar to sklearn cross validate, but a parallelized version on Ray with zero copy sharing of data. This method
+    allows for the user to explore a pipeline with a single input object to be explored by cross validation. The output
+    is a list of scores that correspond to the SCORE mode of the pipeline execution.
+
+    Examples
+    --------
+    Cross validation is quite simple:
+
+    .. code-block:: python
+
+        kf = StratifiedKFold(n_splits=10)
+        scores = rt.cross_validate(kf, pipeline, pipeline_input)
+
+    :param cross_validator: Cross validator to use
+    :param pipeline: Pipeline to execute
+    :param pipeline_input: Input to the pipeline
+    :return: Scored outputs from the pipeline
+    """
     has_single_estimator = pipeline.has_single_estimator()
     if not has_single_estimator:
         raise pe.PipelineException("Cross validation can only be done on pipelines with single estimator, "
@@ -436,12 +488,61 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
 
 
 def grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput, pipeline_params: dm.PipelineParam):
+    """
+    A top-level method that does a grid search with cross validation. This method takes pipeline, the input to it,
+    a set of parameters for the pipeline, and a cross validator similar to the traditional GridSearchCV of sklearn
+    and executes the various pipelines and cross validation in parallel.
+
+    This method will first transform the input pipeline and expand it to perform a parameter grid search and then
+    the cross validator is run in parallel. The goal is to execute each of the cross validation for each of the
+    parameter combination in parallel to provide the results.
+
+    The results are captured in a dict that maps each pipeline to its corresponding cross validation scores.
+
+    Examples
+    --------
+    An example of grid search using a parameter grid similar to what SKLearn does:
+
+    .. code-block:: python
+
+        k = 2
+        kf = KFold(k)
+        result = rt._grid_search_cv(kf, pipeline, pipeline_input)
+
+        # Results can be examined by iterating over the pipeline, for example to pick a best pipeline based
+        # on mean scores
+        best_pipeline = None
+        best_mean_scores = 0.0
+
+        for cv_pipeline, scores in result.items():
+            mean = statistics.mean(scores)
+            if mean > best_mean_scores:
+                best_pipeline = cv_pipeline
+                best_mean_scores = mean
+
+    :param cross_validator: Cross validator for grid search
+    :param pipeline: Pipeline graph
+    :param pipeline_input: Input to the pipeline
+    :param pipeline_params: Parameter space to explore using a grid search approach
+    :return: Dict from pipeline to the cross validation scores
+    """
     parameterized_pipeline = pipeline.get_parameterized_pipeline(pipeline_params)
     parameterized_pipeline_input = pipeline_input.get_parameterized_input(pipeline, parameterized_pipeline)
     return _grid_search_cv(cross_validator, parameterized_pipeline, parameterized_pipeline_input)
 
 
 def _grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
+    """
+    Internal helper method to do a grid search CV on the "expanded" pipeline. This method does not expand the
+    input parameters and simply executes a grid search with a cross validator. The key is to explore the
+    various pipelines in parallel and then provide the lineage from the output for each pipeline that was
+    explored.
+
+    :param cross_validator: Cross validator
+    :param pipeline: Pipeline graph
+    :param pipeline_input: Pipeline input
+    :return: Dict from pipeline to the resulting cross validation scores
+    """
     pipeline_input_train = dm.PipelineInput()
 
     pipeline_input_test = []
@@ -517,5 +618,26 @@ def _grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, 
 
 
 def save(pipeline_output: dm.PipelineOutput, xy_ref: dm.XYRef, filehandle):
+    """
+    Saves a selected pipeline, i.e. this selected pipeline will save the state of the estimators enabling for the
+    end user to load and execute the pipeline in SCORE/PREDICT modes in the future.
+
+    Examples
+    --------
+    Saving a selected pipeline can be done as follows:
+
+    .. code-block:: python
+
+        # this pipeline can also be saved
+        fname = 'random_forest.cfp'
+        w_fh = open(fname, 'wb')
+        rt.save(pipeline_output, node_rf_xyrefs[0], w_fh)
+        w_fh.close()
+
+    :param pipeline_output: Pipeline output from an executed pipeline
+    :param xy_ref: The chosen XYRef that will be used to materialize a selected pipeline
+    :param filehandle: The file handle to save this pipeline to
+    :return: None
+    """
     pipeline = select_pipeline(pipeline_output, xy_ref)
     pipeline.save(filehandle)
