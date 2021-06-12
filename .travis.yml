@@ -14,15 +14,15 @@
 # limitations under the License.
 #
 
-dist: bionic
 language: python
-services:
-  - docker
+python:
+  - "3.8"
+  - "3.9"
+  - "3.9-dev"  # 3.9 development branch
+  - "nightly"  # nightly build
 
-#before_install:
-#  - ./scripts/travis.sh
+install:
+  - pip install -r requirements.txt
 
-#install:
-#  - pyenv global 3.8.1
-#  - pip install --upgrade pip
-#  - pip install .
+script:
+  - pytest

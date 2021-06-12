@@ -32,9 +32,35 @@ pip install --upgrade pip
 pip install .
 ```
 
-### Try a first example
+### Example notebooks
 
-**TODO:** Add instructions for running the notebooks in the `notebooks` directory.
+You can find a selection of examples in [notebooks](./notebooks). As a first example, we recommend the [Sample Pipeline](./notebooks/sample_pipeline.ipynb
+
+**Running locally**
+
+To run the example pipelines, you will need the following requirements:
+- Jupyter Jupyter
+- Ray
+- sklearn
+- pandas
+- pytest
+- numpy
+- pickle51
+- graphviz
+
+They can be installed with:
+
+If you use pip, you can install it with:
+```shell
+pip install -r requirements.txt 
+```
+
+Run the sample pipeline with:
+```shell
+jupyter-lab sample_pipeline.ipynb
+```
+
+The pipeline will use `ray.init()` to start a local Ray cluster. See [configuring Ray](https://docs.ray.io/en/master/configure.html) to ensure you are able to run a Ray cluster locally.
 
 ## Contributing
 
