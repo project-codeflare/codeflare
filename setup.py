@@ -26,7 +26,7 @@ For the full documentation see
 
 setup(
     name='codeflare-pipelines',
-    version='0.1',
+    version='1.0.0',
     packages=['codeflare', 'codeflare.pipelines'],
     install_requires=[
         'ray[default,serve,k8s]>=1.3.0'
