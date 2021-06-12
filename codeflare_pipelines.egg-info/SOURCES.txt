@@ -1,4 +1,5 @@
 README.md
+setup.cfg
 setup.py
 codeflare/__init__.py
 codeflare/pipelines/Datamodel.py
