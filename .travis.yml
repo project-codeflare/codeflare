@@ -20,6 +20,8 @@ python:
 
 install:
   - pip install -r requirements.txt
+  - pip install ray[default]
+  - pip install .
 
 script:
   - pytest
