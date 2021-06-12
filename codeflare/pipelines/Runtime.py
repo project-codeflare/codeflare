@@ -1,3 +1,20 @@
+"""codeflare.pipelines.Runtime
+This class is the core runtime for CodeFlare pipelines. It provides the entry point for execution of the
+pipeline that was constructed from codeflare.pipelines.Datamodel. The key entry point is the basic
+execute_pipeline, with other enhanced entry points such as cross_validate and grid_search_cv.
+
+The other methods provide supporting functions for execution of pipeline primitives. In addition to this,
+methods for selecting a pipeline are provided as well as saving a specific pipeline instance along with
+that pipeline's state.
+
+Details on the execution and parallelism exposed are provided in the design documentation.
+"""
+# Authors: Mudhakar Srivatsa <msrivats@us.ibm.com>
+#           Raghu Ganti <rganti@us.ibm.com>
+#           Carlos Costa <chcost@us.ibm.com>
+#
+# License: Apache v2.0
+
 import ray
 
 import codeflare.pipelines.Datamodel as dm
@@ -12,6 +29,11 @@ import pandas as pd
 
 
 class ExecutionType(Enum):
+    """
+    Pipelines can be executed in different modes, this is targeting the typical AI/ML parlance, with the supported
+    types being FIT for training a pipeline, PREDICT for predicting/transforming on the steps of a pipeline, and finally
+    SCORE, which scores against a given input.
+    """
     FIT = 0,
     PREDICT = 1,
     SCORE = 2
@@ -19,6 +41,21 @@ class ExecutionType(Enum):
 
 @ray.remote
 def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: dm.XYRef):
+    """
+    Helper remote function that executes an OR node. As such, this is a remote task that runs the estimator
+    in the provided mode with the data pointed to by XYRef. The key aspect to note here is the choice of input
+    to be a pointer to data and not the data itself. This enables the access to the data to be delayed until
+    it is absolutely necessary. The remote method further returns a pointer to XYref, which in itself is a pointer
+    to the data. This again enables the execution to proceed in an asynchronous manner.
+
+    In the FIT mode, the node is always cloned along with its estimator, hence the pipeline state is always
+    kept in the "cloned" node.
+
+    :param node: Estimator node whose estimator needs to be executed
+    :param mode: The mode of execution
+    :param xy_ref: Pointer to the data
+    :return: A list of pointers to XYRefs
+    """
     estimator = node.get_estimator()
     # Blocking operation -- not avoidable
     X = ray.get(xy_ref.get_Xref())
@@ -69,6 +106,20 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
 
 
 def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
+    """
+    Inner method that executes the estimator node parallelizing at the level of input objects. This defines the
+    strategy of execution of the node, in this case, parallel for each object that is input. The function takes
+    in the edges coming to this node (pre_edges) and the associated arguments (edge_args) and fires off remote
+    tasks for each of the objects (this is defined by the ANY firing semantics). The resulting pointer(s) are then
+    captured and passed to the post_edges.
+
+    :param node: Node to execute
+    :param pre_edges: Input edges to the given node
+    :param edge_args: Data arguments for the edges
+    :param post_edges: Data arguments for downstream processing
+    :param mode: Execution mode
+    :return: None
+    """
     for pre_edge in pre_edges:
         Xyref_ptrs = edge_args[pre_edge]
         exec_xyrefs = []
@@ -85,6 +136,18 @@ def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType)
 
 @ray.remote
 def execute_and_node_remote(node: dm.AndNode, mode: ExecutionType, Xyref_list):
+    """
+    Similar to the estimator node (OR node), this is the remote function that executes the AND node. The key to
+    note here is that the input to execute on is a list of XYRefs as opposed to a single XYRef, which differentiates
+    the type of nodes. Similar to the OR node, the output is again a pointer to a list of XYRefs.
+
+    The execution mode is FIT for training, PREDICT for predicting/transforming, and SCORE for scoring.
+
+    :param node: Node to execute
+    :param mode: Mode of execution
+    :param Xyref_list: Input list of XYrefs
+    :return: Output as list of XYrefs
+    """
     xy_list = []
     prev_node_ptr = ray.put(node)
     for Xyref in Xyref_list:
@@ -153,6 +216,17 @@ def execute_and_node_remote(node: dm.AndNode, mode: ExecutionType, Xyref_list):
 
 
 def execute_and_node_inner(node: dm.AndNode, mode: ExecutionType, Xyref_ptrs):
+    """
+    This is a helper method for executing and nodes, which fires off remote tasks. Unlike the helper
+    for OR nodes, which can fire off on single objects, this method retrieves the list of inputs,
+    unmarshals the pointers to XYrefs to materialize XYRef and then passes it along to the and node
+    remote executor.
+
+    :param node: Node to execute on
+    :param mode: Mode of execution
+    :param Xyref_ptrs: Object ref pointers for data input
+    :return:
+    """
     result = []
 
     Xyref_list = []
@@ -166,6 +240,22 @@ def execute_and_node_inner(node: dm.AndNode, mode: ExecutionType, Xyref_ptrs):
 
 
 def execute_and_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
+    """
+    Inner method that executes an and node by combining the inputs coming from multiple edges. Unlike the OR
+    node, which only executes a remote task per input object, the and node combines input from across all the
+    edges. For example, if there are two edges incoming to this node with two objects each, the combiner will
+    create four input combinations. Each of these input combinations is then evaluated by the AND node in
+    parallel.
+
+    The result is then sent to the edges outgoing from this node.
+
+    :param node: Node to execute on
+    :param pre_edges: Incoming edges to this node
+    :param edge_args: Data arguments for each of this edge
+    :param post_edges: Outgoing edges
+    :param mode: Execution mode
+    :return: None
+    """
     edge_args_lists = list()
     for pre_edge in pre_edges:
         edge_args_lists.append(edge_args[pre_edge])
@@ -183,6 +273,32 @@ def execute_and_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType
 
 
 def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input: dm.PipelineInput) -> dm.PipelineOutput:
+    """
+    The entry point for a basic pipeline execution. This method takes a pipeline, the input to it and the execution
+    mode and runs the pipeline. Based on the parallelism defined by the DAG structure and the input data, the execution
+    of the pipeline will happen in parallel.
+
+    In the FIT mode of execution, the pipeline can materialize into several pipelines which can be examined in further
+    detail based on metrics of interest. The method select_pipeline enables selecting a specific pipeline to examine
+    further.
+
+    A selected pipeline can be executed in SCORE and PREDICT modes for evaluating the results or saving them for future
+    reuse.
+
+    Examples
+    --------
+    Execution of pipeline is fairly simple and getting the output can be done:
+
+    .. code-block:: python
+
+        pipeline_output = rt.execute_pipeline(pipeline, rt.ExecutionType.FIT, pipeline_input)
+        node_rf_xyrefs = pipeline_output.get_xyrefs(node_rf)
+
+    :param pipeline: Abstract DAG representation of the pipeline
+    :param mode: Execution mode
+    :param pipeline_input: The input to this pipeline
+    :return: Pipeline output
+    """
     nodes_by_level = pipeline.get_nodes_by_level()
 
     # track args per edge
@@ -212,7 +328,29 @@ def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input:
     return dm.PipelineOutput(out_args, edge_args)
 
 
-def select_pipeline(pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef):
+def select_pipeline(pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef) -> dm.Pipeline:
+    """
+    Pipeline execution results in a materialization of several pipelines, this entry point method enables the end
+    user to select a specific pipeline to examine in further detail. Typical way of examining a pipeline is to select
+    a specific output and then "request" which pipeline generated it.
+
+    Internally, the runtime has generated "trackers" to keep a lineage for every input and output and which node
+    generated it. These are then selected to create the appropriate pipeline that can be scored, predicted, and saved.
+
+    Examples
+    --------
+    Selecting a pipeline can be done by identifying an output object of interest. One can select the pipeline without
+    going to the output node, i.e. looking at some internal nodes as well
+
+    .. code-block:: python
+
+        # one can examine the output in more detail and select a pipeline of interest
+        selected_pipeline = rt.select_pipeline(pipeline_output, node_rf_xyrefs[0])
+
+    :param pipeline_output: Pipeline output from execute pipeline
+    :param chosen_xyref: The XYref for which the pipeline needs to be selected
+    :return: Selected pipeline
+    """
     pipeline = dm.Pipeline()
     xyref_queue = SimpleQueue()
 
@@ -235,7 +373,20 @@ def select_pipeline(pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef):
     return pipeline
 
 
-def get_pipeline_input(pipeline: dm.Pipeline, pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef):
+def get_pipeline_input(pipeline: dm.Pipeline, pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef) -> dm.PipelineInput:
+    """
+    Given the output from a pipeline and a chosen output object, this method gets the inputs that were used to
+    generate this output. Combining the input and the selected pipeline, one can then actually recreate the full
+    provenance -- graph and data to execute the selected pipeline.
+
+    Note that once the persistence of objects in memory or other persistent stores is lost, it is not possible to
+    get the data.
+
+    :param pipeline: Executed pipeline
+    :param pipeline_output: Output from the executed pipeline
+    :param chosen_xyref: Chosen object from the output
+    :return: The pipeline input (for the given chosen object)
+    """
     pipeline_input = dm.PipelineInput()
 
     xyref_queue = SimpleQueue()
@@ -263,6 +414,14 @@ def get_pipeline_input(pipeline: dm.Pipeline, pipeline_output: dm.PipelineOutput
 
 @ray.remote(num_returns=2)
 def split(cross_validator: BaseCrossValidator, xy_ref):
+    """
+    A remote function that splits the data based on the provided cross validator. This allows for remote
+    data to be split without having to "collect" the data to a driver.
+
+    :param cross_validator: Cross validator
+    :param xy_ref: XYRef that needs to be split
+    :return: List of train and test XYRefs, the number determined by the cross validator get_n_splits
+    """
     x = ray.get(xy_ref.get_Xref())
     y = ray.get(xy_ref.get_yref())
 
@@ -294,6 +453,25 @@ def split(cross_validator: BaseCrossValidator, xy_ref):
 
 
 def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
+    """
+    Similar to sklearn cross validate, but a parallelized version on Ray with zero copy sharing of data. This method
+    allows for the user to explore a pipeline with a single input object to be explored by cross validation. The output
+    is a list of scores that correspond to the SCORE mode of the pipeline execution.
+
+    Examples
+    --------
+    Cross validation is quite simple:
+
+    .. code-block:: python
+
+        kf = StratifiedKFold(n_splits=10)
+        scores = rt.cross_validate(kf, pipeline, pipeline_input)
+
+    :param cross_validator: Cross validator to use
+    :param pipeline: Pipeline to execute
+    :param pipeline_input: Input to the pipeline
+    :return: Scored outputs from the pipeline
+    """
     has_single_estimator = pipeline.has_single_estimator()
     if not has_single_estimator:
         raise pe.PipelineException("Cross validation can only be done on pipelines with single estimator, "
@@ -310,12 +488,61 @@ def cross_validate(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, p
 
 
 def grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput, pipeline_params: dm.PipelineParam):
+    """
+    A top-level method that does a grid search with cross validation. This method takes pipeline, the input to it,
+    a set of parameters for the pipeline, and a cross validator similar to the traditional GridSearchCV of sklearn
+    and executes the various pipelines and cross validation in parallel.
+
+    This method will first transform the input pipeline and expand it to perform a parameter grid search and then
+    the cross validator is run in parallel. The goal is to execute each of the cross validation for each of the
+    parameter combination in parallel to provide the results.
+
+    The results are captured in a dict that maps each pipeline to its corresponding cross validation scores.
+
+    Examples
+    --------
+    An example of grid search using a parameter grid similar to what SKLearn does:
+
+    .. code-block:: python
+
+        k = 2
+        kf = KFold(k)
+        result = rt._grid_search_cv(kf, pipeline, pipeline_input)
+
+        # Results can be examined by iterating over the pipeline, for example to pick a best pipeline based
+        # on mean scores
+        best_pipeline = None
+        best_mean_scores = 0.0
+
+        for cv_pipeline, scores in result.items():
+            mean = statistics.mean(scores)
+            if mean > best_mean_scores:
+                best_pipeline = cv_pipeline
+                best_mean_scores = mean
+
+    :param cross_validator: Cross validator for grid search
+    :param pipeline: Pipeline graph
+    :param pipeline_input: Input to the pipeline
+    :param pipeline_params: Parameter space to explore using a grid search approach
+    :return: Dict from pipeline to the cross validation scores
+    """
     parameterized_pipeline = pipeline.get_parameterized_pipeline(pipeline_params)
     parameterized_pipeline_input = pipeline_input.get_parameterized_input(pipeline, parameterized_pipeline)
     return _grid_search_cv(cross_validator, parameterized_pipeline, parameterized_pipeline_input)
 
 
 def _grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, pipeline_input: dm.PipelineInput):
+    """
+    Internal helper method to do a grid search CV on the "expanded" pipeline. This method does not expand the
+    input parameters and simply executes a grid search with a cross validator. The key is to explore the
+    various pipelines in parallel and then provide the lineage from the output for each pipeline that was
+    explored.
+
+    :param cross_validator: Cross validator
+    :param pipeline: Pipeline graph
+    :param pipeline_input: Pipeline input
+    :return: Dict from pipeline to the resulting cross validation scores
+    """
     pipeline_input_train = dm.PipelineInput()
 
     pipeline_input_test = []
@@ -391,5 +618,26 @@ def _grid_search_cv(cross_validator: BaseCrossValidator, pipeline: dm.Pipeline, 
 
 
 def save(pipeline_output: dm.PipelineOutput, xy_ref: dm.XYRef, filehandle):
+    """
+    Saves a selected pipeline, i.e. this selected pipeline will save the state of the estimators enabling for the
+    end user to load and execute the pipeline in SCORE/PREDICT modes in the future.
+
+    Examples
+    --------
+    Saving a selected pipeline can be done as follows:
+
+    .. code-block:: python
+
+        # this pipeline can also be saved
+        fname = 'random_forest.cfp'
+        w_fh = open(fname, 'wb')
+        rt.save(pipeline_output, node_rf_xyrefs[0], w_fh)
+        w_fh.close()
+
+    :param pipeline_output: Pipeline output from an executed pipeline
+    :param xy_ref: The chosen XYRef that will be used to materialize a selected pipeline
+    :param filehandle: The file handle to save this pipeline to
+    :return: None
+    """
     pipeline = select_pipeline(pipeline_output, xy_ref)
     pipeline.save(filehandle)

@@ -1,3 +1,22 @@
+"""codeflare.pipelines.Datamodel
+The core data model structures are defined here. These include the various aspects for creating a DAG, the
+input and output to the DAG itself.
+
+- :class:`~codeflare.pipelines.Datamodel.Pipeline`: The class that defines the pipeline graph is captured, which is supported by Node and Edge constructs.
+- :class:`~codeflare.pipelines.Datamodel.Node`: The node class that has two implementations, :class:`~codeflare.pipelines.Datamodel.EstimatorNode` and :class:`~codeflare.pipelines.Datamodel.AndNode`, the details of these are captured in a separate document on nodes and their semantics defined by the type, firing semantics, and state.
+- :class:`~codeflare.pipelines.Datamodel.PipelineInput`: The input for pipeline, supported by Xy and XYRef holder classes.
+- :class:`~codeflare.pipelines.Datamodel.PipelineOutput`: The output for pipeline (after execution), supported by Xy and XYRef holder classes.
+- :class:`~codeflare.pipelines.Datamodel.Xy`: A basic holder class for X and y, both of which are numpy arrays.
+- :class:`~codeflare.pipelines.Datamodel.XYRef`: A basic holder class for pointers to X and y, pointers are reference to objects in Plasma store of Ray.
+- :class:`~codeflare.pipelines.Datamodel.PipelineParam`: Finally, the data model allows for morphing of pipeline based on parameterizations, these parameterizations can be for grid search or for other such similar reasons.
+"""
+
+# Authors: Mudhakar Srivatsa <msrivats@us.ibm.com>
+#           Raghu Ganti <rganti@us.ibm.com>
+#           Carlos Costa <chcost@us.ibm.com>
+#
+# License: Apache v2.0
+
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -353,37 +372,127 @@ class AndEstimator(BaseEstimator):
     method, (b) PREDICT: A regressor or classifier will call the predict method, whereas a non-regressor/classifier
     will call the transform method, and (c) SCORE: A regressor will call the score method, and a non-regressor/classifer
     will call the transform method.
+
+    Examples
+    --------
+    Here is a simple FeatureUnion as an AndEstimator:
+
+    .. code-block:: python
+
+        class FeatureUnion(dm.AndEstimator):
+            def __init__(self):
+                pass
+
+            def get_estimator_type(self):
+                return 'transform'
+
+            def clone(self):
+                return base.clone(self)
+
+            def fit_transform(self, xy_list):
+                return self.transform(xy_list)
+
+            def transform(self, xy_list):
+                X_list = []
+                y_vec = None
+                for xy in xy_list:
+                    X_list.append(xy.get_x())
+                    y_vec = xy.get_y()
+                X_concat = np.concatenate(X_list, axis=1)
+                return dm.Xy(X_concat, y_vec)
+
+    The above is doing a simple feature union by combining inputs from multiple edges and sending "back" a single
+    concatenated xy. As a simple transform, it needs to only implement the `transform`, `fit_transform`, `clone`,
+    and `get_estimator_type` methods.
     """
     @abstractmethod
     def transform(self, xy_list: list) -> Xy:
+        """
+        An abstract method that needs to be implemented if a simple estimator
+
+        :param xy_list: List of xy
+        :return: A single xy
+        """
         raise NotImplementedError("And estimator needs to implement a transform method")
 
     @abstractmethod
     def fit(self, xy_list: list):
+        """
+        An abstract method that needs to be implemented if a regressor or a classifier
+
+        :param xy_list: List of xy
+        :return: A single xy
+        """
         raise NotImplementedError("And estimator needs to implement a fit method")
 
     @abstractmethod
     def fit_transform(self, xy_list: list):
+        """
+        An abstract method that needs to be implemented if a simple estimator
+
+        :param xy_list: List of xy
+        :return: A single xy
+        """
         raise NotImplementedError("And estimator needs to implement a fit method")
 
     @abstractmethod
     def predict(self, xy_list: list) -> Xy:
+        """
+        An abstract method that needs to be implemented if a regressor or a classifer
+
+        :param xy_list: List of xy
+        :return: A single xy
+        """
         raise NotImplementedError("And classifier needs to implement the predict method")
 
     @abstractmethod
     def score(self, xy_list: list) -> Xy:
+        """
+        An abstract method that needs to be implemented if a regressor or a classifier
+
+        :param xy_list: List of xy
+        :return: A single xy
+        """
         raise NotImplementedError("And classifier needs to implement the score method")
 
     @abstractmethod
     def get_estimator_type(self):
+        """
+        Any and estimator needs to implement this type, it is 'transform' if a simple transformer or is
+        a 'classifier' if classifier and 'regressor' if a regressor.
+
+        :return: The type of the estimator
+        """
         raise NotImplementedError("And classifier needs to implement the get_estimator_type method")
 
     @abstractmethod
     def clone(self):
+        """
+        Abstract method and all estimators are supposed to implement these. Can be as simple as the basic
+        python clone.
+
+        :return: A cloned estimator
+        """
         raise NotImplementedError("And estimator needs to implement a clone method")
 
 
 class AndNode(Node):
+    """
+    Basic and node, that's capable of combining inputs from multiple edges. As such, it needs to have
+    a AndEstimator implemented. The AndEstimator itself inherits from sklearn.BaseEstimator.
+
+    This estimator node is a typical AND node, with ANY firing semantics, and STATELESS state.
+
+    Examples
+    --------
+    An example building on the one from AndEstimator:
+
+    .. code-block:: python
+
+        feature_union_and_estimator = FeatureUnion()
+        node_union_and = dm.AndNode('and_node_sample', feature_union_and_estimator)
+
+    """
     def __init__(self, node_name: str, and_estimator: AndEstimator):
         super().__init__(node_name, and_estimator, NodeInputType.AND, NodeFiringType.ANY, NodeStateType.STATELESS)
 
@@ -619,6 +728,12 @@ class Pipeline:
         return self.__node_levels__
 
     def get_node_level(self, node: Node):
+        """
+        Returns the node level for the given node, a number between 0 and max_level (depth of the DAG/Pipeline).
+
+        :param node: Given node
+        :return: Level between 0 and max_depth of pipeline
+        """
         self.compute_node_levels()
         return self.__node_levels__[node]
 
@@ -657,9 +772,23 @@ class Pipeline:
         return self.__level_nodes__
 
     def get_post_nodes(self, node: Node):
+        """
+        Returns the nodes which are "below" the given node, i.e., have incoming edges from the
+        given node, empty if it is an output node
+
+        :param node: Given node
+        :return: List of nodes that have incoming edges to the given node
+        """
         return self.__post_graph__[node]
 
     def get_pre_nodes(self, node: Node):
+        """
+        Returns the nodes which are "above" the given node, i.e., have outgoing edges from the given
+        node, empty if it is an input node
+
+        :param node: Given node
+        :return: List of nodes that have outgoing edges to the given node
+        """
         return self.__pre_graph__[node]
 
     def get_pre_edges(self, node: Node):
@@ -697,10 +826,21 @@ class Pipeline:
         return post_edges
 
     def is_output(self, node: Node):
+        """
+        Checks if the given node is an output node
+
+        :param node: Given node
+        :return: True if output else False
+        """
         post_nodes = self.get_post_nodes(node)
         return not post_nodes
 
     def get_output_nodes(self):
+        """
+        Gets all the output nodes for this pipeline
+
+        :return: List of output nodes
+        """
         # dict from level to nodes
         terminal_nodes = []
         for node in self.__pre_graph__.keys():
@@ -709,31 +849,29 @@ class Pipeline:
         return terminal_nodes
 
     def get_nodes(self):
+        """
+        Returns all the nodes of this pipeline in a dict from node_name to the node
+
+        :return: Dict of node_name to node
+        """
         return self.__node_name_map__
 
-    def get_pre_nodes(self, node):
-        """
-        Get the nodes that have edges incoming to the given node
-
-        :param node: Given node
-        :return: List of nodes with incoming edges to the provided node
-        """
-        return self.__pre_graph__[node]
-
-    def get_post_nodes(self, node):
-        """
-        Get the nodes that have edges outgoing to the given node
-
-        :param node: Given node
-        :return: List of nodes with outgoing edges from the provided node
-        """
-        return self.__post_graph__[node]
-
     def is_input(self, node: Node):
+        """
+        Checks if the given node is an input node of this pipeline
+
+        :param node: Given node
+        :return: True if input node else False
+        """
         pre_nodes = self.get_pre_nodes(node)
         return not pre_nodes
 
     def get_input_nodes(self):
+        """
+        Returns all the input nodes of this pipeline
+
+        :return: List of input nodes
+        """
         input_nodes = []
         for node in self.__node_name_map__.values():
             if self.get_node_level(node) == 0:
@@ -742,9 +880,21 @@ class Pipeline:
         return input_nodes
 
     def get_node(self, node_name: str) -> Node:
+        """
+        Return the node given a node name
+
+        :param node_name: Node name
+        :return: The node with this node name
+        """
         return self.__node_name_map__[node_name]
 
     def has_single_estimator(self):
+        """
+        Checks if this pipeline has only a single OR estimator, this is useful to know when picking a specific
+        pipeline
+
+        :return: True if only one OR estimator else False
+        """
         if len(self.get_output_nodes()) > 1:
             return False
 
@@ -781,6 +931,41 @@ class Pipeline:
         pickle.dump(saved_pipeline, filehandle)
 
     def get_parameterized_pipeline(self, pipeline_param):
+        """
+        Parameterizes the current pipeline with the provided pipeline_param and returns the newly parameterized
+        pipeline. The pipeline_param is explored for all the parameters associated with a given node, which is
+        then expanded to multiple nodes with generated node names. The graph is created using the existing
+        connections, i.e. if there is an edge between node A and node B and with parameterization node B became
+        node B1, node B2, an edge is created between node A and node B1 as well as node A and node B2.
+
+        Depending on the strategy of searches, the appropriate pipeline_param can create the right expansion.
+        For example, grid search can expand the cross product of parameters and the pipeline will get expanded.
+
+        Examples
+        --------
+        The below code shows an example of how a 2 step pipeline gets expanded to a 9 node pipeline for grid
+        search.
+
+        .. code-block:: python
+
+            pipeline = dm.Pipeline()
+            node_pca = dm.EstimatorNode('pca', pca)
+            node_logistic = dm.EstimatorNode('logistic', logistic)
+
+            pipeline.add_edge(node_pca, node_logistic)
+
+            param_grid = {
+                'pca__n_components': [5, 15, 30, 45, 64],
+                'logistic__C': np.logspace(-4, 4, 4),
+            }
+
+            pipeline_param = dm.PipelineParam.from_param_grid(param_grid)
+
+            param_grid_pipeline = pipeline.get_parameterized_pipeline(pipeline_param)
+
+        :param pipeline_param: The pipeline parameters
+        :return: A parameterized pipeline
+        """
         result = Pipeline()
         pipeline_params = pipeline_param.get_all_params()
         parameterized_nodes = {}
@@ -889,18 +1074,45 @@ class PipelineOutput:
 
 class PipelineInput:
     """
-    in_args is a dict from a node -> [Xy]
+    This is a holder to capture the input to the pipeline in an appropriate manner. Internally, it holds
+    the input from a node to a pointer to XYref, i.e. it only holds pointers. It does not hold the entire
+    data. This is key to distributing the data in the object store.
+
+    Examples
+    --------
+    The simplest way to add input to a node is by specifying the X and y args, the underlying platform will
+    take care of distributing it to the backend in-memory object storage.
+
+    .. code-block:: python
+
+        pipeline_input = dm.PipelineInput()
+        pipeline_input.add_xy_arg(node_a, dm.Xy(X_train, y_train))
     """
     def __init__(self):
         self.__in_args__ = {}
 
     def add_xyref_ptr_arg(self, node: Node, xyref_ptr):
+        """
+        A direct pointer input addition, this is typically used in internal methods, but enables the advanecd
+        developer to have direct access to the pipeline internals.
+
+        :param node: Node to which input needs to be added
+        :param xyref_ptr: The pointer to XYref
+        :return: None
+        """
         if node not in self.__in_args__:
             self.__in_args__[node] = []
 
         self.__in_args__[node].append(xyref_ptr)
 
     def add_xyref_arg(self, node: Node, xyref: XYRef):
+        """
+        A convenience method that adds a XYRef to the given node as input.
+
+        :param node: Node to which input needs to be added
+        :param xyref: The XYRef
+        :return: None
+        """
         if node not in self.__in_args__:
             self.__in_args__[node] = []
 
@@ -908,6 +1120,13 @@ class PipelineInput:
         self.__in_args__[node].append(xyref_ptr)
 
     def add_xy_arg(self, node: Node, xy: Xy):
+        """
+        The most common way of adding input to a node, by providing a xy.
+
+        :param node: Node to which input needs to be added
+        :param xy: The xy to be added
+        :return: None
+        """
         if node not in self.__in_args__:
             self.__in_args__[node] = []
 
@@ -917,12 +1136,34 @@ class PipelineInput:
         self.add_xyref_arg(node, xyref)
 
     def add_all(self, node, node_inargs):
+        """
+        Adds all the in args to a given node, this is very useful when cloning a pipeline or "morphing" it
+        for grid search, etc.
+
+        :param node: Node to which input needs to be added
+        :param node_inargs: All the in args, which will be added whole
+        :return: None
+        """
         self.__in_args__[node] = node_inargs
 
     def get_in_args(self):
+        """
+        Returns the dict with the node to in args mapping
+
+        :return: The internal structure holding the in args
+        """
         return self.__in_args__
 
     def get_parameterized_input(self, pipeline: Pipeline, parameterized_pipeline: Pipeline):
+        """
+        This is meant to create a parameterized input given a pipeline and the parameterized pipeline.
+        This method will explore the nodes from pipeline that are matching the parameterized_pipeline
+        and copy the input over to the appropriate nodes of the parameterized_pipeline.
+
+        :param pipeline: The original pipeline
+        :param parameterized_pipeline: The parameterized pipeline corresponding to the original pipeline
+        :return: The parameterized input for the given parameterized_pipeline
+        """
         input_nodes = parameterized_pipeline.get_input_nodes()
         parameterized_pipeline_input = PipelineInput()
         for input_node in input_nodes:
@@ -939,11 +1180,41 @@ class PipelineInput:
 
 
 class PipelineParam:
+    """
+    This class captures the pipeline parameters, which can be changed for various forms of exploration.
+    It is a fairly simple holder class capturing for each node, the corresponding estimators parameters
+    as a dictionary.
+
+    It also provides creating a PipelineParam object from a parameter grid, typically used in
+    sklearn.GridSearchCV.
+
+    Examples
+    --------
+    A simple example to create a pipeline param from a parameter grid.
+
+    .. code-block:: python
+
+        param_grid = {
+            'pca__n_components': [5, 15, 30, 45, 64],
+            'logistic__C': np.logspace(-4, 4, 4),
+        }
+
+        pipeline_param = dm.PipelineParam.from_param_grid(param_grid)
+    """
     def __init__(self):
         self.__node_name_param_map__ = {}
 
     @staticmethod
     def from_param_grid(fit_params: dict):
+        """
+        A method to create a a pipeline param object from a typical parameter grid with the standard
+        sklearn convention of __. For example, `pca__n_components` is a parameter for node name pca
+        and the parameter name is n_components. The parameter grid creates a full grid exploration of
+        the parameters.
+
+        :param fit_params: Dictionary of parameter name in the sklearn convention to the parameter list
+        :return: A pipeline param object
+        """
         pipeline_param = PipelineParam()
         fit_params_nodes = {}
         for pname, pval in fit_params.items():
@@ -972,10 +1243,28 @@ class PipelineParam:
         return pipeline_param
 
     def add_param(self, node_name: str, params: dict):
+        """
+        Add a parameter to the given node name
+
+        :param node_name: Node name to add parameter to
+        :param params: Parameter as a dictionary
+        :return: None
+        """
         self.__node_name_param_map__[node_name] = params
 
     def get_param(self, node_name: str):
+        """
+        Returns the parameter dict for the given node name
+
+        :param node_name: Node name to retrieve parameters for
+        :return: Dict of parameters
+        """
         return self.__node_name_param_map__[node_name]
 
     def get_all_params(self):
+        """
+        Return all the parmaters for the given pipeline param
+
+        :return: A dict from node name to the dictionary of parameters
+        """
         return self.__node_name_param_map__
