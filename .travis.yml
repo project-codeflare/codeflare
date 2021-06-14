@@ -18,6 +18,10 @@ language: python
 python:
   - "3.8"
 
+ cache:
+    directories:
+     - ../../../resources/data/train_ctrUa4K.csv
+
 install:
   - pip install -r requirements.txt
   - pip install ray[default]
