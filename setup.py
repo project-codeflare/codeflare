@@ -28,6 +28,7 @@ setup(
     name='codeflare-pipelines',
     version='1.0.0',
     packages=['codeflare', 'codeflare.pipelines', 'codeflare.pipelines.tests'],
+    package_data={'codeflare.pipelines.tests': ['*.csv']},
     install_requires=[
         'ray[default,serve,k8s]>=1.3.0'
     ],
