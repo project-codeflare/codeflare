@@ -20,7 +20,7 @@ python:
 
  cache:
     directories:
-     - ../../../resources/data/train_ctrUa4K.csv
+     - ./resources/data
 
 install:
   - pip install -r requirements.txt
