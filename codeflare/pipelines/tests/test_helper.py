@@ -6,6 +6,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
+import pathlib
 
 def get_pipeline(train) -> dm.Pipeline:
     imputer = SimpleImputer(strategy='median')
@@ -45,7 +46,7 @@ def get_pipeline(train) -> dm.Pipeline:
 
 
 def get_data():
-    train = pd.read_csv('../../../resources/data/train_ctrUa4K.csv')
+    train = pd.read_csv(str(pathlib.Path(__file__).parent.absolute())+'/../../../resources/data/train_ctrUa4K.csv')
     train = train.drop('Loan_ID', axis=1)
 
     X = train.drop('Loan_Status', axis=1)
