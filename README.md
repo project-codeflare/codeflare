@@ -1,7 +1,3 @@
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Build
-Status](https://travis.ibm.com/codeflare/ray-pipeline.svg?token=jYGqz8UKPqjxGaHzGAAi&branch=develop)](https://travis.ibm.com/codeflare/ray-pipeline) 
-[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.ibm.com/codeflare/codeflare/issues)
 
 <!--
 [![Gitter](https://badges.gitter.im/elyra-ai/community.svg)](https://gitter.im/elyra-ai/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -16,6 +12,12 @@ Status](https://travis.ibm.com/codeflare/ray-pipeline.svg?token=jYGqz8UKPqjxGaHz
 <img src="./images/pipelines.svg" width="340" height="207">
 </p> 
 -->
+
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Build
+Status](https://travis.ibm.com/codeflare/ray-pipeline.svg?token=jYGqz8UKPqjxGaHzGAAi&branch=develop)](https://travis.ibm.com/codeflare/ray-pipeline) 
+[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.ibm.com/codeflare/codeflare/issues)
+
 
 ## Scale complex AI/ML pipelines anywhere
 
