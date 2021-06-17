@@ -15,8 +15,11 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build
-Status](https://travis.ibm.com/codeflare/ray-pipeline.svg?token=jYGqz8UKPqjxGaHzGAAi&branch=develop)](https://travis.ibm.com/codeflare/ray-pipeline) 
+Status](https://travis.ibm.com/codeflare/codeflare.svg?token=jYGqz8UKPqjxGaHzGAAi&branch=develop)](https://travis.ibm.com/codeflare/codeflare) 
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.ibm.com/codeflare/codeflare/issues)
+
+
+https://travis.ibm.com/codeflare/codeflare.svg?token=jYGqz8UKPqjxGaHzGAAi&branch=develop
 
 
 ## Scale complex AI/ML pipelines anywhere
@@ -26,7 +29,7 @@ CodeFlare is a framework to simplify the integration, scaling and acceleration o
 Building on a unified distributed runtime with [Ray](https://github.com/ray-project/ray), CodeFlare enables:
 
 * **Pipeline execution and scaling**:
-CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple platforms, while providing nearly optimal scale-out parallelism on pipelined computations.
+CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks, while providing nearly optimal scale-out parallelism on pipelined computations.
 <!--CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple platforms such as [scikit-learn](https://scikit-learn.org/) and [Apache Spark](https://spark.apache.org/), while providing nearly optimal scale-out parallelism on pipelined computations.-->
 
 * **Deploy and integrate anywhere**: 
