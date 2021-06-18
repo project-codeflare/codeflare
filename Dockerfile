@@ -24,6 +24,9 @@ COPY --chown=ray:users resources codeflare/resources
 
 #RUN pip install -r ./codeflare/requirements.txt
 
+USER root
+RUN apt-get update && apt-get install -y build-essential
+
 RUN apt-get update
 RUN apt-get install gcc
 
