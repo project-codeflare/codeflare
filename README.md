@@ -15,8 +15,9 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build
-Status](https://travis.ibm.com/codeflare/codeflare.svg?token=jYGqz8UKPqjxGaHzGAAi&branch=develop)](https://travis.ibm.com/codeflare/codeflare) 
-[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.ibm.com/codeflare/codeflare/issues)
+Status](https://travis-ci.com/project-codeflare/rayvens.svg?token=hCqvNPDsDawExuyhTBqj&branch=main
+)](https://travis-ci.com/project-codeflare/rayvens.svg?token=hCqvNPDsDawExuyhTBqj&branch=main) 
+[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.ibm.com/project-codeflare/codeflare/issues)
 
 ## Scale complex AI/ML pipelines anywhere
 
@@ -52,7 +53,7 @@ We recommend installing Python 3.8.7 using
 
 Clone this repository and install CodeFlare:
 ```shell
-git clone https://github.ibm.com/codeflare/ray-pipeline.git
+git clone https://github.com/project-codeflare/codeflare.git
 pip install --upgrade pip
 pip install .
 ```

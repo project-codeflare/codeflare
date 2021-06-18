@@ -21,7 +21,7 @@ pipelines on top of Ray. The goal of this project is to unify pipeline workflows
 such as scikit-learn and Apache Spark, while providing nearly optimal scale-out parallelism on pipelined computations.
 
 For the full documentation see
-[https://github.ibm.com/codeflare/ray-pipeline](https://github.ibm.com/codeflare/ray-pipeline).
+[https://github.com/project-codeflare/codeflare](https://github.com/project-codeflare/codeflare).
 '''
 
 setup(
@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'ray[default,serve,k8s]>=1.3.0'
     ],
-    url='https://github.ibm.com/project-codeflare',
+    url='https://github.com/project-codeflare/codeflare',
     license='Apache v2.0',
     author='Raghu Ganti, Mudhakar Srivatsa',
     author_email='rganti@us.ibm.com',
@@ -49,7 +49,7 @@ setup(
         'Topic :: System :: Distributed Computing',
     ],
     project_urls={
-        'Bug Reports': 'https://github.ibm.com/codeflare/ray-pipeline/issues',
-        'Source': 'https://github.ibm.com/codeflare/ray-pipeline',
+        'Bug Reports': 'https://github.com/project-codeflare/codeflare/issues',
+        'Source': 'https://github.com/project-codeflare/codeflare',
     },
 )
