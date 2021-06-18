@@ -17,23 +17,21 @@
 ARG base_image=rayproject/ray:1.4.0-py38
 FROM ${base_image}
 
+USER root
+RUN apt-get update && apt-get install -y build-essential
+
 COPY --chown=ray:users setup.py requirements.txt codeflare/
 COPY --chown=ray:users codeflare codeflare/codeflare
 COPY --chown=ray:users notebooks codeflare/notebooks
 COPY --chown=ray:users resources codeflare/resources
 
-#RUN pip install -r ./codeflare/requirements.txt
-
-USER root
-RUN apt-get update && apt-get install -y build-essential
+USER ray
 
 RUN apt-get update
 RUN apt-get install gcc
 
-RUN pip install sklearn
-RUN pip install pandas
-RUN pip install numpy
-
 RUN pip install jupyterlab
+
+RUN pip install -r ./codeflare/requirements.txt
 
 RUN pip install -e ./codeflare
