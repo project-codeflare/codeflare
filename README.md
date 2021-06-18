@@ -42,7 +42,15 @@ This project is under active development. Keep an eye on this page for our first
 
 See the [design document](https://docs.google.com/document/d/1t1K8N07TcbBKBgrcI6jf9tPow00cOKE9whnEVxOd4-U/edit) for more information on our design goals.
 
-## Try CodeFlare
+## Quick start
+
+You can try out some of CodeFlare features using the My Binder service.
+
+Click on a link below to try CodeFlare, on a sandbox environment, without having to install anything.
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/main)
+
+### Try on your laptop and scale on the cloud
 
 #### Installing
 
