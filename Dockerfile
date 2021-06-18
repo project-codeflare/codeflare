@@ -30,6 +30,7 @@ RUN apt-get install gcc
 
 RUN pip install jupyterlab
 RUN pip install matplotlib
+RUN pip install lale
 
 RUN pip install -r ./codeflare/requirements.txt
 
