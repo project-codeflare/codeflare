@@ -17,8 +17,15 @@
 ARG base_image=rayproject/ray:1.4.0-py38
 FROM ${base_image}
 
-COPY --chown=ray:users setup.py ray-pipeline/
-COPY --chown=ray:users ray-pipeline ray-pipeline/codeflare/
+COPY --chown=ray:users setup.py requirements.txt codeflare/
+COPY --chown=ray:users codeflare codeflare/codeflare
+COPY --chown=ray:users notebooks codeflare/notebooks
+COPY --chown=ray:users resources codeflare/resources
 
-RUN pip install jupyterlab
-RUN pip install -e ./ray-pipeline
+#RUN pip install -r ./codeflare/requirements.txt
+
+RUN pip install sklearn
+RUN pip install pandas
+RUN pip install numpy
+
+RUN pip install -e ./codeflare

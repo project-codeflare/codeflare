@@ -18,10 +18,6 @@
 Status](https://travis.ibm.com/codeflare/codeflare.svg?token=jYGqz8UKPqjxGaHzGAAi&branch=develop)](https://travis.ibm.com/codeflare/codeflare) 
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.ibm.com/codeflare/codeflare/issues)
 
-
-https://travis.ibm.com/codeflare/codeflare.svg?token=jYGqz8UKPqjxGaHzGAAi&branch=develop
-
-
 ## Scale complex AI/ML pipelines anywhere
 
 CodeFlare is a framework to simplify the integration, scaling and acceleration of complex multi-step analytics and machine learning pipelines on the cloud.
