@@ -29,6 +29,7 @@ RUN apt-get update
 RUN apt-get install gcc
 
 RUN pip install jupyterlab
+RUN pip install matplotlib
 
 RUN pip install -r ./codeflare/requirements.txt
 
