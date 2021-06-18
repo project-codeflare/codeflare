@@ -24,7 +24,8 @@ COPY --chown=ray:users resources codeflare/resources
 
 #RUN pip install -r ./codeflare/requirements.txt
 
-RUN conda install -c conda-forge gcc 
+RUN apt-get update
+RUN apt-get install gcc
 
 RUN pip install sklearn
 RUN pip install pandas
