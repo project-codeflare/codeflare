@@ -28,4 +28,6 @@ RUN pip install sklearn
 RUN pip install pandas
 RUN pip install numpy
 
+RUN pip install jupyterlab
+
 RUN pip install -e ./codeflare
