@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'CodeFlare Pipelines'
+project = 'CodeFlare'
 copyright = '2021, Mudhakar Srivatsa, Raghu Ganti, Carlos Costa'
 author = 'Mudhakar Srivatsa, Raghu Ganti, Carlos Costa'
 

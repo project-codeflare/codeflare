@@ -1,9 +1,9 @@
-.. CodeFlare Pipelines documentation master file, created by
+.. CodeFlare documentation master file, created by
    sphinx-quickstart on Sun May 30 20:17:42 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to CodeFlare Pipelines's documentation!
+Welcome to CodeFlare's documentation!
 ===============================================
 
 .. toctree::
