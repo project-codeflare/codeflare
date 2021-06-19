@@ -45,7 +45,7 @@ This project is under active development. See the [design document](https://docs
 
 #### Using Docker
 
-You can try CodeFlare by running the docker images from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
+You can try CodeFlare by running the docker image from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
 - `projectcodeflare/codeflare:latest` has the latest released version installed.
 
 The command below starts the most recent development build in a clean environment:
