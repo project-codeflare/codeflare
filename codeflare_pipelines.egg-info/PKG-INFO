@@ -1,13 +1,13 @@
 Metadata-Version: 1.2
 Name: codeflare-pipelines
-Version: 0.1
+Version: 1.0.0
 Summary: Codeflare pipelines
-Home-page: https://github.ibm.com/project-codeflare
+Home-page: https://github.com/project-codeflare/codeflare
 Author: Raghu Ganti, Mudhakar Srivatsa
 Author-email: rganti@us.ibm.com
 License: Apache v2.0
-Project-URL: Bug Reports, https://github.ibm.com/codeflare/ray-pipeline/issues
-Project-URL: Source, https://github.ibm.com/codeflare/ray-pipeline
+Project-URL: Bug Reports, https://github.com/project-codeflare/codeflare/issues
+Project-URL: Source, https://github.com/project-codeflare/codeflare
 Description: UNKNOWN
 Keywords: ray pipelines
 Platform: UNKNOWN
