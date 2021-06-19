@@ -36,7 +36,6 @@ CodeFlare simplyfies deployment and integration by enabling a serverless user ex
 <img src="./images/codeflare_arch_diagram.svg" width="876" height="476">
 </p>
 
-
 ## Release status
 
 This project is under active development. Keep an eye on this page for our first public release!
