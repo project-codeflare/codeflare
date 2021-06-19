@@ -51,7 +51,7 @@ You can try CodeFlare by running the docker image from [Docker Hub](https://hub.
 The command below starts the most recent development build in a clean environment:
 
 ```
-docker run -it -p 8888:8888 projectcodeflare/codeflare:latest` jupyter-lab --debug
+docker run -it -p 8888:8888 projectcodeflare/codeflare:latest jupyter-lab --debug
 ```
 
 It should produce an output similar to the one below, where you can then find the URL to run CodeFlare from a Jupyter notebook in your local browser.
@@ -116,4 +116,4 @@ Go to [CodeFlare on IBM Code Engine](./deploy/ibm_cloud_code_engine) for detaile
 
 ## Contributing
 
-If you are interested in joining us and make CodeFlare Pipeline better, we encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
+If you are interested in joining us and make CodeFlare better, we encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
