@@ -39,13 +39,11 @@ CodeFlare simplifies deployment and integration by enabling a serverless user ex
 
 This project is under active development. See the [design document](https://docs.google.com/document/d/1t1K8N07TcbBKBgrcI6jf9tPow00cOKE9whnEVxOd4-U/edit) for more information on our design goals.
 
-<p>&nbsp;</p>
+## Quick start
 
-# Quick start
+### Run in your laptop
 
-## Run in your laptop
-
-### Using Docker
+#### Using Docker
 
 You can try CodeFlare by running the docker images from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
 - `projectcodeflare/codeflare:latest` has the latest released version installed.
@@ -68,7 +66,7 @@ It should produce an output similar to that below, where you can then find the U
 
 Once the notebook is loaded, you can find a selection of examples in `codeflare/notebooks`, which can be executed directly from Jupyter environment. As a first example, we recommend the ` codeflare//notebooks/sample_pipeline.ipynb`.
 
-### Using Binder service
+#### Using Binder service
 
 You can try out some of CodeFlare features using the My Binder service.
 
@@ -76,8 +74,7 @@ Click on a link below to try CodeFlare, on a sandbox environment, without having
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/master)
 
-
-### Instaling locally
+#### Instaling locally
 
 CodeFlare can be installed from PyPI.
 
@@ -110,13 +107,13 @@ jupyter-lab sample_pipeline.ipynb
 
 The pipeline will use `ray.init()` to start a local Ray cluster. See [configuring Ray](https://docs.ray.io/en/master/configure.html) to ensure you are able to run a Ray cluster locally.
 
-## Scale in the cloud
+### Scale in the cloud
 
 Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can be deployed with IBM Cloud Code Engine.
 
 Go to [CodeFlare on IBM Code Engine](./deploy/ibm_cloud_code_engine) for detailed instructions on how to run CodeFlare at scale.
 
 
-# Contributing
+## Contributing
 
 If you are interested in joining us and make CodeFlare Pipeline better, we encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
