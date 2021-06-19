@@ -8,3 +8,4 @@ numpy~=1.18.5
 pickle5~=0.0.11
 graphviz~=0.16
 numpydoc~=1.1.0
+codeflare~=1.0.0
