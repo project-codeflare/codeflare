@@ -25,8 +25,6 @@ COPY --chown=ray:users codeflare codeflare/codeflare
 COPY --chown=ray:users notebooks codeflare/notebooks
 COPY --chown=ray:users resources codeflare/resources
 
-USER ray
-
 RUN pip install jupyterlab
 RUN pip install matplotlib
 RUN pip install lale
