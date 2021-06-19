@@ -19,6 +19,7 @@ FROM ${base_image}
 
 USER root
 RUN apt-get update && apt-get install -y build-essential
+USER ray
 
 COPY --chown=ray:users setup.py requirements.txt codeflare/
 COPY --chown=ray:users codeflare codeflare/codeflare
