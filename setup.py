@@ -25,7 +25,7 @@ For the full documentation see
 '''
 
 setup(
-    name='codeflare-pipelines',
+    name='codeflare',
     version='1.0.0',
     packages=['codeflare', 'codeflare.pipelines', 'codeflare.pipelines.tests'],
     install_requires=[
@@ -33,7 +33,7 @@ setup(
     ],
     url='https://github.com/project-codeflare/codeflare',
     license='Apache v2.0',
-    author='Raghu Ganti, Mudhakar Srivatsa',
+    author='Raghu Ganti, Mudhakar Srivatsa, Carlos Costa',
     author_email='rganti@us.ibm.com',
     description='Codeflare pipelines',
     python_requires='>=3.8',
