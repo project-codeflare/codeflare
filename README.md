@@ -78,7 +78,7 @@ Click on a link below to try CodeFlare, on a sandbox environment, without having
 
 CodeFlare can be installed from PyPI.
 
-### Prerequisites :
+Prerequisites:
 * [Python 3.8+](https://www.python.org/downloads/)
 * [Jupyter Lab](https://www.python.org/downloads/) *(to run examples)*
 
@@ -100,16 +100,16 @@ pip3 install .
 pip3 install -r requirements.txt 
 ```
 
-Run the sample pipeline with:
+Run the sample pipelines with:
 ```shell
-jupyter-lab sample_pipeline.ipynb
+jupyter-lab notebooks/<example_notabook>
 ```
 
 The pipeline will use `ray.init()` to start a local Ray cluster. See [configuring Ray](https://docs.ray.io/en/master/configure.html) to ensure you are able to run a Ray cluster locally.
 
 ### Scale in the cloud
 
-Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can be deployed with IBM Cloud Code Engine.
+Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can be deployed with IBM Cloud Code Engine, a fully managed, serverless platform that runs your containerized workloads.
 
 Go to [CodeFlare on IBM Code Engine](./deploy/ibm_cloud_code_engine) for detailed instructions on how to run CodeFlare at scale.
 
