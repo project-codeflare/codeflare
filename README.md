@@ -51,20 +51,20 @@ You can try CodeFlare by running the docker image from [Docker Hub](https://hub.
 The command below starts the most recent development build in a clean environment:
 
 ```
-docker run -it -p 8888:8888 projectcodeflare/codeflare:latest` jupyter lab --debug
+docker run -it -p 8888:8888 projectcodeflare/codeflare:latest` jupyter-lab --debug
 ```
 
-It should produce an output similar to that below, where you can then find the URL to be used to access CodeFlare in your local browser.
+It should produce an output similar to the one below, where you can then find the URL to run CodeFlare from a Jupyter notebook in your local browser.
 
 ```
     To access the notebook, open this file in a browser:
-        file:///home/jovyan/.local/share/jupyter/runtime/nbserver-6-open.html
+ ...
     Or copy and paste one of these URLs:
         http://<token>:8888/?token=<token>
      or http://127.0.0.1:8888/?token=<token>
 ```
 
-Once the notebook is loaded, you can find a selection of examples in `codeflare/notebooks`, which can be executed directly from Jupyter environment. As a first example, we recommend the ` codeflare//notebooks/sample_pipeline.ipynb`.
+Once the notebook is loaded, you can find a selection of examples in `codeflare/notebooks`, which can be executed directly from Jupyter environment. As a first example, we recommend the `sample_pipeline.ipynb` notebook.
 
 #### Using Binder service
 
