@@ -45,8 +45,6 @@ This project is under active development. See the [design document](https://docs
 
 ## Run in your laptop
 
-<p>&nbsp;</p>
-
 ### Using Docker
 
 You can try CodeFlare by running the docker images from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
@@ -111,8 +109,6 @@ jupyter-lab sample_pipeline.ipynb
 ```
 
 The pipeline will use `ray.init()` to start a local Ray cluster. See [configuring Ray](https://docs.ray.io/en/master/configure.html) to ensure you are able to run a Ray cluster locally.
-
-<p>&nbsp;</p>
 
 ## Scale in the cloud
 
