@@ -35,3 +35,10 @@ CodeFlare Documentation
    :caption: User guide
 
    codeflare
+
+.. toctree::
+   :maxdepth: 1
+   :caption: User guide
+
+   examples/fit_and_score
+   examples/hyperparameter 
