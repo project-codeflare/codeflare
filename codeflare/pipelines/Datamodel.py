@@ -283,7 +283,7 @@ class Node(ABC):
 
     def get_parameterized_node(self, node_name, **params):
         """
-        Get a parameterized node, given kwargs **params, convert this node and update the estimator with the
+        Get a parameterized node, given kwargs params, convert this node and update the estimator with the
         new set of parameters. It will clone the node and its underlying estimator.
 
         :param node_name: New node name
