@@ -1,18 +1,7 @@
-codeflare.pipelines package
+CodeFlare Pipelines
 ===========================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   codeflare.pipelines.tests
-
-Submodules
-----------
-
-codeflare.pipelines.Datamodel module
+CodeFlare Pipelines Datamodel
 ------------------------------------
 
 .. automodule:: codeflare.pipelines.Datamodel
@@ -20,15 +9,7 @@ codeflare.pipelines.Datamodel module
    :undoc-members:
    :show-inheritance:
 
-codeflare.pipelines.Exceptions module
--------------------------------------
-
-.. automodule:: codeflare.pipelines.Exceptions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-codeflare.pipelines.Runtime module
+CodeFlare Pipelines Runtime
 ----------------------------------
 
 .. automodule:: codeflare.pipelines.Runtime
@@ -36,10 +17,10 @@ codeflare.pipelines.Runtime module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+CodeFlare Pipelines Exceptions
+-------------------------------------
 
-.. automodule:: codeflare.pipelines
+.. automodule:: codeflare.pipelines.Exceptions
    :members:
    :undoc-members:
    :show-inheritance:
