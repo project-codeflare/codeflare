@@ -38,7 +38,7 @@ CodeFlare Documentation
 
 .. toctree::
    :maxdepth: 1
-   :caption: User guide
+   :caption: Examples
 
    examples/fit_and_score
    examples/hyperparameter 
