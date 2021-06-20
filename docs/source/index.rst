@@ -31,7 +31,7 @@ CodeFlare Documentation
    getting_started/starting
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: User guide
 
    codeflare

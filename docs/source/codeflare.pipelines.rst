@@ -1,7 +1,7 @@
 CodeFlare Pipelines
 ===========================
 
-codeflare.pipelines.Datamodel module
+CodeFlare Pipelines Datamodel
 ------------------------------------
 
 .. automodule:: codeflare.pipelines.Datamodel
@@ -9,18 +9,18 @@ codeflare.pipelines.Datamodel module
    :undoc-members:
    :show-inheritance:
 
-codeflare.pipelines.Exceptions module
--------------------------------------
+CodeFlare Pipelines Runtime
+----------------------------------
 
-.. automodule:: codeflare.pipelines.Exceptions
+.. automodule:: codeflare.pipelines.Runtime
    :members:
    :undoc-members:
    :show-inheritance:
 
-codeflare.pipelines.Runtime module
-----------------------------------
+CodeFlare Pipelines Exceptions
+-------------------------------------
 
-.. automodule:: codeflare.pipelines.Runtime
+.. automodule:: codeflare.pipelines.Exceptions
    :members:
    :undoc-members:
    :show-inheritance:
