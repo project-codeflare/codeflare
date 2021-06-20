@@ -1,16 +1,5 @@
-codeflare.pipelines package
+CodeFlare Pipelines
 ===========================
-
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   codeflare.pipelines.tests
-
-Submodules
-----------
 
 codeflare.pipelines.Datamodel module
 ------------------------------------
@@ -32,14 +21,6 @@ codeflare.pipelines.Runtime module
 ----------------------------------
 
 .. automodule:: codeflare.pipelines.Runtime
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: codeflare.pipelines
    :members:
    :undoc-members:
    :show-inheritance:
