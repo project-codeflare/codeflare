@@ -898,7 +898,7 @@ class Pipeline:
         if len(self.get_output_nodes()) > 1:
             return False
 
-        for node in self.__node_name_map__.keys():
+        for node in self.__node_name_map__.values():
             is_node_estimator = (node.get_node_input_type() == NodeInputType.OR)
             if is_node_estimator:
                 pre_nodes = self.get_pre_nodes(node)
