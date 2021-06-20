@@ -117,7 +117,6 @@ html_css_files = [
 versionwarning_messages = {
     "latest": (
         "This document is for the development version. "
-        'For the stable version documentation, see <a href="/en/stable/">here</a>.'
     )}
 
 # Show warning at top of page
