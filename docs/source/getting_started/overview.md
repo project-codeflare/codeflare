@@ -18,9 +18,7 @@ limitations under the License.
 
 ## Overview
 
-CodeFlare is a framework to simplify the integration, scaling and acceleration of complex multi-step analytics and machine learning pipelines on the cloud.
-
-Its main features are: 
+CodeFlare's main features are: 
 
 * **Pipeline execution and scaling**:
 CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks, while providing nearly optimal scale-out parallelism on pipelined computations.

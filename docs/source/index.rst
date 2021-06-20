@@ -19,8 +19,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-CodeFlare Documentation
+CodeFlare
 ===============================================
+
+CodeFlare is a framework to simplify the integration, scaling and acceleration 
+of complex multi-step analytics and machine learning pipelines on the cloud.
 
 .. toctree::
    :maxdepth: 2
