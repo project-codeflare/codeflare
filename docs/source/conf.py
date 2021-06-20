@@ -74,7 +74,7 @@ source_suffix = {
     '.rst': 'restructuredtext'
 }
 
-#numpydoc_show_class_members = False 
+numpydoc_show_class_members = False 
 
 autosummary_generate = True
 
