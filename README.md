@@ -39,7 +39,7 @@ CodeFlare simplifies deployment and integration by enabling a serverless user ex
 
 ## Release status
 
-This project is under active development. See the [design document](https://docs.google.com/document/d/1t1K8N07TcbBKBgrcI6jf9tPow00cOKE9whnEVxOd4-U/edit) for more information on our design goals.
+This project is under active development. See the [Documentation](https://codeflare.readthedocs.io/en/latest/index.html) for design descriptions and latest version of the APIs. 
 
 ## Quick start
 
