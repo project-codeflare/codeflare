@@ -15,8 +15,10 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build
-Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=master)](https://travis-ci.com/project-codeflare/codeflare.svg?branch=master) 
+Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main) 
+[![Documentation Status](https://readthedocs.org/projects/codeflare/badge/?version=latest)](https://codeflare.readthedocs.io/en/latest/?badge=latest)
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/project-codeflare/codeflare/issues)
+
 
 # Scale complex AI/ML pipelines anywhere
 
