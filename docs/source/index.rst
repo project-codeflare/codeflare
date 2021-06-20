@@ -34,7 +34,7 @@ CodeFlare Documentation
    :maxdepth: 4
    :caption: User guide
 
-   codeflare
+   codeflare.pipelines
 
 .. toctree::
    :maxdepth: 1
