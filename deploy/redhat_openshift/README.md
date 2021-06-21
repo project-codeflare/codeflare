@@ -46,7 +46,7 @@ pip3 install -r requirements.txt
    a) Create namespace
     
        ```
-       $ oc create namespace codefalre
+       $ oc create namespace codeflare
        namespace/codeflare created
        $
        ```
