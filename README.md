@@ -108,9 +108,9 @@ Click on a link below to try CodeFlare, on a sandbox environment, without having
 
 CodeFlare Pipelines reimagined pipelines to provide a more intuitive API for the data scientist to create AI/ML pipelines, data workflows, pre-processing, post-processing tasks, and many more which can scale from a laptop to a cluster seamlessly.
 
-The API documentation can be found [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference examples [here](https://codeflare.readthedocs.io/en/latest).
+The API documentation can be found [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference use case documentation [here](https://codeflare.readthedocs.io/en/latest).
 
-Examples are provided as execuatble notebooks here: [noteboks](./notebooks). 
+Examples are provided as execuatble notebooks: [notebooks](./notebooks). 
 
 Examples can be run with locally with:
 ```shell
@@ -119,7 +119,7 @@ jupyter-lab notebooks/<example_notebook>
 
 If running with the container image, examples are found in `codeflare/notebooks`, which can be executed directly from Jupyter environment. 
 
-As a first example, we recommend the `sample_pipeline.ipynb` notebook.
+As a first example, we recommend the [sample pipeline](https://github.com/project-codeflare/codeflare/blob/main/notebooks/sample_pipeline.ipynb).
 
 The pipeline will use `ray.init()` to start a local Ray cluster. See [configuring Ray](https://docs.ray.io/en/master/configure.html) to ensure you are able to run a Ray cluster locally.
 
