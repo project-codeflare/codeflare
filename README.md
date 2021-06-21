@@ -45,7 +45,7 @@ CodeFlare Pipelines facilities the definition and parallel execution of pipeline
 <!--CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple platforms such as [scikit-learn](https://scikit-learn.org/) and [Apache Spark](https://spark.apache.org/), while providing nearly optimal scale-out parallelism on pipelined computations.-->
 
 * **Deploy and integrate anywhere**: 
-CodeFlare simplifies deployment and integration by enabling a serverless user experience with the integration with Red Hat Open Shift and IBM Cloud Code Engine and integrating adapters and connectors to make it simple to load data and connect to data services.
+CodeFlare simplifies deployment and integration by enabling a serverless user experience with the integration with Red Hat OpenShift and IBM Cloud Code Engine and integrating adapters and connectors to make it simple to load data and connect to data services.
 
 <p align="center">
 <img src="./images/codeflare_arch_diagram.svg" width="876" height="476">
@@ -65,7 +65,7 @@ CodeFlare can be installed from PyPI.
 
 Prerequisites:
 * [Python 3.8+](https://www.python.org/downloads/)
-* [Jupyter Lab](https://www.python.org/downloads/) *(to run examples)*
+* [JupyterLab](https://jupyter.org) *(to run examples)*
 
 We recommend installing Python 3.8.7 using
 [pyenv](https://github.com/pyenv/pyenv).
@@ -139,10 +139,10 @@ The pipeline will use `ray.init()` to start a local Ray cluster. See the deploym
 
 ## Deploy and integrate anywhere
 
-Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can be deployed on any Kubernetes-based platform, including [IBM Cloud Code Engine](https://www.ibm.com/cloud/code-engine) and [Red Hat Open Shift Container Platform](https://www.openshift.com). 
+Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can be deployed on any Kubernetes-based platform, including [IBM Cloud Code Engine](https://www.ibm.com/cloud/code-engine) and [Red Hat OpenShift Container Platform](https://www.openshift.com). 
 
 - [IBM Cloud Code Engine](./deploy/ibm_cloud_code_engine) for detailed instructions on how to run CodeFlare on a serverless platform.
-- [Red Hat OpenShift](./deploy/redhat_openshift) for detailed instructions on how to run CodeFlare on Open Shift Container Platform.
+- [Red Hat OpenShift](./deploy/redhat_openshift) for detailed instructions on how to run CodeFlare on OpenShift Container Platform.
 
 ## Contributing
 
