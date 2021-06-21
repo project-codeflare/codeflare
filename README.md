@@ -121,7 +121,7 @@ If running with the container image, examples are found in `codeflare/notebooks`
 
 As a first example, we recommend the [sample pipeline](https://github.com/project-codeflare/codeflare/blob/main/notebooks/sample_pipeline.ipynb).
 
-The pipeline will use `ray.init()` to start a local Ray cluster. See [configuring Ray](https://docs.ray.io/en/master/configure.html) to ensure you are able to run a Ray cluster locally.
+The pipeline will use `ray.init()` to start a local Ray cluster. See the deployment options below to run a Ray cluster on in the cloud, or the details [here](https://docs.ray.io/en/master/configure.html) if you are running a Ray cluster locally.
 
 ## Deploy and integrate anywhere
 
