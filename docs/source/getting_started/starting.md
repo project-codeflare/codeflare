@@ -170,9 +170,11 @@ pip3 install -r requirements.txt
        $
        ```
    
-   b) Bring up Ray cluster  
+   b) Clone Ray Project and Bring up Ray cluster  
    
         ```
+        $ git clone https://github.com/ray-project/ray.git
+        $ 
         $ ray up ray/python/ray/autoscaler/kubernetes/example-full.yaml
         Cluster: default
 
@@ -262,7 +264,7 @@ pip3 install -r requirements.txt
    b) Run example test
     
     ```
-    ray submit python/ray/autoscaler/kubernetes/example-full.yaml x.py 
+    ray submit ray/python/ray/autoscaler/kubernetes/example-full.yaml x.py 
     Loaded cached provider configuration
     If you experience issues with the cloud provider, try re-running the command with --no-config-cache.
     2021-02-09 08:50:51,028	INFO command_runner.py:171 -- NodeUpdater: ray-head-ql46b: Running kubectl -n ray exec -it ray-head-ql46b -- bash --login -c -i 'true && source ~/.bashrc && export OMP_NUM_THREADS=1 PYTHONWARNINGS=ignore && (python ~/x.py)'
