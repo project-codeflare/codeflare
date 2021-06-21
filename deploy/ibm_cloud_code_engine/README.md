@@ -90,10 +90,12 @@ kubectl -n $NAMESPACE port-forward <ray-cluster-name>  8899:8899
 Set up access to Jupyter notebook:
 < how to obtain the token >
 
-
+<!-->
 To access Ray dashboard, do:
 
-
 In your browser, go to:
+-->
+
+Once in a Jupyer envrionment, refer to [notebooks](../../notebooks) for example pipeline. Documentation for reference use cases can be found in [Examples](https://codeflare.readthedocs.io/en/latest/).
 
 

@@ -45,37 +45,6 @@ This project is under active development. See the [Documentation](https://codefl
 
 ### Run in your laptop
 
-#### Using Docker
-
-You can try CodeFlare by running the docker image from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
-- `projectcodeflare/codeflare:latest` has the latest released version installed.
-
-The command below starts the most recent development build in a clean environment:
-
-```
-docker run -it -p 8888:8888 projectcodeflare/codeflare:latest jupyter-lab --debug
-```
-
-It should produce an output similar to the one below, where you can then find the URL to run CodeFlare from a Jupyter notebook in your local browser.
-
-```
-    To access the notebook, open this file in a browser:
- ...
-    Or copy and paste one of these URLs:
-        http://<token>:8888/?token=<token>
-     or http://127.0.0.1:8888/?token=<token>
-```
-
-Once the notebook is loaded, you can find a selection of examples in `codeflare/notebooks`, which can be executed directly from Jupyter environment. As a first example, we recommend the `sample_pipeline.ipynb` notebook.
-
-#### Using Binder service
-
-You can try out some of CodeFlare features using the My Binder service.
-
-Click on a link below to try CodeFlare, on a sandbox environment, without having to install anything.
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/main)
-
 #### Instaling locally
 
 CodeFlare can be installed from PyPI.
@@ -102,19 +71,64 @@ pip3 install .
 pip3 install -r requirements.txt 
 ```
 
-Run the sample pipelines with:
-```shell
-jupyter-lab notebooks/<example_notabook>
+#### Using Docker
+
+You can try CodeFlare by running the docker image from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
+- `projectcodeflare/codeflare:latest` has the latest released version installed.
+
+The command below starts the most recent development build in a clean environment:
+
 ```
+docker run -it -p 8888:8888 projectcodeflare/codeflare:latest jupyter-lab --debug
+```
+
+It should produce an output similar to the one below, where you can then find the URL to run CodeFlare from a Jupyter notebook in your local browser.
+
+```
+    To access the notebook, open this file in a browser:
+ ...
+    Or copy and paste one of these URLs:
+        http://<token>:8888/?token=<token>
+     or http://127.0.0.1:8888/?token=<token>
+```
+
+#### Using Binder service
+
+You can try out some of CodeFlare features using the My Binder service.
+
+Click on a link below to try CodeFlare, on a sandbox environment, without having to install anything.
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/main)
+
+## Pipeline execution and scaling
+
+<p align="center">
+<img src="./images/pipelines.svg" width="296" height="180">
+</p>
+
+CodeFlare Pipelines reimagined pipelines to provide a more intuitive API for the data scientist to create AI/ML pipelines, data workflows, pre-processing, post-processing tasks, and many more which can scale from a laptop to a cluster seamlessly.
+
+The API documentation can be found [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference examples [here](https://codeflare.readthedocs.io/en/latest).
+
+Examples are provided as execuatble notebooks here: [noteboks](./notebooks). 
+
+Examples can be run with locally with:
+```shell
+jupyter-lab notebooks/<example_notebook>
+```
+
+If running with the container image, examples are found in `codeflare/notebooks`, which can be executed directly from Jupyter environment. 
+
+As a first example, we recommend the `sample_pipeline.ipynb` notebook.
 
 The pipeline will use `ray.init()` to start a local Ray cluster. See [configuring Ray](https://docs.ray.io/en/master/configure.html) to ensure you are able to run a Ray cluster locally.
 
-### Scale in the cloud
+## Deploy and integrate anywhere
 
-Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can be deployed with IBM Cloud Code Engine, a fully managed, serverless platform that runs your containerized workloads.
+Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can be deployed on any Kubernetes-based platform, including [IBM Cloud Code Engine](https://www.ibm.com/cloud/code-engine) and [Red Hat Open Shift Container Platform](https://www.openshift.com). 
 
-Go to [CodeFlare on IBM Code Engine](./deploy/ibm_cloud_code_engine) for detailed instructions on how to run CodeFlare at scale.
-
+- [IBM Cloud Code Engine](./deploy/ibm_cloud_code_engine) for detailed instructions on how to run CodeFlare on a serverless platform.
+- [Red Hat OpenShift](./deploy/redhat_openshift) for detailed instructions on how to run CodeFlare on Open Shift Container Platform.
 
 ## Contributing
 

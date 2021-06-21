@@ -63,10 +63,10 @@ We recommend installing Python 3.8.7 using
 [pyenv](https://github.com/pyenv/pyenv).
 
 
-  Install from PyPI:
-  ```bash
-  pip3 install --upgrade codeflare
-  ```
+Install from PyPI:
+```bash
+pip3 install --upgrade codeflare
+```
 
 
 Alternatively, you can also build locally with:
