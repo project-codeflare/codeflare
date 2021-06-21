@@ -163,17 +163,15 @@ pip3 install -r requirements.txt
    Assuming openshift cluster access from pre-reqs.
 
    a) Create namespace
-    
-       ```
+      ```shell
        $ oc create namespace codefalre
        namespace/codeflare created
        $
-       ```
-   
+      ```
    b) Bring up Ray cluster  
-   
-        ```
-        $ ray up ray/python/ray/autoscaler/kubernetes/example-full.yaml
+
+    ```
+      $ ray up ray/python/ray/autoscaler/kubernetes/example-full.yaml
         Cluster: default
 
         Checking Kubernetes environment settings
@@ -247,8 +245,8 @@ pip3 install -r requirements.txt
           Connect to a terminal on the cluster head:
             ray attach /Users/darroyo/git_workspaces/github.com/ray-project/ray/python/ray/autoscaler/kubernetes/example-full.yaml
           Get a remote shell to the cluster manually:
-            kubectl -n ray exec -it ray-head-ql46b -- bash
-        ```
+            kubectl -n ray exec -it ray-head-ql46b -- bash  
+      ```
 
 3. Verify  
    a) Check for head node
