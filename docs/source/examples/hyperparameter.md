@@ -75,6 +75,19 @@ ray.init()
 
 A codeflare pipeline is defined by EstimatorNodes and edges connecting two EstimatorNodes. In this case, we define node_pca and node_logistic and we connect these two nodes with `pipeline.add_edge()`. Before we can execute `fit()` on a pipeline, we need to set up the proper input to the pipeline.
 
+```python
+pca = PCA()
+# set the tolerance to a large value to make the example faster
+logistic = LogisticRegression(max_iter=10000, tol=0.1)
+pipeline = dm.Pipeline()
+node_pca = dm.EstimatorNode('pca', pca)
+node_logistic = dm.EstimatorNode('logistic', logistic)
+pipeline.add_edge(node_pca, node_logistic)
+# input to pipeline
+pipeline_input = dm.PipelineInput()
+pipeline_input.add_xy_arg(node_pca, dm.Xy(X_digits, y_digits))
+```
+
 #### **Step 3: defining pipeline param grid and executing** 
 
 Codeflare pipelines grid_search_cv()
