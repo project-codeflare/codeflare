@@ -21,8 +21,6 @@ Deploying the [Ray Operator](https://docs.ray.io/en/master/cluster/kubernetes.ht
 We recommend installing Python 3.8.7 using
 [pyenv](https://github.com/pyenv/pyenv).
 
-<p>&nbsp;</p>
-
 #### Setup
 
 
@@ -40,8 +38,6 @@ pip3 install --upgrade pip
 pip3 install .
 pip3 install -r requirements.txt 
 ```
-
-<p>&nbsp;</p>
 
 2. Create Cluster (https://docs.ray.io/en/master/cluster/cloud.html#kubernetes)
 
@@ -134,7 +130,6 @@ pip3 install -r requirements.txt
           Get a remote shell to the cluster manually:
             kubectl -n ray exec -it ray-head-ql46b -- bash
         ```
-<p>&nbsp;</p>
 
 3. Verify  
    a) Check for head node

@@ -16,9 +16,9 @@ limitations under the License.
 {% endcomment %}
 -->
 
-## Running
+# Running
 
-# CodeFlare on IBM Cloud Code Engine
+## CodeFlare on IBM Cloud Code Engine
 
 IBM Cloud Code Engine is a fully managed, serverless platform that runs your containerized workloads, including web apps, microservices, event-driven functions and batch jobs with run-to-completion characteristics. 
 
@@ -26,7 +26,7 @@ CodeFlare Pipelines can use IBM Cloud Code Engine to seamlessly scale pipeline o
 
 The following steps describe how to deploy the examples in [notebooks](./notebooks) on a serverless backend with Code Engine (they expand the steps to run Ray on Code Engine [here](https://www.ibm.com/cloud/blog/ray-on-ibm-cloud-code-engine))
 
-## Install pre-requisities
+### Install pre-requisities
 
 Install the pre-requisites for Code Engine and Ray
 
@@ -43,7 +43,7 @@ Install the pre-requisites for Code Engine and Ray
 pip install kubernetes
 ```
 
-## Step 1 - Define your Ray Cluster on Code Engine
+### Step 1 - Define your Ray Cluster on Code Engine
 
 If not already done, create a project in Code Engine:
 
@@ -82,7 +82,7 @@ This reference deployment file will create a Ray cluster with following characte
 - The default startup commands to start Ray within the container and listen to the proper ports
 - The autoscaler upscale speed is set to 2 for quick upscaling in this short and simple demo
 
-## Step 2 - Start Ray cluster
+### Step 2 - Start Ray cluster
 
 You can start now the Ray cluster by running
 ``` 
@@ -91,7 +91,7 @@ ray up example-cluster.yaml
 
 This command will create the Ray head node as Kubernetes Pod in your Code Engine project. When you create the Ray cluster for the first time, it can take up to three minutes until the Ray image is downloaded from the Ray repository. 
 
-## Step 3 - Run sample Pipeline with Jupyter
+### Step 3 - Run sample Pipeline with Jupyter
 
 Edit the sample notebook to connect to a running Ray cluster with the command:
 ```
@@ -118,7 +118,7 @@ In your browser, go to:
 
 Once in a Jupyer envrionment, refer to [notebooks](../../notebooks) for example pipeline. Documentation for reference use cases can be found in [Examples](https://codeflare.readthedocs.io/en/latest/).
 
-# CodeFlare on OpenShift Container Platform (OCP)
+## CodeFlare on OpenShift Container Platform (OCP)
 
 A few installation deployment targets are provided below.
 
@@ -126,25 +126,22 @@ A few installation deployment targets are provided below.
 - [Ray Cluster on Openshift](#Openshift-Cluster)
 - [Ray Cluster on Openshift for Jupyter](#Jupyter)
 
-## Openshift Ray Cluster Operator
+### Openshift Ray Cluster Operator
 
 Deploying the [Ray Operator](https://docs.ray.io/en/master/cluster/kubernetes.html?highlight=operator#the-ray-kubernetes-operator)
 
-## Openshift Cluster
+### Openshift Cluster
 
-### Dispatch Ray Cluster on Openshift
+#### Dispatch Ray Cluster on Openshift
 
-#### Pre-req
+Pre-req
 - Access to openshift cluster
 - Python 3.8+ 
 
 We recommend installing Python 3.8.7 using
 [pyenv](https://github.com/pyenv/pyenv).
 
-<p>&nbsp;</p>
-
-#### Setup
-
+Setup
 
 1. Install CodeFlare
 
@@ -160,8 +157,6 @@ pip3 install --upgrade pip
 pip3 install .
 pip3 install -r requirements.txt 
 ```
-
-<p>&nbsp;</p>
 
 2. Create Cluster (https://docs.ray.io/en/master/cluster/cloud.html#kubernetes)
 
@@ -254,7 +249,6 @@ pip3 install -r requirements.txt
           Get a remote shell to the cluster manually:
             kubectl -n ray exec -it ray-head-ql46b -- bash
         ```
-<p>&nbsp;</p>
 
 3. Verify  
    a) Check for head node
