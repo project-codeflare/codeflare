@@ -51,7 +51,8 @@ export NAMESPACE=<namespace from above>
 
 Update With the following command you can download a basic Ray cluster definition and customize it for your namespace:
 ```shell
-sed "s/NAMESPACE/$NAMESPACE/" > ./example-cluster.yaml
+cd ./deploy/ibm_cloud_code_engine/
+sed "s/NAMESPACE/$NAMESPACE/" ./example-cluster.yaml.template > ./example-cluster.yaml
 ```
 
 This reference deployment file will create a Ray cluster with following characteristics:

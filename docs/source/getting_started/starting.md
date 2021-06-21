@@ -71,7 +71,8 @@ export NAMESPACE=<namespace from above>
 
 Update With the following command you can download a basic Ray cluster definition and customize it for your namespace:
 ```shell
-sed "s/NAMESPACE/$NAMESPACE/" > ./example-cluster.yaml
+cd ./deploy/ibm_cloud_code_engine/
+sed "s/NAMESPACE/$NAMESPACE/" ./example-cluster.yaml.template > ./example-cluster.yaml
 ```
 
 This reference deployment file will create a Ray cluster with following characteristics:
@@ -163,19 +164,16 @@ pip3 install -r requirements.txt
    Assuming openshift cluster access from pre-reqs.
 
    a) Create namespace
-    
-       ```
+      ```shell
        $ oc create namespace codefalre
        namespace/codeflare created
        $
-       ```
-   
-   b) Clone Ray Project and Bring up Ray cluster  
-   
-        ```
-        $ git clone https://github.com/ray-project/ray.git
-        $ 
-        $ ray up ray/python/ray/autoscaler/kubernetes/example-full.yaml
+      ```
+
+   b) Bring up Ray cluster  
+
+    ```
+      $ ray up ray/python/ray/autoscaler/kubernetes/example-full.yaml
         Cluster: default
 
         Checking Kubernetes environment settings
@@ -249,8 +247,8 @@ pip3 install -r requirements.txt
           Connect to a terminal on the cluster head:
             ray attach /Users/darroyo/git_workspaces/github.com/ray-project/ray/python/ray/autoscaler/kubernetes/example-full.yaml
           Get a remote shell to the cluster manually:
-            kubectl -n ray exec -it ray-head-ql46b -- bash
-        ```
+            kubectl -n ray exec -it ray-head-ql46b -- bash  
+      ```
 
 3. Verify  
    a) Check for head node
