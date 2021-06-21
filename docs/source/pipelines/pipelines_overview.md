@@ -6,7 +6,7 @@ CodeFlare Pipelines reimagined pipelines to provide a more intuitive API for the
 
 See the API documentation [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference use case documentation in the Examples section.
 
-Examples are provided as execuatble [notebooks](https://github.com/project-codeflare/codeflare/tree/main/notebooks). 
+Examples are provided as executable [notebooks](https://github.com/project-codeflare/codeflare/tree/main/notebooks). 
 
 Notebooks can can be run with locally with:
 ```shell

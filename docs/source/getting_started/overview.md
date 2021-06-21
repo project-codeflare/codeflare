@@ -21,9 +21,9 @@ limitations under the License.
 CodeFlare's main features are: 
 
 * **Pipeline execution and scaling**:
-CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks, while providing nearly optimal scale-out parallelism on pipelined computations.
+CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks while providing nearly optimal scale-out parallelism on pipelined computations.
 
 * **Deploy and integrate anywhere**: 
-CodeFlare simplifies deployment and integration by enabling a serverless user experience with the integration with Red Hat Open Shift and IBM Cloud Code Engine, and integrating adapters and connectors to make it simple to load data and connect to data services.
+CodeFlare simplifies deployment and integration by enabling a serverless user experience with the integration with Red Hat Open Shift and IBM Cloud Code Engine and integrating adapters and connectors to make it simple to load data and connect to data services.
 
 ![CodeFlare Architecture](../images/codeflare_arch_diagram.svg)

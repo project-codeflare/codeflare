@@ -27,11 +27,11 @@ CodeFlare is a framework to simplify the integration, scaling and acceleration o
 Its main features are: 
 
 * **Pipeline execution and scaling**:
-CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks, while providing nearly optimal scale-out parallelism on pipelined computations.
+CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks while providing nearly optimal scale-out parallelism on pipelined computations.
 <!--CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple platforms such as [scikit-learn](https://scikit-learn.org/) and [Apache Spark](https://spark.apache.org/), while providing nearly optimal scale-out parallelism on pipelined computations.-->
 
 * **Deploy and integrate anywhere**: 
-CodeFlare simplifies deployment and integration by enabling a serverless user experience with the integration with Red Hat Open Shift and IBM Cloud Code Engine, and integrating adapters and connectors to make it simple to load data and connect to data services.
+CodeFlare simplifies deployment and integration by enabling a serverless user experience with the integration with Red Hat Open Shift and IBM Cloud Code Engine and integrating adapters and connectors to make it simple to load data and connect to data services.
 
 <p align="center">
 <img src="./images/codeflare_arch_diagram.svg" width="876" height="476">
@@ -39,7 +39,7 @@ CodeFlare simplifies deployment and integration by enabling a serverless user ex
 
 ## Release status
 
-This project is under active development. See the [Documentation](https://codeflare.readthedocs.io/en/latest/index.html) for design descriptions and latest version of the APIs. 
+This project is under active development. See the [Documentation](https://codeflare.readthedocs.io/en/latest/index.html) for design descriptions and the latest version of the APIs. 
 
 ## Quick start
 
@@ -96,7 +96,7 @@ It should produce an output similar to the one below, where you can then find th
 
 You can try out some of CodeFlare features using the My Binder service.
 
-Click on a link below to try CodeFlare, on a sandbox environment, without having to install anything.
+Click on the link below to try CodeFlare, on a sandbox environment, without having to install anything.
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/main)
 
@@ -110,7 +110,7 @@ CodeFlare Pipelines reimagined pipelines to provide a more intuitive API for the
 
 The API documentation can be found [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference use case documentation [here](https://codeflare.readthedocs.io/en/latest).
 
-Examples are provided as execuatble notebooks: [notebooks](./notebooks). 
+Examples are provided as executable notebooks: [notebooks](./notebooks). 
 
 Examples can be run with locally with:
 ```shell
@@ -132,4 +132,4 @@ Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can
 
 ## Contributing
 
-Join us making CodeFlare Better! We encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
+Join us in making CodeFlare Better! We encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.

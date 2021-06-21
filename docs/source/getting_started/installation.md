@@ -71,6 +71,6 @@ It should produce an output similar to the one below, where you can then find th
 
 You can try out some of CodeFlare features using the My Binder service.
 
-Click on a link below to try CodeFlare, on a sandbox environment, without having to install anything.
+Click on the link below to try CodeFlare, on a sandbox environment, without having to install anything.
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/main)
