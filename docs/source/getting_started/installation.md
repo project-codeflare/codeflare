@@ -20,6 +20,32 @@ limitations under the License.
 
 ### Run in your laptop
 
+#### Instaling locally
+
+CodeFlare can be installed from PyPI.
+
+Prerequisites:
+* [Python 3.8+](https://www.python.org/downloads/)
+* [Jupyter Lab](https://www.python.org/downloads/) *(to run examples)*
+
+We recommend installing Python 3.8.7 using
+[pyenv](https://github.com/pyenv/pyenv).
+
+
+  Install from PyPI:
+  ```bash
+  pip3 install --upgrade codeflare
+  ```
+
+
+Alternatively, you can also build locally with:
+```shell
+git clone https://github.com/project-codeflare/codeflare.git
+pip3 install --upgrade pip
+pip3 install .
+pip3 install -r requirements.txt 
+```
+
 #### Using Docker
 
 You can try CodeFlare by running the docker image from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
@@ -41,8 +67,6 @@ It should produce an output similar to the one below, where you can then find th
      or http://127.0.0.1:8888/?token=<token>
 ```
 
-Once the notebook is loaded, you can find a selection of examples in `codeflare/notebooks`, which can be executed directly from Jupyter environment. As a first example, we recommend the `sample_pipeline.ipynb` notebook.
-
 #### Using Binder service
 
 You can try out some of CodeFlare features using the My Binder service.
@@ -50,36 +74,3 @@ You can try out some of CodeFlare features using the My Binder service.
 Click on a link below to try CodeFlare, on a sandbox environment, without having to install anything.
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/main)
-
-#### Instaling locally
-
-CodeFlare can be installed from PyPI.
-
-Prerequisites:
-* [Python 3.8+](https://www.python.org/downloads/)
-* [Jupyter Lab](https://www.python.org/downloads/) *(to run examples)*
-
-We recommend installing Python 3.8.7 using
-[pyenv](https://github.com/pyenv/pyenv).
-
-
-Install from PyPI:
-```bash
-pip3 install --upgrade codeflare
-```
-
-
-Alternatively, you can also build locally with:
-```shell
-git clone https://github.com/project-codeflare/codeflare.git
-pip3 install --upgrade pip
-pip3 install .
-pip3 install -r requirements.txt 
-```
-
-Run the sample pipelines with:
-```shell
-jupyter-lab notebooks/<example_notebook>
-```
-
-The pipeline will use `ray.init()` to start a local Ray cluster. See [configuring Ray](https://docs.ray.io/en/master/configure.html) to ensure you are able to run a Ray cluster locally.

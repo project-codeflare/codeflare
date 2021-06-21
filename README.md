@@ -45,7 +45,7 @@ This project is under active development. See the [Documentation](https://codefl
 
 ### Run in your laptop
 
-#### Instaling locally
+#### Installing locally
 
 CodeFlare can be installed from PyPI.
 
@@ -132,4 +132,4 @@ Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can
 
 ## Contributing
 
-If you are interested in joining us and make CodeFlare better, we encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
+Join us making CodeFlare Better! We encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
