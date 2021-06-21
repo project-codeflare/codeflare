@@ -18,10 +18,10 @@ limitations under the License.
 
 ### Tuning hyper-parameters with CodeFlare Pipelines
 
-GridSearchCV() is often used for hyper-parameter turning for a model constructed via sklearn pipelines. It does an exhaustive search over specified parameter values for a pipeline. It implements a `fit()` method and a `score()` method. The parameters of the pipeline used to apply these methods are optimized by cross-validated grid-search over a parameter grid.
+`GridSearchCV()` is often used for hyper-parameter turning for a model constructed via sklearn pipelines. It does an exhaustive search over specified parameter values for a pipeline. It implements a `fit()` method and a `score()` method. The parameters of the pipeline used to apply these methods are optimized by cross-validated grid-search over a parameter grid.
 Here we show how to convert an example of using `GridSearchCV()` to tune the hyper-parameters of an sklearn pipeline into one that uses Codeflare (CF) pipelines `grid_search_cv()`. We use the [Pipelining: chaining a PCA and a logistic regression](https://scikit-learn.org/stable/auto_examples/compose/plot_digits_pipe.html#sphx-glr-auto-examples-compose-plot-digits-pipe-py) from sklearn pipelines as an example. 
 
-In this sklearn example, a pipeline is chained together with a PCA and a LogisticRegression. The n_components parameter of the PCA and the C parameter of the LogisticRegression are defined in a param_grid: with n_components in `[5, 15, 30, 45, 64]` and `C` defined by `np.logspace(-4, 4, 4)`. A total of 20 combinations of `n_components` and `C` parameter values will be explored by `GridSearchCV()` to find the best one with the highest `mean_test_score`.
+In this sklearn example, a pipeline is chained together with a PCA and a LogisticRegression. The `n_components` parameter of the PCA and the `C` parameter of the LogisticRegression are defined in a `param_grid`: with `n_components` in `[5, 15, 30, 45, 64]` and `C` defined by `np.logspace(-4, 4, 4)`. A total of 20 combinations of `n_components` and `C` parameter values will be explored by `GridSearchCV()` to find the best one with the highest `mean_test_score`.
 
 ```python
 pca = PCA()
@@ -40,14 +40,14 @@ print("Best parameter (CV score=%0.3f):" % search.best_score_)
 print(search.best_params_)
 ```
 
-After running `GridSearchCV().fit()`, the best parameters of `PCA__n_components` and `LogisticRegression__C`, together with the cross-validated mean_test scores are printed out as follows. In this example, the best n_components chosen is 45 for the PCA.
+After running `GridSearchCV().fit()`, the best parameters of `PCA__n_components` and `LogisticRegression__C`, together with the cross-validated `mean_test scores` are printed out as follows. In this example, the best `n_components` chosen is 45 for the PCA.
 
 ```python
 Best parameter (CV score=0.920):
 {'logistic__C': 0.046415888336127774, 'pca__n_components': 45}
 ```
 
-The PCA explained variance ratio and the best n_components chosen are plotted in the top chart. The classification accuracy and its std_test_score are plotted in the bottom chart. The best n_components can be obtained by calling best_estimator_.named_step['pca'].n_components from the returned object of GridSearchCV().
+The PCA explained variance ratio and the best `n_components` chosen are plotted in the top chart. The classification accuracy and its `std_test_score` are plotted in the bottom chart. The best `n_components` can be obtained by calling `best_estimator_.named_step['pca'].n_components` from the returned object of `GridSearchCV()`.
 
 ![](../images/pca_1.png)
 
@@ -58,7 +58,7 @@ We next describe the step-by-step conversion of this example to one that uses Co
 
 #### **Step 1: importing codeflare.pipelines packages and ray**
 
-We need to first import various `codeflare.pipelines` packages, including Datamodel and runtime, as well as ray and call `ray.shutdwon()` and `ray.init()`. Note that, in order to run this CodeFlare example notebook, you need to have a running ray instance.
+We need to first import various `codeflare.pipelines` packages, including `Datamodel` and `runtime`, as well as `ray` and call `ray.shutdwon()` and `ray.init()`. Note that, in order to run this CodeFlare example notebook, you need to have a running ray instance.
 
 ```python
 import codeflare.pipelines.Datamodel as dm
@@ -73,7 +73,7 @@ ray.init()
 
 #### **Step 2: defining and setting up a codeflare pipeline**
 
-A codeflare pipeline is defined by EstimatorNodes and edges connecting two EstimatorNodes. In this case, we define node_pca and node_logistic and we connect these two nodes with `pipeline.add_edge()`. Before we can execute `fit()` on a pipeline, we need to set up the proper input to the pipeline.
+A codeflare pipeline is defined by `EstimatorNodes` and `edges` connecting two `EstimatorNodes`. In this case, we define `node_pca` and `node_logistic` and we connect these two nodes with `pipeline.add_edge()`. Before we can execute `fit()` on a pipeline, we need to set up the proper input to the pipeline.
 
 ```python
 pca = PCA()
@@ -88,10 +88,9 @@ pipeline_input = dm.PipelineInput()
 pipeline_input.add_xy_arg(node_pca, dm.Xy(X_digits, y_digits))
 ```
 
-#### **Step 3: defining pipeline param grid and executing** 
+#### **Step 3: defining pipeline param grid and executing Codeflare pipelines `grid_search_cv()`** 
 
-Codeflare pipelines grid_search_cv()
-Codeflare pipelines runtime converts an sklearn param_grid into a codeflare pipelines param grid. We also specify the default KFold parameter for running the cross-validation. Finally, Codeflare pipelines runtime executes the grid_search_cv().
+Codeflare pipelines runtime converts an sklearn param_grid into a codeflare pipelines param grid. We also specify the default `KFold` parameter for running the cross-validation. Finally, Codeflare pipelines runtime executes the `grid_search_cv()`.
 
 ```python
 # param_grid
@@ -112,7 +111,7 @@ result = rt.grid_search_cv(kf, pipeline, pipeline_input, pipeline_param)
 
 #### **Step 4: parsing the returned result from `grid_search_cv()`** 
 
-As the Codeflare pipelines project is still actively under development, APIs to access some attributes of the explored pipelines in the `grid_search_cv()` are not yet available. As a result, a slightly more verbose code is used to get the best pipeline, its associated parameter values and other statistics from the returned object of `grid_search_cv()`. For example, we need to loop through all the 20 explored pipelines to get the best pipeline. And, to get the n_component of an explored pipeline, we first use `.get_nodes()` on the returned cross-validated pipeline and then use .get_estimator() and then finally use `.get_params()`.
+As the Codeflare pipelines project is still actively under development, APIs to access some attributes of the explored pipelines in the `grid_search_cv()` are not yet available. As a result, a slightly more verbose code is used to get the best pipeline, its associated parameter values and other statistics from the returned object of `grid_search_cv()`. For example, we need to loop through all the 20 explored pipelines to get the best pipeline. And, to get the `n_component` of an explored pipeline, we first use `.get_nodes()` on the returned cross-validated pipeline and then use `.get_estimator()` and then finally use `.get_params()`.
 
 ```python
 import statistics

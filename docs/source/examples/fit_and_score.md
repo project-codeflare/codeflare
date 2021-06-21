@@ -21,8 +21,6 @@ limitations under the License.
 We use a sklearn pipeline example Comparing Nearest Neighbors with and without Neighborhood Components Analysis to demonstrate how to define, fit and score multiple classifiers with CodeFlare (CF) Pipelines. The sklearn and CF pipeline notebook is published here [here](https://github.com/project-codeflare/codeflare/blob/main/notebooks/plot_nca_classification.ipynb)
 This example plots the class decision boundaries given by a Nearest Neighbors classifier when using the Euclidean distance on the original features, versus using the Euclidean distance after the transformation learned by Neighborhood Components Analysis. Its output is pictorially illustrated with colored decision boundaries like the pictures below.
 
-This example plots the class decision boundaries given by a Nearest Neighbors classifier when using the Euclidean distance on the original features, versus using the Euclidean distance after the transformation learned by Neighborhood Components Analysis. Its output is pictorially illustrated with colored decision boundaries like the pictures below.
-
 ![](../images/classification_and_score_1.jpeg)
 
 Classification score and boundaries of KNN with k=1
