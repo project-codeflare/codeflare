@@ -1,3 +1,30 @@
+#
+# Copyright 2021 IBM
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Configuration file for the Sphinx documentation builder.
+#
+# This file only contains a selection of the most common options. For a full
+# list see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
+#
+# Authors: Mudhakar Srivatsa <msrivats@us.ibm.com>
+#          Raghu Ganti <rganti@us.ibm.com>
+#          Carlos Costa <chcost@us.ibm.com>
+#
+#
+
 """codeflare.pipelines.Datamodel
 The core data model structures are defined here. These include the various aspects for creating a DAG, the
 input and output to the DAG itself.
@@ -10,12 +37,6 @@ input and output to the DAG itself.
 - :class:`~codeflare.pipelines.Datamodel.XYRef`: A basic holder class for pointers to X and y, pointers are reference to objects in Plasma store of Ray.
 - :class:`~codeflare.pipelines.Datamodel.PipelineParam`: Finally, the data model allows for morphing of pipeline based on parameterizations, these parameterizations can be for grid search or for other such similar reasons.
 """
-
-# Authors: Mudhakar Srivatsa <msrivats@us.ibm.com>
-#           Raghu Ganti <rganti@us.ibm.com>
-#           Carlos Costa <chcost@us.ibm.com>
-#
-# License: Apache v2.0
 
 from abc import ABC, abstractmethod
 from enum import Enum
