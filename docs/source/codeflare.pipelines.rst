@@ -1,4 +1,4 @@
-CodeFlare Pipelines
+API Documentation
 ===========================
 
 CodeFlare Pipelines Datamodel

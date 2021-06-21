@@ -37,6 +37,7 @@ of complex multi-step analytics and machine learning pipelines on the cloud.
    :maxdepth: 4
    :caption: User guide
 
+   pipelines/pipelines_overview
    codeflare.pipelines
 
 .. toctree::
