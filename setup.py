@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+import os
+import sys
+
+from glob import glob
 from setuptools import setup
 
 long_description = '''The CodeFlare-Pipelines library provides facilities for defining and running parallel 
@@ -24,17 +28,23 @@ For the full documentation see
 [https://github.com/project-codeflare/codeflare](https://github.com/project-codeflare/codeflare).
 '''
 
+here = os.path.abspath(os.path.dirname(__file__))
+
+version_ns = {}
+with open(os.path.join(here, 'codeflare', '_version.py')) as f:
+    exec(f.read(), {}, version_ns)
+
 setup(
     name='codeflare',
-    version='1.0.0',
+    version=version_ns['__version__'],
     packages=['codeflare', 'codeflare.pipelines', 'codeflare.pipelines.tests'],
     install_requires=[
         'ray[default,serve,k8s]>=1.3.0'
     ],
     url='https://github.com/project-codeflare/codeflare',
     license='Apache v2.0',
-    author='Raghu Ganti, Mudhakar Srivatsa, Carlos Costa',
-    author_email='rganti@us.ibm.com',
+    author='CodeFlare team',
+    author_email='chcost@us.ibm.com',
     description='Codeflare pipelines',
     python_requires='>=3.8',
     keywords=("ray pipelines"),
