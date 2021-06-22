@@ -4,7 +4,7 @@ A few installation deployment targets are provided below.
 
 - [Ray Cluster Using Operator on Openshift](#Openshift-Ray-Cluster-Operator)
 - [Ray Cluster on Openshift](#Openshift-Cluster)
-- [Ray Cluster on Openshift for Jupyter](#Jupyter)
+- [Ray Cluster on Openshift for Jupyter](#Ray-with-Open-Data-Hub-on-OpenShift)
 
 ## Openshift Ray Cluster Operator
 
@@ -151,9 +151,29 @@ pip3 install -r requirements.txt
     [0, 1, 4, 9]
     ```
 
-### Jupyter
+### Ray with Open Data Hub on OpenShift
 
-Jupyter setup demo [Reference repository](https://github.com/erikerlandson/ray-odh-demo)
+The
+[Operate First](https://www.operate-first.cloud/)
+project hosts a public
+[demonstration](https://www.operate-first.cloud/users/moc-ray-demo/README.md)
+of ray-enabled jupyter notebooks, based on the
+[Open Data Hub](https://opendatahub.io/)
+(ODH) data science platform.
+This free ODH environment can be accessed
+[here](https://odh.operate-first.cloud/),
+and is accessible to anyone with a gmail account via SSO login.
+
+To install a similar Ray integration with CodeFlare onto your own Open Data Hub environment,
+follow the instructions on this
+[reference repository](https://github.com/erikerlandson/ray-odh-demo).
+
+The container images used in this reference demo were built from
+[this repo](https://github.com/erikerlandson/ray-ubi),
+and have CodeFlare pre-installed. They include a basic
+["ray-ml" notebook image](https://github.com/erikerlandson/ray-ubi/tree/main/images/ray-ml-notebook)
+and a corresponding
+[ray-ml worker-node image](https://github.com/erikerlandson/ray-ubi/tree/main/images/ray-ml-ubi).
 
 ### Running examples
 
