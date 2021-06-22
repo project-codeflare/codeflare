@@ -147,3 +147,7 @@ Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can
 ## Contributing
 
 Join us in making CodeFlare Better! We encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
+
+## Blog
+
+CodeFlare related blogs are published on our [Medium publication](https://medium.com/codeflare)
