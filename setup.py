@@ -39,7 +39,14 @@ setup(
     version=version_ns['__version__'],
     packages=['codeflare', 'codeflare.pipelines', 'codeflare.pipelines.tests'],
     install_requires=[
-        'ray[default,serve,k8s]>=1.3.0'
+        'ray[default,serve,k8s]>=1.3.0',
+        'setuptools>=52.0.0',
+        'sklearn>=0.0',
+        'scikit-learn>=0.24.1',
+        'pandas>=1.2.4',
+        'numpy>=1.18.5',
+        'pickle5>=0.0.11', 
+        'graphviz>=0.16',
     ],
     url='https://github.com/project-codeflare/codeflare',
     license='Apache v2.0',

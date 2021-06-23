@@ -28,6 +28,7 @@ We recommend installing Python 3.8.7 using
 
 Install from PyPI:
 ```bash
+pip3 install --upgrade pip          # CodeFlare requires pip >21.0
 pip3 install --upgrade codeflare
 ```
 
@@ -36,7 +37,6 @@ Alternatively, you can also build locally with:
 git clone https://github.com/project-codeflare/codeflare.git
 pip3 install --upgrade pip
 pip3 install .
-pip3 install -r requirements.txt 
 ```
 
 2. Create Cluster (https://docs.ray.io/en/master/cluster/cloud.html#kubernetes)

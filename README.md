@@ -59,7 +59,7 @@ This project is under active development. See the [Documentation](https://codefl
 
 ### Run in your laptop
 
-#### Installing locally
+#### Instaling locally
 
 CodeFlare can be installed from PyPI.
 
@@ -67,22 +67,22 @@ Prerequisites:
 * [Python 3.8+](https://www.python.org/downloads/)
 * [JupyterLab](https://jupyter.org) *(to run examples)*
 
-We recommend installing Python 3.8.7 using
-[pyenv](https://github.com/pyenv/pyenv).
+We recommend installing Python 3.8.6 using
+[pyenv](https://github.com/pyenv/pyenv). You can find [here](https://codeflare.readthedocs.io/en/latest/getting_started/setting_python_env.html) recommended steps to set up the Python environment.
 
 
-  Install from PyPI:
-  ```bash
-  pip3 install --upgrade codeflare
-  ```
 
+Install from PyPI:
+```bash
+pip3 install --upgrade pip          # CodeFlare requires pip >21.0
+pip3 install --upgrade codeflare
+```
 
 Alternatively, you can also build locally with:
 ```shell
 git clone https://github.com/project-codeflare/codeflare.git
 pip3 install --upgrade pip
 pip3 install .
-pip3 install -r requirements.txt 
 ```
 
 #### Using Docker
@@ -114,28 +114,42 @@ Click on the link below to try CodeFlare, on a sandbox environment, without havi
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/develop)
 
+
 ## Pipeline execution and scaling
 
 <p align="center">
 <img src="./images/pipelines.svg" width="296" height="180">
 </p>
 
+## CodeFlare Pipelines
+
 CodeFlare Pipelines reimagined pipelines to provide a more intuitive API for the data scientist to create AI/ML pipelines, data workflows, pre-processing, post-processing tasks, and many more which can scale from a laptop to a cluster seamlessly.
 
-The API documentation can be found [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference use case documentation [here](https://codeflare.readthedocs.io/en/latest).
+See the API documentation [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference use case documentation in the Examples section.
 
-Examples are provided as executable notebooks: [notebooks](./notebooks). 
+Examples are provided as executable [notebooks](https://github.com/project-codeflare/codeflare/tree/main/notebooks). 
 
-Examples can be run with locally with:
-```shell
-jupyter-lab notebooks/<example_notebook>
+To run examples, if you haven't done so yet, clone the CodeFlare project with:
+
+```bash
+git clone https://github.com/project-codeflare/codeflare.git
 ```
 
-If running with the container image, examples are found in `codeflare/notebooks`, which can be executed directly from Jupyter environment. 
+Example notebooks require JupyterLab, which can be installed with:
+```bash
+pip3 install --upgrade jupyterlab
+```
+
+Use the command below to run locally:
+```shell
+jupyter-lab codeflare/notebooks/<example_notebook>
+```
+
+The step above should automatically open a browser window and connect to a running Jupyter server.
+
+If you are using any one of the recommended cloud based deployments, examples are found in the `codeflare/notebooks` directory in the container image. The examples can be executed directly from the Jupyter environment. 
 
 As a first example, we recommend the [sample pipeline](https://github.com/project-codeflare/codeflare/blob/main/notebooks/sample_pipeline.ipynb).
-
-The pipeline will use `ray.init()` to start a local Ray cluster. See the deployment options below to run a Ray cluster on in the cloud, or the details [here](https://docs.ray.io/en/master/configure.html) if you are running a Ray cluster locally.
 
 ## Deploy and integrate anywhere
 

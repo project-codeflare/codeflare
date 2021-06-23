@@ -26,11 +26,24 @@ See the API documentation [here](https://codeflare.readthedocs.io/en/latest/code
 
 Examples are provided as executable [notebooks](https://github.com/project-codeflare/codeflare/tree/main/notebooks). 
 
-Notebooks can can be run with locally with:
-```shell
-jupyter-lab notebooks/<example_notebook>
+To run examples, if you haven't done so yet, clone the CodeFlare project with:
+
+```bash
+git clone https://github.com/project-codeflare/codeflare.git
 ```
 
-Or, if using any of the recommended cloud based deployments, examples are found in `codeflare/notebooks`, which can be executed directly from Jupyter environment. 
+Example notebooks require JupyterLab, which can be installed with:
+```bash
+pip3 install --upgrade jupyterlab
+```
+
+Use the command below to run locally:
+```shell
+jupyter-lab codeflare/notebooks/<example_notebook>
+```
+
+The step above should automatically open a browser window and connect to a running Jupyter server.
+
+If you are using any one of the recommended cloud based deployments, examples are found in the `codeflare/notebooks` directory in the container image. The examples can be executed directly from the Jupyter environment. 
 
 As a first example, we recommend the [sample pipeline](https://github.com/project-codeflare/codeflare/blob/main/notebooks/sample_pipeline.ipynb).

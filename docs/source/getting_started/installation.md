@@ -26,24 +26,24 @@ CodeFlare can be installed from PyPI.
 
 Prerequisites:
 * [Python 3.8+](https://www.python.org/downloads/)
-* [Jupyter Lab](https://www.python.org/downloads/) *(to run examples)*
+* [JupyterLab](https://jupyter.org) *(to run examples)*
 
-We recommend installing Python 3.8.7 using
-[pyenv](https://github.com/pyenv/pyenv).
+We recommend installing Python 3.8.6 using
+[pyenv](https://github.com/pyenv/pyenv). You can find [here](./setting_python_env.md) recommended steps to set up the Python environment.
 
 
-  Install from PyPI:
-  ```bash
-  pip3 install --upgrade codeflare
-  ```
 
+Install from PyPI:
+```bash
+pip3 install --upgrade pip          # CodeFlare requires pip >21.0
+pip3 install --upgrade codeflare
+```
 
 Alternatively, you can also build locally with:
 ```shell
 git clone https://github.com/project-codeflare/codeflare.git
 pip3 install --upgrade pip
 pip3 install .
-pip3 install -r requirements.txt 
 ```
 
 #### Using Docker
