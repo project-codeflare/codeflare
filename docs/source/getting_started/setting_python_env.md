@@ -58,7 +58,7 @@ pyenv version
 
 5. Set up shell path:
 
-Add the following to your `~/.bash_profile` (*Note*: the you may have to create the the file)
+Add the following to your `~/.bash_profile` (*Note*: you may have to create the the file)
 
 ```bash
 export PYENV_ROOT="$HOME/.pyenv" 
