@@ -14,23 +14,30 @@
 # limitations under the License.
 #
 
-ARG base_image=rayproject/ray:1.4.0-py38
+ARG base_image=jupyter/minimal-notebook:59c973d16bca
 FROM ${base_image}
 
 USER root
-RUN apt-get update && apt-get install -y build-essential
-USER ray
+RUN chgrp -R 0 /home/jovyan && \
+    chmod -R 777 /home/jovyan
 
-COPY --chown=ray:users setup.py requirements.txt codeflare/
-COPY --chown=ray:users codeflare codeflare/codeflare
-COPY --chown=ray:users notebooks codeflare/notebooks
-COPY --chown=ray:users resources codeflare/resources
+# install graphviz
+RUN apt-get update && \
+    apt-get install -y graphviz
 
-RUN pip install jupyterlab
+USER $NB_UID
+
+COPY --chown=jovyan:0 setup.py requirements.txt codeflare/
+COPY --chown=jovyan:0 codeflare codeflare/codeflare
+COPY --chown=jovyan:0 notebooks codeflare/notebooks
+COPY --chown=jovyan:0 resources codeflare/resources
+
+ENV JUPYTER_ENABLE_LAB=yes
+
 RUN pip install matplotlib
 RUN pip install lale
 RUN pip install arff
-
 RUN pip install -r ./codeflare/requirements.txt
-
 RUN pip install -e ./codeflare
+
+CMD start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
