@@ -34,7 +34,7 @@ We recommend installing Python 3.8.6 using
 
 
 Install from PyPI:
-```bash
+```shell
 pip3 install --upgrade pip          # CodeFlare requires pip >21.0
 pip3 install --upgrade codeflare
 ```
@@ -53,7 +53,7 @@ You can try CodeFlare by running the docker image from [Docker Hub](https://hub.
 
 The command below starts the most recent development build in a clean environment:
 
-```bash
+```shell
 docker run --rm -it -p 8888:8888 projectcodeflare/codeflare:latest
 ```
 
