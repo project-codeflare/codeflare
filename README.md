@@ -125,7 +125,7 @@ CodeFlare Pipelines reimagined pipelines to provide a more intuitive API for the
 
 See the API documentation [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference use case documentation in the Examples section.
 
-Examples are provided as executable [notebooks](https://github.com/project-codeflare/codeflare/tree/main/notebooks). 
+A set of reference examples are provided as executable [notebooks](https://github.com/project-codeflare/codeflare/tree/main/notebooks). 
 
 To run examples, if you haven't done so yet, clone the CodeFlare project with:
 
@@ -147,7 +147,9 @@ The step above should automatically open a browser window and connect to a runni
 
 If you are using any one of the recommended cloud based deployments, examples are found in the `codeflare/notebooks` directory in the container image. The examples can be executed directly from the Jupyter environment. 
 
-As a first example, we recommend the [sample pipeline](https://github.com/project-codeflare/codeflare/blob/main/notebooks/sample_pipeline.ipynb).
+As a first example of the API usage, see the [sample pipeline](https://github.com/project-codeflare/codeflare/blob/main/notebooks/sample_pipeline.ipynb). 
+
+For an example of how CodeFlare Pipelines can be used to scale out and speed up common machine learning problems, see the [grid search](https://github.com/project-codeflare/codeflare/blob/develop/notebooks/Grid%20Search%20Sample.ipynb) example. It shows how hyperparameter optimization for a reference pipeline can be scaled with both task and data parallelism.
 
 ## Deploy and integrate anywhere
 
@@ -156,10 +158,16 @@ Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can
 - [IBM Cloud Code Engine](./deploy/ibm_cloud_code_engine) for detailed instructions on how to run CodeFlare on a serverless platform.
 - [Red Hat OpenShift](./deploy/redhat_openshift) for detailed instructions on how to run CodeFlare on OpenShift Container Platform.
 
+
+
 ## Contributing
 
 Join us in making CodeFlare Better! We encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
 
 ## Blog
 
-CodeFlare related blogs are published on our [Medium publication](https://medium.com/codeflare)
+CodeFlare related blogs are published on our [Medium publication](https://medium.com/codeflare).
+
+## License
+
+CodeFlare is an open-source project with an [Apache 2.0 license](LICENSE).
