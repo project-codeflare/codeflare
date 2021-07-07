@@ -44,8 +44,8 @@ jupyter-lab codeflare/notebooks/<example_notebook>
 
 The step above should automatically open a browser window and connect to a running Jupyter server.
 
-If you are using any one of the recommended cloud based deployments, examples are found in the `codeflare/notebooks` directory in the container image. The examples can be executed directly from the Jupyter environment. 
+If you are using any one of the recommended cloud based deployments (see below), examples are found in the `codeflare/notebooks` directory in the container image. The examples can be executed directly from the Jupyter environment. 
 
 As a first example of the API usage, see the [sample pipeline](https://github.com/project-codeflare/codeflare/blob/main/notebooks/sample_pipeline.ipynb). 
 
-For an example of how CodeFlare Pipelines can be used to scale out and speed up common machine learning problems, see the [grid search](https://github.com/project-codeflare/codeflare/blob/develop/notebooks/Grid%20Search%20Sample.ipynb) example. It shows how hyperparameter optimization for a reference pipeline can be scaled with both task and data parallelism.
+For an example of how CodeFlare Pipelines can be used to scale out common machine learning problems, see the [grid search](https://github.com/project-codeflare/codeflare/blob/develop/notebooks/Grid%20Search%20Sample.ipynb) example. It shows how hyperparameter optimization for a reference pipeline can be scaled and accelerated with both task and data parallelism.
