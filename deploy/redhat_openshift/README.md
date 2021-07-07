@@ -177,4 +177,4 @@ and a corresponding
 
 ### Running examples
 
-Once in a Jupyer envrionment, refer to [notebooks](../../notebooks) for example pipeline. Documentation for reference use cases can be found in [Examples](https://codeflare.readthedocs.io/en/latest/).
+Once in a Jupyer envrionment, refer to [notebooks](../../notebooks) for example pipelines. Documentation for reference use cases can be found in [Examples](https://codeflare.readthedocs.io/en/latest/).
