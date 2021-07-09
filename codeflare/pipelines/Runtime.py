@@ -46,7 +46,7 @@ import sklearn.base as base
 from sklearn.model_selection import BaseCrossValidator
 from enum import Enum
 
-from queue import SimpleQueue
+from queue import Queue
 import pandas as pd
 
 
@@ -374,7 +374,7 @@ def select_pipeline(pipeline_output: dm.PipelineOutput, chosen_xyref: dm.XYRef) 
     :return: Selected pipeline
     """
     pipeline = dm.Pipeline()
-    xyref_queue = SimpleQueue()
+    xyref_queue = Queue()
 
     xyref_queue.put(chosen_xyref)
     while not xyref_queue.empty():
@@ -411,7 +411,7 @@ def get_pipeline_input(pipeline: dm.Pipeline, pipeline_output: dm.PipelineOutput
     """
     pipeline_input = dm.PipelineInput()
 
-    xyref_queue = SimpleQueue()
+    xyref_queue = Queue()
     xyref_queue.put(chosen_xyref)
     while not xyref_queue.empty():
         curr_xyref = xyref_queue.get()
