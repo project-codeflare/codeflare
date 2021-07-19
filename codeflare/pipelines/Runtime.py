@@ -107,8 +107,8 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     elif mode == ExecutionType.SCORE:
         if base.is_classifier(estimator) or base.is_regressor(estimator):
             estimator = node.get_estimator()
-            res_Xref = ray.put(estimator.score(X, y))
-            result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
+            score_ref = ray.put(estimator.score(X, y))
+            result = dm.XYRef(score_ref, score_ref, prev_node_ptr, prev_node_ptr, [xy_ref])
             return result
         else:
             res_Xref = ray.put(estimator.transform(X))
@@ -118,8 +118,8 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     elif mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
         if base.is_classifier(estimator) or base.is_regressor(estimator):
-            res_Xref = ray.put(estimator.predict(X))
-            result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
+            predict_ref = ray.put(estimator.predict(X))
+            result = dm.XYRef(predict_ref, predict_ref, prev_node_ptr, prev_node_ptr, [xy_ref])
             return result
         else:
             res_Xref = ray.put(estimator.transform(X))

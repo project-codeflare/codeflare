@@ -77,8 +77,8 @@ def test_pipeline_predict():
 
 	predict_clf_output = predict_output.get_xyrefs(node_clf)
 
-	#y_pred = ray.get(predict_clf_output[0].get_yref())
-	y_pred = ray.get(predict_clf_output[0].get_Xref())
+	y_pred = ray.get(predict_clf_output[0].get_yref())
+	#y_pred = ray.get(predict_clf_output[0].get_Xref())
 
 
 	report_codeflare = classification_report(y_test, y_pred)
