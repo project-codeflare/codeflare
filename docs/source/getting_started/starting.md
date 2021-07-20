@@ -135,7 +135,7 @@ Deploying the [Ray Operator](https://docs.ray.io/en/master/cluster/kubernetes.ht
 
 Pre-req
 - Access to openshift cluster
-- Python 3.8+ 
+- Python 3.7 or 3.8.
 
 We recommend installing Python 3.8.7 using
 [pyenv](https://github.com/pyenv/pyenv).

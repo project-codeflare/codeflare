@@ -30,9 +30,9 @@ limitations under the License.
 [![Build
 Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main) 
 [![PyPI](https://badge.fury.io/py/codeflare.svg)](https://badge.fury.io/py/codeflare)
+[![Downloads](https://static.pepy.tech/personalized-badge/codeflare?period=month&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/codeflare)
 [![Documentation Status](https://readthedocs.org/projects/codeflare/badge/?version=latest)](https://codeflare.readthedocs.io/en/latest/?badge=latest)
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/project-codeflare/codeflare/issues)
-
 
 # Scale complex AI/ML pipelines anywhere
 
@@ -64,7 +64,7 @@ This project is under active development. See the [Documentation](https://codefl
 CodeFlare can be installed from PyPI.
 
 Prerequisites:
-* [Python 3.8+](https://www.python.org/downloads/)
+* [Python 3.7 or 3.8](https://www.python.org/downloads/)
 * [JupyterLab](https://jupyter.org) *(to run examples)*
 
 We recommend installing Python 3.8.6 using
