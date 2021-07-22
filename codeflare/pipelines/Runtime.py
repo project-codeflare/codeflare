@@ -62,7 +62,7 @@ class ExecutionType(Enum):
 
 
 @ray.remote
-def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: dm.XYRef):
+def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: dm.XYRef, is_outputNode: bool):
     """
     Helper remote function that executes an OR node. As such, this is a remote task that runs the estimator
     in the provided mode with the data pointed to by XYRef. The key aspect to note here is the choice of input
@@ -107,9 +107,16 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     elif mode == ExecutionType.SCORE:
         if base.is_classifier(estimator) or base.is_regressor(estimator):
             estimator = node.get_estimator()
-            score_ref = ray.put(estimator.score(X, y))
-            result = dm.XYRef(score_ref, score_ref, prev_node_ptr, prev_node_ptr, [xy_ref])
-            return result
+            if is_outputNode:
+                score_ref = ray.put(estimator.score(X, y))
+                result = dm.XYRef(score_ref, score_ref, prev_node_ptr, prev_node_ptr, [xy_ref])
+                return result
+            else:
+                res_xy = estimator.score(xy_list)
+                res_xref = ray.put(res_xy.get_x())
+                res_yref = ray.put(res_xy.get_y())
+                result = dm.XYRef(res_xref, res_yref, prev_node_ptr, prev_node_ptr, Xyref_list)
+                return result
         else:
             res_Xref = ray.put(estimator.transform(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
@@ -118,9 +125,17 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     elif mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
         if base.is_classifier(estimator) or base.is_regressor(estimator):
-            predict_ref = ray.put(estimator.predict(X))
-            result = dm.XYRef(predict_ref, predict_ref, prev_node_ptr, prev_node_ptr, [xy_ref])
-            return result
+            if is_outputNode:
+                predict_ref = ray.put(estimator.predict(X))
+                result = dm.XYRef(predict_ref, predict_ref, prev_node_ptr, prev_node_ptr, [xy_ref])
+                return result
+            else:
+                res_xy = estimator.predict(xy_list)
+                res_xref = ray.put(res_xy.get_x())
+                res_yref = ray.put(res_xy.get_y())
+
+                result = dm.XYRef(res_xref, res_yref, prev_node_ptr, prev_node_ptr, Xyref_list)
+                return result
         else:
             res_Xref = ray.put(estimator.transform(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
@@ -147,7 +162,10 @@ def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType)
         exec_xyrefs = []
         for xy_ref_ptr in Xyref_ptrs:
             xy_ref = ray.get(xy_ref_ptr)
-            inner_result = execute_or_node_remote.remote(node, mode, xy_ref)
+            if post_edges:
+                inner_result = execute_or_node_remote.remote(node, mode, xy_ref, True)
+            else:
+                inner_result = execute_or_node_remote.remote(node, mode, xy_ref, False)
             exec_xyrefs.append(inner_result)
 
         for post_edge in post_edges:
