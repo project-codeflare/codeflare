@@ -62,7 +62,7 @@ class ExecutionType(Enum):
 
 
 @ray.remote
-def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: dm.XYRef):
+def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: dm.XYRef, is_outputNode: bool):
     """
     Helper remote function that executes an OR node. As such, this is a remote task that runs the estimator
     in the provided mode with the data pointed to by XYRef. The key aspect to note here is the choice of input
@@ -107,9 +107,16 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     elif mode == ExecutionType.SCORE:
         if base.is_classifier(estimator) or base.is_regressor(estimator):
             estimator = node.get_estimator()
-            res_Xref = ray.put(estimator.score(X, y))
-            result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
-            return result
+            if is_outputNode:
+                score_ref = ray.put(estimator.score(X, y))
+                result = dm.XYRef(score_ref, score_ref, prev_node_ptr, prev_node_ptr, [xy_ref])
+                return result
+            else:
+                res_xy = estimator.score(xy_list)
+                res_xref = ray.put(res_xy.get_x())
+                res_yref = ray.put(res_xy.get_y())
+                result = dm.XYRef(res_xref, res_yref, prev_node_ptr, prev_node_ptr, Xyref_list)
+                return result
         else:
             res_Xref = ray.put(estimator.transform(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
@@ -118,16 +125,24 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
     elif mode == ExecutionType.PREDICT:
         # Test mode does not clone as it is a simple predict or transform
         if base.is_classifier(estimator) or base.is_regressor(estimator):
-            res_Xref = ray.put(estimator.predict(X))
-            result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
-            return result
+            if is_outputNode:
+                predict_ref = ray.put(estimator.predict(X))
+                result = dm.XYRef(predict_ref, predict_ref, prev_node_ptr, prev_node_ptr, [xy_ref])
+                return result
+            else:
+                res_xy = estimator.predict(xy_list)
+                res_xref = ray.put(res_xy.get_x())
+                res_yref = ray.put(res_xy.get_y())
+
+                result = dm.XYRef(res_xref, res_yref, prev_node_ptr, prev_node_ptr, Xyref_list)
+                return result
         else:
             res_Xref = ray.put(estimator.transform(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
             return result
 
 
-def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
+def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType, is_outputNode):
     """
     Inner method that executes the estimator node parallelizing at the level of input objects. This defines the
     strategy of execution of the node, in this case, parallel for each object that is input. The function takes
@@ -147,7 +162,7 @@ def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType)
         exec_xyrefs = []
         for xy_ref_ptr in Xyref_ptrs:
             xy_ref = ray.get(xy_ref_ptr)
-            inner_result = execute_or_node_remote.remote(node, mode, xy_ref)
+            inner_result = execute_or_node_remote.remote(node, mode, xy_ref, is_outputNode)
             exec_xyrefs.append(inner_result)
 
         for post_edge in post_edges:
@@ -337,7 +352,7 @@ def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input:
             pre_edges = pipeline.get_pre_edges(node)
             post_edges = pipeline.get_post_edges(node)
             if node.get_node_input_type() == dm.NodeInputType.OR:
-                execute_or_node(node, pre_edges, edge_args, post_edges, mode)
+                execute_or_node(node, pre_edges, edge_args, post_edges, mode, pipeline.is_output(node))
             elif node.get_node_input_type() == dm.NodeInputType.AND:
                 execute_and_node(node, pre_edges, edge_args, post_edges, mode)
 
