@@ -142,7 +142,7 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
             return result
 
 
-def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType):
+def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType, is_outputNode):
     """
     Inner method that executes the estimator node parallelizing at the level of input objects. This defines the
     strategy of execution of the node, in this case, parallel for each object that is input. The function takes
@@ -162,10 +162,7 @@ def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType)
         exec_xyrefs = []
         for xy_ref_ptr in Xyref_ptrs:
             xy_ref = ray.get(xy_ref_ptr)
-            if post_edges:
-                inner_result = execute_or_node_remote.remote(node, mode, xy_ref, True)
-            else:
-                inner_result = execute_or_node_remote.remote(node, mode, xy_ref, False)
+            inner_result = execute_or_node_remote.remote(node, mode, xy_ref, is_outputNode)
             exec_xyrefs.append(inner_result)
 
         for post_edge in post_edges:
@@ -355,7 +352,7 @@ def execute_pipeline(pipeline: dm.Pipeline, mode: ExecutionType, pipeline_input:
             pre_edges = pipeline.get_pre_edges(node)
             post_edges = pipeline.get_post_edges(node)
             if node.get_node_input_type() == dm.NodeInputType.OR:
-                execute_or_node(node, pre_edges, edge_args, post_edges, mode)
+                execute_or_node(node, pre_edges, edge_args, post_edges, mode, pipeline.is_output(node))
             elif node.get_node_input_type() == dm.NodeInputType.AND:
                 execute_and_node(node, pre_edges, edge_args, post_edges, mode)
 
