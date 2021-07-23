@@ -58,7 +58,8 @@ class ExecutionType(Enum):
     """
     FIT = 0,
     PREDICT = 1,
-    SCORE = 2
+    SCORE = 2,
+    TRANSFORM = 3
 
 
 @ray.remote
@@ -140,7 +141,10 @@ def execute_or_node_remote(node: dm.EstimatorNode, mode: ExecutionType, xy_ref: 
             res_Xref = ray.put(estimator.transform(X))
             result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
             return result
-
+    elif mode == ExecutionType.TRANSFORM:
+        res_Xref = ray.put(estimator.fit_transform(X))
+        result = dm.XYRef(res_Xref, xy_ref.get_yref(), prev_node_ptr, prev_node_ptr, [xy_ref])
+        return result
 
 def execute_or_node(node, pre_edges, edge_args, post_edges, mode: ExecutionType, is_outputNode):
     """
