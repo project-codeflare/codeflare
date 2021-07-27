@@ -837,7 +837,9 @@ class Pipeline:
         :return: Outgoing edges for the node
         """
         post_edges = []
-        post_nodes = self.__post_graph__[node]
+        post_nodes = []
+        if node in self.__post_graph__.keys():
+            post_nodes = self.__post_graph__[node]
         # Empty post
         if not post_nodes:
             post_edges.append(Edge(node, None))
