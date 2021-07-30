@@ -27,6 +27,8 @@
 
 import graphviz
 import codeflare.pipelines.Datamodel as dm
+import ray
+import numpy as np
 
 
 def pipeline_to_graph(pipeline: dm.Pipeline) -> graphviz.Digraph:
@@ -45,3 +47,36 @@ def pipeline_to_graph(pipeline: dm.Pipeline) -> graphviz.Digraph:
             graph.node(post_node.get_node_name())
             graph.edge(pre_node.get_node_name(), post_node.get_node_name())
     return graph
+
+
+@ray.remote
+def split(xy_ref: dm.XYRef, num_splits):
+    """
+    Takes input as XYRef, splits the X and sends back the data as chunks. This is quite
+    useful when we have to break a raw array into smaller pieces. This current implementation
+    requires the input X of XYRef to be a pandas dataframe.
+    """
+    x = ray.get(xy_ref.get_Xref())
+    y = ray.get(xy_ref.get_yref())
+
+    xy_split_refs = []
+
+    # TODO: How do we split y if it is needed, lets revisit it later, will these be aligned?
+    x_split = np.array_split(x, num_splits)
+    if y is not None:
+        y_split = np.array_split(y, num_splits)
+
+    # iterate over each and then insert into Plasma
+    for i in range(0, len(x_split)):
+        x_part = x_split[i]
+        y_part = None
+
+        if y is not None:
+            y_part = y_split[i]
+
+        x_part_ref = ray.put(x_part)
+        y_part_ref = ray.put(y_part)
+        xy_ref_part = dm.XYRef(x_part_ref, y_part_ref)
+        xy_split_refs.append(xy_ref_part)
+
+    return xy_split_refs
