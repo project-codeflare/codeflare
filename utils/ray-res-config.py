@@ -8,7 +8,7 @@ import re
 from parse import *
 from optparse import OptionParser
 
-versions_list=['1.0.0', '1.1.0','1.2.0','1.3.0','1.4.0','1.4.1','1.5.0']
+versions_list=['1.0.0', '1.1.0','1.2.0','1.3.0','1.4.0','1.4.1','1.5.0', '1.6.0', '1.7.0']
 
 res_modes_list=['relaxed', 'recommended', 'strict', 'custom']
 
@@ -102,11 +102,14 @@ def parse_ray_config(ray_version, sig_str, is_multiline):
         # get the default value and associated env variable
         if '?' in conf_default:
             # TODO: make the parsing conditions more general
-            if 'RAY_preallocate_plasma_memory' in conf_default and ray_version == '1.5.0':
+            if 'RAY_preallocate_plasma_memory' in conf_default and ray_version in ['1.5.0', '1.6.0', '1.7.0']:
                 conf_env = 'RAY_preallocate_plasma_memory'
                 _, conf_default = parse('{}: {})', conf_default)
+            elif 'getenv' in conf_default:
+                conf_env,_,conf_default = parse('getenv("{}"){}: {})', conf_default)
             else:
-               _, conf_env,_, conf_default = parse('{} ? {} : {}("{}"))', conf_default)
+                print(conf_default)
+                _, conf_env,_, conf_default = parse('{} ? {} : {}("{}"))', conf_default)
         elif 'getenv' in conf_default:
             _, conf_env, is_eq, _, conf_default = parse('{} getenv("{}") {} std::{}("{}"))', conf_default)
             if is_eq == "!=" and conf_type == "bool":
