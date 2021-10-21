@@ -49,11 +49,10 @@ Available resiliency profiles/modes:
 4. custom:      Define your own preference
     ''')
 
-# Generates .conf files in configs folder in the working directory
-# TODO: generate ray-version dir under configs directory for better file oganization
-def dump_conf(ray_version, res_mode, overwrite, dirname='configs/'):
+# Generates .conf files in configs/RAY_VERSION folder in the working directory
+def dump_conf(ray_version, res_mode, overwrite, dirname='configs'):
     # dump the default configs in a file to let others edit further
-    file_path =  dirname+"ray-"+ray_version+"-"+res_mode+".conf"
+    file_path =  dirname+"/ray-"+ray_version+"-"+res_mode+".conf"
     # check if the file already exist
     if (not os.path.exists(file_path)) or overwrite:
         fd = open(file_path, "w+")
@@ -199,11 +198,11 @@ def total_config(ray_version):
 def fetch_configs_from_git(ray_versions, res_modes, overwrite):
     # get configs from file or git for each ray_version
     for ray_version in ray_versions:
-        out_dir = "configs"
+        out_dir = "configs/"+ray_version
         # create dir if not present
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        out_filename = "%s/ray-%s-config-def.h" % (out_dir,ray_version)
+        out_filename = "%s/ray-%s-config-def.h" % (out_dir, ray_version)
         # wget it from git if file not present
         if not os.path.exists(out_filename):
             url = 'https://raw.githubusercontent.com/ray-project/ray/ray-%s/src/ray/common/ray_config_def.h' % ray_version
@@ -211,7 +210,7 @@ def fetch_configs_from_git(ray_versions, res_modes, overwrite):
         parse_config_file(out_filename, ray_version)
         total_config(ray_version)
         for res_mode in res_modes:
-            dump_conf(ray_version, res_mode, overwrite)
+            dump_conf(ray_version, res_mode, overwrite, out_dir)
     print_colored(OK, "All conf files saved!\nDONE!")
 
 # generate config json string for system-cm yaml
