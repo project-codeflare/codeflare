@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 from typing import Dict
@@ -60,9 +62,9 @@ def dump_conf(ray_version, res_mode, overwrite, dirname='configs'):
         yaml.dump(Ray_conf[ray_version],  fd, width=float('inf'))
 
 # Que: is dumping in json format better or YAML?
-def read_conf(ray_version, res_mode, dirname='configs/'):
+def read_conf(ray_version, res_mode, dirname='configs'):
     Ray_conf_new = Ray_conf
-    file_path =  dirname+"ray-"+ray_version+"-"+res_mode+".conf"
+    file_path =  dirname+"/"+ray_version+"/ray-"+ray_version+"-"+res_mode+".conf"
     fd = open(file_path, 'r')
     fd.readline()
     try:
