@@ -246,17 +246,12 @@ def gen_system_conf(conf_list, verbose):
     if verbose:
         print("Version 1.4.0 specific configs")
     conf_string = get_conf_string(conf_list)
-    # FIXME: this should not be hardcoded and can be made a dict in python to be
-    # loaded as yaml instead of a string
-    sys_conf = """
-    apiVersion: v1
-    data:
-        system_config: '{%s}'
-    kind: ConfigMap
-    metadata:
-        name: system-config-json
-    """ % (conf_string)
-    return yaml.load(sys_conf, yaml.Loader)
+    conf_str = '{%s}' % (conf_string)
+    sys_conf = {'apiVersion': 'v1',
+          'data': {'system_config': conf_str},
+          'kind': 'ConfigMap',
+          'metadata': {'name' : 'system-config-json'}}
+    return sys_conf
 
 # print next steps on how to use generated system-cm.yaml
 # TODO: generalize next steps for different deploy stratagies
