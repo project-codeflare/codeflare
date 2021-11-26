@@ -81,6 +81,7 @@ pip3 install --upgrade codeflare
 Alternatively, you can also build locally with:
 ```shell
 git clone https://github.com/project-codeflare/codeflare.git
+cd codeflare
 pip3 install --upgrade pip
 pip3 install .
 ```
