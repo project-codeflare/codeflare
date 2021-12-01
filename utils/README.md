@@ -25,11 +25,11 @@ Use `--help` option for all available options.
 - [x] Parse configs and dump configs in file to be edited later according to the res
 - [x] If any config value is different than default value then add that config to the --system-config parameter
 - [x] Dump config in a yaml file named system-cm.yaml
-- [ ] Change hardcoded string to dynamic to dump in system-cm.yaml
+- [x] Change hardcoded string to dynamic to dump in system-cm.yaml
+- [x] Extend to more Ray versions
 - [ ] Update format of system config string that works correctly
 - [ ] Segregate internal and external options
 - [ ] Spread code in multiple files
-- [ ] Extend to more Ray versions
 - [ ] Add Try-catch and checks to improve robustness
 - [ ] Add code to also dump Ray operator and cluster yamls
 - [ ] Give a sample cluster Yaml to user to let user edit cluster specific configurations, e.g., cpu, num of workers

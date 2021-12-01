@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 from typing import Dict
@@ -8,7 +10,7 @@ import re
 from parse import *
 from optparse import OptionParser
 
-versions_list=['1.0.0', '1.1.0','1.2.0','1.3.0','1.4.0','1.4.1','1.5.0']
+versions_list=['1.0.0', '1.1.0','1.2.0','1.3.0','1.4.0','1.4.1','1.5.0', '1.6.0', '1.7.0', '1.8.0']
 
 res_modes_list=['relaxed', 'recommended', 'strict', 'custom']
 
@@ -49,21 +51,20 @@ Available resiliency profiles/modes:
 4. custom:      Define your own preference
     ''')
 
-# Generates .conf files in configs folder in the working directory
-# TODO: generate ray-version dir under configs directory for better file oganization
-def dump_conf(ray_version, res_mode, overwrite, dirname='configs/'):
+# Generates .conf files in configs/RAY_VERSION folder in the working directory
+def dump_conf(ray_version, res_mode, overwrite, dirname='configs'):
     # dump the default configs in a file to let others edit further
-    file_path =  dirname+"ray-"+ray_version+"-"+res_mode+".conf"
+    file_path =  dirname+"/ray-"+ray_version+"-"+res_mode+".conf"
     # check if the file already exist
     if (not os.path.exists(file_path)) or overwrite:
         fd = open(file_path, "w+")
         fd.write("# please edit value_for_this_mode to change any configuration\n")
-        yaml.dump(Ray_conf[ray_version], fd)
+        yaml.dump(Ray_conf[ray_version],  fd, width=float('inf'))
 
 # Que: is dumping in json format better or YAML?
-def read_conf(ray_version, res_mode, dirname='configs/'):
+def read_conf(ray_version, res_mode, dirname='configs'):
     Ray_conf_new = Ray_conf
-    file_path =  dirname+"ray-"+ray_version+"-"+res_mode+".conf"
+    file_path =  dirname+"/"+ray_version+"/ray-"+ray_version+"-"+res_mode+".conf"
     fd = open(file_path, 'r')
     fd.readline()
     try:
@@ -83,13 +84,43 @@ def read_conf(ray_version, res_mode, dirname='configs/'):
         print(exception)
 
 
-def put_conf(ray_version, conf_name, conf_type, conf_default, conf_env):
+def put_conf(ray_version, conf_name, conf_type, conf_default, conf_env, conf_str):
     # Ray_conf[version][conf_name][type/default/env]
     Ray_conf[ray_version][conf_name] = dict()
     Ray_conf[ray_version][conf_name]['type'] = conf_type
     Ray_conf[ray_version][conf_name]['default'] = conf_default
     Ray_conf[ray_version][conf_name]['value_for_this_mode'] = conf_default
     Ray_conf[ray_version][conf_name]['env'] = conf_env
+    Ray_conf[ray_version][conf_name]['config_string'] = conf_str
+
+# parse env. variable from config string
+def get_env(conf_default):
+    conf_env = ""
+    if 'getenv' in conf_default:
+        _,conf_env,_ = parse('{}etenv("{}"){}', conf_default)
+    return conf_env
+
+# get the default value of the configuration
+def get_default(conf_default, conf_type):
+    if 'env_' in conf_default:
+        _, conf_default = parse('{}, {})', conf_default)
+    elif '?' in conf_default:
+        if_str, true_str, false_str = parse('{} ? {} : {})', conf_default)
+        if '!=' in if_str:
+            conf_default = false_str
+        else:
+            conf_default = true_str
+    elif 'std::string' in conf_default:
+        is_eq, conf_default = parse('{} std::string("{}"))', conf_default)
+        # if the condition is != (not equal) then Ray expect the opposite value
+        if is_eq[-2:] == "!=":
+            if conf_type == "bool":
+                conf_default = str(not int(conf_default))
+    else:
+        print ("Unable to parse string %s" % conf_default)
+        sys.exit(-1)
+
+    return conf_default
 
 def parse_ray_config(ray_version, sig_str, is_multiline):
     # print("In parse_ray_config: %s" % sig_str)
@@ -97,26 +128,15 @@ def parse_ray_config(ray_version, sig_str, is_multiline):
 
     # replace if default has comment in it
     conf_default = re.sub('(?:/\*(.*?)\*/)', '', conf_default)
-    conf_env = ''
+    conf_str = ''
     if  is_multiline:
-        # get the default value and associated env variable
-        if '?' in conf_default:
-            # TODO: make the parsing conditions more general
-            if 'RAY_preallocate_plasma_memory' in conf_default and ray_version == '1.5.0':
-                conf_env = 'RAY_preallocate_plasma_memory'
-                _, conf_default = parse('{}: {})', conf_default)
-            else:
-               _, conf_env,_, conf_default = parse('{} ? {} : {}("{}"))', conf_default)
-        elif 'getenv' in conf_default:
-            _, conf_env, is_eq, _, conf_default = parse('{} getenv("{}") {} std::{}("{}"))', conf_default)
-            if is_eq == "!=" and conf_type == "bool":
-                conf_default = str(not int(conf_default))
-        elif 'env_' in conf_default:
-            _, conf_env, conf_default = parse('{}("{}", {})', conf_default)
+        conf_str = conf_default[:-1]
+        conf_env = get_env(conf_default)
+        conf_default = get_default(conf_default, conf_type)
     conf_default = conf_default.rstrip(')')
     # print(conf_type, conf_name, conf_default, conf_env)
     # Access values like this: Ray_conf[ray_version][conf_name][type/default/env]
-    put_conf(ray_version, conf_name, conf_type, conf_default, conf_env)
+    put_conf(ray_version, conf_name, conf_type, conf_default, conf_env, conf_str)
 
 # for multi-line signatures
 def is_balanced_parenthesis(str_list):
@@ -196,11 +216,11 @@ def total_config(ray_version):
 def fetch_configs_from_git(ray_versions, res_modes, overwrite):
     # get configs from file or git for each ray_version
     for ray_version in ray_versions:
-        out_dir = "configs"
+        out_dir = "configs/"+ray_version
         # create dir if not present
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        out_filename = "%s/ray-%s-config-def.h" % (out_dir,ray_version)
+        out_filename = "%s/ray-%s-config-def.h" % (out_dir, ray_version)
         # wget it from git if file not present
         if not os.path.exists(out_filename):
             url = 'https://raw.githubusercontent.com/ray-project/ray/ray-%s/src/ray/common/ray_config_def.h' % ray_version
@@ -208,7 +228,7 @@ def fetch_configs_from_git(ray_versions, res_modes, overwrite):
         parse_config_file(out_filename, ray_version)
         total_config(ray_version)
         for res_mode in res_modes:
-            dump_conf(ray_version, res_mode, overwrite)
+            dump_conf(ray_version, res_mode, overwrite, out_dir)
     print_colored(OK, "All conf files saved!\nDONE!")
 
 # generate config json string for system-cm yaml
@@ -226,17 +246,12 @@ def gen_system_conf(conf_list, verbose):
     if verbose:
         print("Version 1.4.0 specific configs")
     conf_string = get_conf_string(conf_list)
-    # FIXME: this should not be hardcoded and can be made a dict in python to be
-    # loaded as yaml instead of a string
-    sys_conf = """
-    apiVersion: v1
-    data:
-        system_config: '{%s}'
-    kind: ConfigMap
-    metadata:
-        name: system-config-json
-    """ % (conf_string)
-    return yaml.load(sys_conf, yaml.Loader)
+    conf_str = '{%s}' % (conf_string)
+    sys_conf = {'apiVersion': 'v1',
+          'data': {'system_config': conf_str},
+          'kind': 'ConfigMap',
+          'metadata': {'name' : 'system-config-json'}}
+    return sys_conf
 
 # print next steps on how to use generated system-cm.yaml
 # TODO: generalize next steps for different deploy stratagies
@@ -328,7 +343,7 @@ def main(argv):
     if opts.lists:
         print_ray_versions_and_modes()
         sys.exit(0)
-    
+
     # validate ray version; print list of supported versions if input is invalid
     if opts.ray_version not in versions_list:
         print_colored(FAIL, "Ray version %s not supported!" % opts.ray_version)
@@ -336,7 +351,7 @@ def main(argv):
         sys.exit(1)
 
     # validate resiliency profile/mode input (case insensitive)
-    # print list of supported versions and modes if input is unsupported 
+    # print list of supported versions and modes if input is unsupported
     if opts.res_mode.lower() not in res_modes_list:
         print_colored(FAIL, "Resiliency profile %s not supported!" % opts.res_mode)
         print_ray_versions_and_modes()
