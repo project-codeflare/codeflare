@@ -34,6 +34,9 @@ Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](http
 [![Documentation Status](https://readthedocs.org/projects/codeflare/badge/?version=latest)](https://codeflare.readthedocs.io/en/latest/?badge=latest)
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/project-codeflare/codeflare/issues)
 
+# IMPORTANT UPDATE
+As of January 2022, this project is now built on [Ray Workflows](https://docs.ray.io/en/releases-1.9.0/workflows/concepts.html) with parts of it in [Ray core](https://github.com/ray-project/ray/releases/tag/ray-1.7.0) and the rest in a [DAG contribution repository](https://github.com/ray-project/contrib-workflow-dag). Please follow these links to contribute to CodeFlare pipelines. We appreciate your interest and look forward to working with you.
+
 # Scale complex AI/ML pipelines anywhere
 
 CodeFlare is a framework to simplify the integration, scaling and acceleration of complex multi-step analytics and machine learning pipelines on the cloud.
