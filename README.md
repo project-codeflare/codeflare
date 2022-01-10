@@ -34,8 +34,8 @@ Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](http
 [![Documentation Status](https://readthedocs.org/projects/codeflare/badge/?version=latest)](https://codeflare.readthedocs.io/en/latest/?badge=latest)
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/project-codeflare/codeflare/issues)
 
-# IMPORTANT UPDATE
-As of January 2022, this project is now built on [Ray Workflows](https://docs.ray.io/en/releases-1.9.0/workflows/concepts.html) with parts of it in [Ray core](https://github.com/ray-project/ray/releases/tag/ray-1.7.0) and the rest in a [DAG contribution repository](https://github.com/ray-project/contrib-workflow-dag). Please follow these links to contribute to CodeFlare pipelines. We appreciate your interest and look forward to working with you.
+> **⚠ UPDATE**  
+> CodeFlare is evolving! Check our [updates](https://github.com/project-codeflare/codeflare#pipeline-execution-and-scaling) for CodeFlare Pipelines and related contributions to Ray Workflows under Ray project.
 
 # Scale complex AI/ML pipelines anywhere
 
@@ -123,6 +123,8 @@ Click on the link below to try CodeFlare, on a sandbox environment, without havi
 <img src="./images/pipelines.svg" width="296" height="180">
 </p>
 
+> **⚠ UPDATE**  
+> As of January 2022, this feature is now built on [Ray Workflows](https://docs.ray.io/en/releases-1.9.0/workflows/concepts.html) with parts of it in [Ray core](https://github.com/ray-project/ray/releases/tag/ray-1.7.0) and the rest in a [DAG contribution repository](https://github.com/ray-project/contrib-workflow-dag). Please follow these links to contribute to CodeFlare Pipelines. 
 
 **CodeFlare Pipelines** reimagined pipelines to provide a more intuitive API for the data scientist to create AI/ML pipelines, data workflows, pre-processing, post-processing tasks, and many more which can scale from a laptop to a cluster seamlessly.
 
