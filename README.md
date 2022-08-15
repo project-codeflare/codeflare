@@ -34,8 +34,8 @@ Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](http
 [![Documentation Status](https://readthedocs.org/projects/codeflare/badge/?version=latest)](https://codeflare.readthedocs.io/en/latest/?badge=latest)
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/project-codeflare/codeflare/issues)
 
-> **⚠ UPDATE**  
-> CodeFlare is evolving! Check our [updates](https://github.com/project-codeflare/codeflare#pipeline-execution-and-scaling) for CodeFlare Pipelines and related contributions to Ray Workflows under Ray project.
+<!-- >> **⚠ UPDATE**  
+> CodeFlare is evolving! Check our [updates](https://github.com/project-codeflare/codeflare#pipeline-execution-and-scaling) for CodeFlare Pipelines and related contributions to Ray Workflows under Ray project. -->
 
 # Scale complex AI/ML pipelines anywhere
 
@@ -43,24 +43,37 @@ CodeFlare is a framework to simplify the integration, scaling and acceleration o
 
 Its main features are: 
 
+* **Simplified User Experience**:
+Interactive and rich command line interface and live dashboards enabling automation to deploy, run and monitor end-to-end pipelines, significantly minimizing the effort and skills needed to scale AI and ML workflows.
+
 * **Pipeline execution and scaling**:
-CodeFlare Pipelines faciltates the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks while providing nearly optimal scale-out parallelism on pipelined computations.
+Built with Ray Workflows, CodeFlare Pipelines faciltates the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks while providing nearly optimal scale-out parallelism on pipelined computations.
 <!--CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple platforms such as [scikit-learn](https://scikit-learn.org/) and [Apache Spark](https://spark.apache.org/), while providing nearly optimal scale-out parallelism on pipelined computations.-->
 
 * **Deploy and integrate anywhere**: 
 CodeFlare simplifies deployment and integration by enabling a serverless user experience with the integration with Red Hat OpenShift and IBM Cloud Code Engine and providing adapters and connectors to make it simple to load data and connect to data services.
 
 <p align="center">
-<img src="./images/codeflare_arch_diagram.svg" width="876" height="476">
+<img src="./images/codeflare_arch_diagram.svg" width="880" height="640">
 </p>
 
-## Release status
+<!-- ## Release status
 
 This project is under active development. See the [Documentation](https://codeflare.readthedocs.io/en/latest/index.html) for design descriptions and the latest version of the APIs. 
+-->
 
+---
 ## Quick start
 
-### Run in your laptop
+### Run on your laptop
+
+### Installing CodeFlare client
+
+See instructions [here](https://github.com/project-codeflare/codeflare-cli) for installing CodeFlare CLI and Dashboard.
+
+<p align="center">
+<img src="./images/codeflare_cli.svg" width="150" height="150">
+</p>
 
 #### Instaling locally
 
@@ -72,7 +85,6 @@ Prerequisites:
 
 We recommend installing Python 3.8.6 using
 [pyenv](https://github.com/pyenv/pyenv). You can find [here](https://codeflare.readthedocs.io/en/latest/getting_started/setting_python_env.html) recommended steps to set up the Python environment.
-
 
 
 Install from PyPI:
@@ -89,6 +101,7 @@ pip3 install --upgrade pip
 pip3 install .
 ```
 
+<!--
 #### Using Docker
 
 You can try CodeFlare by running the docker image from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
@@ -107,15 +120,18 @@ It should produce an output similar to the one below, where you can then find th
 ...
 [I <time_stamp> ServerApp]     http://127.0.0.1:8888/lab
 ```
+-->
 
-#### Using Binder service
+<!-- #### Using Binder service
 
 You can try out some of CodeFlare features using the My Binder service.
 
 Click on the link below to try CodeFlare, on a sandbox environment, without having to install anything.
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/develop)
+-->
 
+---
 
 ## Pipeline execution and scaling
 
@@ -158,12 +174,9 @@ For an example of how CodeFlare Pipelines can be used to scale out common machin
 
 ## Deploy and integrate anywhere
 
-Unleash the power of pipelines by seamlessly scaling on the cloud. CodeFlare can be deployed on any Kubernetes-based platform, including [IBM Cloud Code Engine](https://www.ibm.com/cloud/code-engine) and [Red Hat OpenShift Container Platform](https://www.openshift.com). 
+CodeFlare is built on [Red Hat OpenShift Container Platform](https://www.openshift.com) and can be deployed anywhere, from on-prem to cloud, and integrate easily with other cloud-native ecosystems.
 
-- [IBM Cloud Code Engine](./deploy/ibm_cloud_code_engine) for detailed instructions on how to run CodeFlare on a serverless platform.
-- [Red Hat OpenShift](./deploy/redhat_openshift) for detailed instructions on how to run CodeFlare on OpenShift Container Platform.
-
-
+See [Running with Red Hat OpenShift](./deploy/redhat_openshift) for detailed instructions on how to run CodeFlare on OpenShift Container Platform.
 
 ## Contributing
 
