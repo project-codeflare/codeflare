@@ -43,11 +43,11 @@ CodeFlare is a framework to simplify the integration, scaling and acceleration o
 
 Its main features are: 
 
-* **Simplified User Experience**:
+* **Simplified user experience**:
 Interactive and rich command line interface and live dashboards enabling automation to deploy, run and monitor end-to-end pipelines, significantly minimizing the effort and skills needed to scale AI and ML workflows.
 
 * **Pipeline execution and scaling**:
-Built with Ray Workflows, CodeFlare Pipelines faciltates the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks while providing nearly optimal scale-out parallelism on pipelined computations.
+Integrated with Ray Workflows, CodeFlare Pipelines faciltates the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks while providing nearly optimal scale-out parallelism on pipelined computations.
 <!--CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple platforms such as [scikit-learn](https://scikit-learn.org/) and [Apache Spark](https://spark.apache.org/), while providing nearly optimal scale-out parallelism on pipelined computations.-->
 
 * **Deploy and integrate anywhere**: 
