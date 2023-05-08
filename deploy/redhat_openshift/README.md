@@ -2,20 +2,20 @@
 
 A few installation deployment targets are provided below.
 
-- [Ray Cluster Using Operator on Openshift](#Openshift-Ray-Cluster-Operator)
-- [Ray Cluster on Openshift](#Openshift-Cluster)
-- [Ray Cluster on Openshift for Jupyter](#Ray-with-Open-Data-Hub-on-OpenShift)
+- [Ray Cluster Using Operator on OpenShift](#OpenShift-Ray-Cluster-Operator)
+- [Ray Cluster on OpenShift](#OpenShift-Cluster)
+- [Ray Cluster on OpenShift for Jupyter](#Ray-with-Open-Data-Hub-on-OpenShift)
 
-## Openshift Ray Cluster Operator
+## OpenShift Ray Cluster Operator
 
 Deploying the [Ray Operator](https://docs.ray.io/en/master/cluster/kubernetes.html?highlight=operator#the-ray-kubernetes-operator)
 
-## Openshift Cluster
+## OpenShift Cluster
 
-### Dispatch Ray Cluster on Openshift
+### Dispatch Ray Cluster on OpenShift
 
 #### Pre-req
-- Access to openshift cluster
+- Access to OpenShift cluster
 - Python 3.8+ 
 
 We recommend installing Python 3.8.7 using
@@ -41,7 +41,7 @@ pip3 install .
 
 2. Create Cluster (https://docs.ray.io/en/master/cluster/cloud.html#kubernetes)
 
-   Assuming openshift cluster access from pre-reqs.
+   Assuming OpenShift cluster access from pre-reqs.
 
    a) Create namespace
     
@@ -177,4 +177,4 @@ and a corresponding
 
 ### Running examples
 
-Once in a Jupyer envrionment, refer to [notebooks](../../notebooks) for example pipelines. Documentation for reference use cases can be found in [Examples](https://codeflare.readthedocs.io/en/latest/).
+Once in a Jupyter environment, refer to [notebooks](../../notebooks) for example pipelines. Documentation for reference use cases can be found in [Examples](https://codeflare.readthedocs.io/en/latest/).
