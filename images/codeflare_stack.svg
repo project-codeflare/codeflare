@@ -23,8 +23,8 @@
      inkscape:deskcolor="#505050"
      showgrid="false"
      inkscape:zoom="0.48229806"
-     inkscape:cx="689.40771"
-     inkscape:cy="697.70134"
+     inkscape:cx="378.39671"
+     inkscape:cy="699.77474"
      inkscape:window-width="1680"
      inkscape:window-height="997"
      inkscape:window-x="0"
@@ -383,7 +383,7 @@
        fill="#ffffff"
        fill-opacity="1"
        id="rect460"
-       style="fill:none" /><g
+       style="fill:#f9f9f9;fill-opacity:0.50118202" /><g
        clip-path="url(#clip9)"
        transform="matrix(3.60892e-4,0,0,3.60892e-4,761,1562)"
        id="g466"><g
