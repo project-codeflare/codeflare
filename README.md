@@ -30,7 +30,7 @@ limitations under the License.
 [![Build
 Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main) 
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/project-codeflare/codeflare/issues)
-[![GitHub](https://img.shields.io/badge/CodeFlare-Join%20Slack-blue)](s)
+[![GitHub](https://img.shields.io/badge/CodeFlare-Join%20Slack-blue)](https://invite.playplay.io/invite?team_id=T04KQQBTDN3)
 
 <!-- >> **⚠ UPDATE**  
 > CodeFlare is evolving! Check our [updates](https://github.com/project-codeflare/codeflare#pipeline-execution-and-scaling) for CodeFlare Pipelines and related contributions to Ray Workflows under Ray project. -->
@@ -39,7 +39,11 @@ Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](http
 
 CodeFlare provides a simple, user-friendly abstraction for developing, scaling, and managing resources for distributed AI/ML on the Hybrid Cloud platform with OpenShift Container Platform.
 
-It consists of the following main components:
+---
+
+## 📦 Stack Components and Features
+
+CodeFlare stack consists of the following main components. This is a metarepo, gathering pointers and artififacts to deploy and use the stack.
 
 * **Simplified user experience**:
 CodeFlare [SDK](codeflare-sdk) and [CLI](codeflare-cli) to define, develop, and control remote distributed compute jobs and infrastructure from either a python-based environment or command-line interface
@@ -60,15 +64,17 @@ See the CodeFlare stack below and how to get started.
 <img src="./images/codeflare_stack.svg" width="506" height="520">
 </p>
 
----
 
-## Project CodeFlare Ecosystem
+
+## ⚙️ Project CodeFlare Ecosystem
 
 In addition to running standalone, Project CodeFlare is deployed as part of and integrated with the [Open Data Hub][distributed-workloads], leveraging [OpenShift Container Platform](https://www.openshift.com). 
 
 With OpenShift can be deployed anywhere, from on-prem to cloud, and integrate easily with other cloud-native ecosystems.
 
-## Getting Started
+---
+
+## 🛠️ Getting Started
 
 ### Learning
 
@@ -91,7 +97,7 @@ We attempt to document all architectural decisions in our [ADR documents][adr]. 
 
 ---
 
-## Getting Involved
+## 🎉 Getting Involved and Contributing
 
 Join our [Slack community][slack] to get involved or ask questions.
 
