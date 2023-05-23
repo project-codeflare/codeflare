@@ -1,0 +1,3 @@
+[submodule "mcad"]
+	path = mcad
+	url = https://github.com/project-codeflare/multi-cluster-app-dispatcher.git
