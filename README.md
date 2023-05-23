@@ -1,6 +1,6 @@
 <!--
 {% comment %}
-Copyright 2021 IBM
+Copyright 2021, 2022, 2023 IBM
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,158 +29,76 @@ limitations under the License.
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build
 Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main) 
-[![PyPI](https://badge.fury.io/py/codeflare.svg)](https://badge.fury.io/py/codeflare)
-[![Downloads](https://pepy.tech/badge/codeflare)](https://pepy.tech/project/codeflare)
-[![Documentation Status](https://readthedocs.org/projects/codeflare/badge/?version=latest)](https://codeflare.readthedocs.io/en/latest/?badge=latest)
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/project-codeflare/codeflare/issues)
+[![GitHub](https://img.shields.io/badge/CodeFlare-Join%20Slack-blue)](https://invite.playplay.io/invite?team_id=T04KQQBTDN3)
 
 <!-- >> **⚠ UPDATE**  
 > CodeFlare is evolving! Check our [updates](https://github.com/project-codeflare/codeflare#pipeline-execution-and-scaling) for CodeFlare Pipelines and related contributions to Ray Workflows under Ray project. -->
 
-# Scale complex AI/ML pipelines anywhere
+# Simplified and efficient AI/ML on the hybrid cloud
 
-CodeFlare is a framework to simplify the integration, scaling and acceleration of complex multi-step analytics and machine learning pipelines on the cloud.
+CodeFlare provides a simple, user-friendly abstraction for developing, scaling, and managing resources for distributed AI/ML on the Hybrid Cloud platform with OpenShift Container Platform.
 
-Its main features are: 
+---
+
+## 📦 Stack Components and Features
+
+CodeFlare stack consists of the following main components. This project is organized as a metarepo, gathering pointers and artifacts to deploy and use the stack.
 
 * **Simplified user experience**:
-Interactive and rich command line interface and live dashboards enabling automation to deploy, run and monitor end-to-end pipelines, significantly minimizing the effort and skills needed to scale AI and ML workflows.
+CodeFlare [SDK](https://github.com/project-codeflare/codeflare-sdk) and [CLI](https://github.com/project-codeflare/codeflare-cli) to define, develop, and control remote distributed compute jobs and infrastructure from either a python-based environment or command-line interface
 
-* **Pipeline execution and scaling**:
-Integrated with Ray Workflows, CodeFlare Pipelines faciltates the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple frameworks while providing nearly optimal scale-out parallelism on pipelined computations.
-<!--CodeFlare Pipelines facilities the definition and parallel execution of pipelines. It unifies pipeline workflows across multiple platforms such as [scikit-learn](https://scikit-learn.org/) and [Apache Spark](https://spark.apache.org/), while providing nearly optimal scale-out parallelism on pipelined computations.-->
+* **Efficient resource management**:
+Multi-Cluster Application Dispatcher [(MCAD)](https://github.com/project-codeflare/multi-cluster-app-dispatcher) for queueing, resource quotas, and management of batch jobs. And [Instascale](https://github.com/project-codeflare/instacale) for on-demand resource scaling of an OpenShift cluster
 
-* **Deploy and integrate anywhere**: 
-CodeFlare simplifies deployment and integration by enabling a serverless user experience with the integration with Red Hat OpenShift and IBM Cloud Code Engine and providing adapters and connectors to make it simple to load data and connect to data services.
+* **Automated and streamlined deployment**:
+[CodeFlare Operator](https://github.com/project-codeflare/codeflare-operator) for automating deployment and configuration of the Project CodeFlare stack
 
-<p align="center">
-<img src="./images/codeflare_arch_diagram.svg" width="880" height="640">
-</p>
+With CodeFlare stack, users automate and simplify the execution and scaling of the steps in the life cycle of model development, from data pre-processing, distributed model training, model adaptation and validation.
 
-<!-- ## Release status
+Through transparent integration with [Ray](https://github.com/ray-project/ray) and [PyTorch](https://github.com/pytorch/pytorch) frameworks, and the rich library ecosystem that run on them, CodeFlare enables data scientists to **spend more time on model development and minimum time on resource deployment and scaling**. 
 
-This project is under active development. See the [Documentation](https://codeflare.readthedocs.io/en/latest/index.html) for design descriptions and the latest version of the APIs. 
--->
+See below our stack and how to get started.
 
----
-## Quick start
+--- 
+## ⚙️ Project CodeFlare Ecosystem
 
-### Run on your laptop
+In addition to running standalone, Project CodeFlare is deployed as part of and integrated with the [Open Data Hub](https://github.com/opendatahub-io/distributed-workloads), leveraging [OpenShift Container Platform](https://www.openshift.com). 
 
-### Installing CodeFlare client
-
-See instructions [here](https://github.com/project-codeflare/codeflare-cli) for installing CodeFlare CLI and Dashboard.
+With OpenShift, CodeFlare can be deployed anywhere, from on-prem to cloud, and integrate easily with other cloud-native ecosystems.
 
 <p align="center">
-<img src="./images/codeflare_cli.svg" width="150" height="150">
+<img src="./images/codeflare_stack.svg" width="506" height="520">
 </p>
-
-#### Instaling locally
-
-CodeFlare can be installed from PyPI.
-
-Prerequisites:
-* [Python 3.7 or 3.8](https://www.python.org/downloads/)
-* [JupyterLab](https://jupyter.org) *(to run examples)*
-
-We recommend installing Python 3.8.6 using
-[pyenv](https://github.com/pyenv/pyenv). You can find [here](https://codeflare.readthedocs.io/en/latest/getting_started/setting_python_env.html) recommended steps to set up the Python environment.
-
-
-Install from PyPI:
-```bash
-pip3 install --upgrade pip          # CodeFlare requires pip >21.0
-pip3 install --upgrade codeflare
-```
-
-Alternatively, you can also build locally with:
-```shell
-git clone https://github.com/project-codeflare/codeflare.git
-cd codeflare
-pip3 install --upgrade pip
-pip3 install .
-```
-
-<!--
-#### Using Docker
-
-You can try CodeFlare by running the docker image from [Docker Hub](https://hub.docker.com/r/projectcodeflare/codeflare/tags):
-- `projectcodeflare/codeflare:latest` has the latest released version installed.
-
-The command below starts the most recent development build in a clean environment:
-
-```bash
-docker run --rm -it -p 8888:8888 projectcodeflare/codeflare:latest
-```
-
-It should produce an output similar to the one below, where you can then find the URL to run CodeFlare from a Jupyter notebook in your local browser.
-
-```
-[I <time_stamp> ServerApp] Jupyter Server <version> is running at:
-...
-[I <time_stamp> ServerApp]     http://127.0.0.1:8888/lab
-```
--->
-
-<!-- #### Using Binder service
-
-You can try out some of CodeFlare features using the My Binder service.
-
-Click on the link below to try CodeFlare, on a sandbox environment, without having to install anything.
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/project-codeflare/codeflare.git/develop)
--->
 
 ---
 
-## Pipeline execution and scaling
+## 🛠️ Getting Started
 
-<p align="center">
-<img src="./images/pipelines.svg" width="296" height="180">
-</p>
+### Learning
 
-> **⚠ UPDATE**  
-> As of January 2022, this feature is now built on [Ray Workflows](https://docs.ray.io/en/releases-1.9.0/workflows/concepts.html) with parts of it in [Ray core](https://github.com/ray-project/ray/releases/tag/ray-1.7.0) and the rest in a [DAG contribution repository](https://github.com/ray-project/contrib-workflow-dag). Please follow these links to contribute to CodeFlare Pipelines. 
+Watch [this video](https://www.youtube.com/watch?v=OAzFBFL5B0k) for an introduction to Project CodeFlare and what the
+stack can do.
 
-**CodeFlare Pipelines** reimagined pipelines to provide a more intuitive API for the data scientist to create AI/ML pipelines, data workflows, pre-processing, post-processing tasks, and many more which can scale from a laptop to a cluster seamlessly.
+### Quick Start
 
-See the API documentation [here](https://codeflare.readthedocs.io/en/latest/codeflare.pipelines.html), and reference use case documentation in the Examples section.
+To get started using the Project CodeFlare stack, try this [end-to-end example](https://github.com/opendatahub-io/distributed-workloads/blob/main/Quick-Start.md)!
 
-A set of reference examples are provided as executable [notebooks](https://github.com/project-codeflare/codeflare/tree/main/notebooks). 
+For more basic walk-throughs and in-depth tutorials, see our [demo notebooks](https://github.com/project-codeflare/codeflare-sdk/tree/main/demo-notebooks/guided-demos)!
 
-To run examples, if you haven't done so yet, clone the CodeFlare project with:
+## Development
 
-```bash
-git clone https://github.com/project-codeflare/codeflare.git
-```
+See more details in any of the component repos linked above, or get started by taking a look at the [project board](https://github.com/orgs/project-codeflare/projects/8) for open tasks/issues!
 
-Example notebooks require JupyterLab, which can be installed with:
-```bash
-pip3 install --upgrade jupyterlab
-```
+### Architecture
 
-Use the command below to run locally:
-```shell
-jupyter-lab codeflare/notebooks/<example_notebook>
-```
+We attempt to document all architectural decisions in our [ADR documents](https://github.com/project-codeflare/adr). Start here to understand the architectural details of Project CodeFlare.
 
-The step above should automatically open a browser window and connect to a running Jupyter server.
+---
 
-If you are using any one of the recommended cloud based deployments (see below), examples are found in the `codeflare/notebooks` directory in the container image. The examples can be executed directly from the Jupyter environment. 
+## 🎉 Getting Involved and Contributing
 
-As a first example of the API usage, see the [sample pipeline](https://github.com/project-codeflare/codeflare/blob/main/notebooks/sample_pipeline.ipynb). 
-
-For an example of how CodeFlare Pipelines can be used to scale out common machine learning problems, see the [grid search](https://github.com/project-codeflare/codeflare/blob/develop/notebooks/Grid%20Search%20Sample.ipynb) example. It shows how hyperparameter optimization for a reference pipeline can be scaled and accelerated with both task and data parallelism.
-
-## Deploy and integrate anywhere
-
-CodeFlare is built on [Red Hat OpenShift Container Platform](https://www.openshift.com) and can be deployed anywhere, from on-prem to cloud, and integrate easily with other cloud-native ecosystems.
-
-See [Running with Red Hat OpenShift](./deploy/redhat_openshift) for detailed instructions on how to run CodeFlare on OpenShift Container Platform.
-
-## Contributing
-
-Join us in making CodeFlare Better! We encourage you to take a look at our [Contributing](CONTRIBUTING.md) page.
+Join our [Slack community][slack] to get involved or ask questions.
 
 ## Blog
 
@@ -189,3 +107,16 @@ CodeFlare related blogs are published on our [Medium publication](https://medium
 ## License
 
 CodeFlare is an open-source project with an [Apache 2.0 license](LICENSE).
+
+[codeflare-sdk]: https://github.com/project-codeflare/codeflare-sdk
+[codeflare-cli]: https://github.com/project-codeflare/codeflare-cli
+[mcad]: https://github.com/project-codeflare/multi-cluster-app-dispatcher
+[instascale]: https://github.com/project-codeflare/instascale
+[codeflare-operator]: https://github.com/project-codeflare/codeflare-operator
+[distributed-workloads]: https://github.com/opendatahub-io/distributed-workloads
+[quickstart]: https://github.com/opendatahub-io/distributed-workloads/blob/main/Quick-Start.md
+[slack]: https://invite.playplay.io/invite?team_id=T04KQQBTDN3
+[adr]: https://github.com/project-codeflare/adr
+[demos]: https://github.com/project-codeflare/codeflare-sdk/tree/main/demo-notebooks/guided-demos
+[board]: https://github.com/orgs/project-codeflare/projects/8
+[youtube-demo]: https://www.youtube.com/watch?v=OAzFBFL5B0k
