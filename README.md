@@ -35,9 +35,9 @@ Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](http
 <!-- >> **⚠ UPDATE**  
 > CodeFlare is evolving! Check our [updates](https://github.com/project-codeflare/codeflare#pipeline-execution-and-scaling) for CodeFlare Pipelines and related contributions to Ray Workflows under Ray project. -->
 
-# Simplified and efficient scaling of AI/ML on the Hybrid Cloud
+# Simplified and efficient scaling of distributed AI
 
-CodeFlare provides a simple, user-friendly abstraction for developing, scaling, and managing resources for distributed AI/ML on the Hybrid Cloud platform with OpenShift Container Platform.
+CodeFlare provides a simple, user-friendly abstraction for developing, scaling, and managing resources for distributed AI on the Hybrid Cloud platform with OpenShift Container Platform.
 
 ---
 
@@ -58,19 +58,18 @@ With CodeFlare stack, users automate and simplify scale-out of steps like data p
 
 Through transparent integration with [Ray](https://github.com/ray-project/ray) and [PyTorch](https://github.com/pytorch/pytorch) framewokrs, and the rich library ecosystem that run on them, CodeFlare enables data scientists to **spend more time on model developement and minimum time on resource deployment and scaling**. 
 
-See the CodeFlare stack below and how to get started.
+See below our stack and how to get started.
 
-<p align="center">
-<img src="./images/codeflare_stack.svg" width="506" height="520">
-</p>
-
-
-
+--- 
 ## ⚙️ Project CodeFlare Ecosystem
 
 In addition to running standalone, Project CodeFlare is deployed as part of and integrated with the [Open Data Hub][distributed-workloads], leveraging [OpenShift Container Platform](https://www.openshift.com). 
 
-With OpenShift can be deployed anywhere, from on-prem to cloud, and integrate easily with other cloud-native ecosystems.
+With OpenShift, CodeFlare can be deployed anywhere, from on-prem to cloud, and integrate easily with other cloud-native ecosystems.
+
+<p align="center">
+<img src="./images/codeflare_stack.svg" width="506" height="520">
+</p>
 
 ---
 
