@@ -4,3 +4,6 @@
 [submodule "codeflare-cli"]
 	path = codeflare-cli
 	url = https://github.com/project-codeflare/codeflare-cli
+[submodule "codeflare-sdk"]
+	path = codeflare-sdk
+	url = https://github.com/project-codeflare/codeflare-sdk
