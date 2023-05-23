@@ -7,3 +7,6 @@
 [submodule "codeflare-sdk"]
 	path = codeflare-sdk
 	url = https://github.com/project-codeflare/codeflare-sdk
+[submodule "codeflare-operator"]
+	path = codeflare-operator
+	url = https://github.com/project-codeflare/codeflare-operator
