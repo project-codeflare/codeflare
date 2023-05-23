@@ -10,3 +10,6 @@
 [submodule "codeflare-operator"]
 	path = codeflare-operator
 	url = https://github.com/project-codeflare/codeflare-operator
+[submodule "instascale"]
+	path = instascale
+	url = https://github.com/project-codeflare/instascale
