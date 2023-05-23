@@ -29,7 +29,6 @@ limitations under the License.
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build
 Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main) 
-
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/project-codeflare/codeflare/issues)
 [![GitHub](https://img.shields.io/badge/CodeFlare-Join%20Slack-blue)](s)
 
@@ -58,7 +57,7 @@ Through transparent integration with [Ray](https://github.com/ray-project/ray) a
 See the CodeFlare stack below and how to get started.
 
 <p align="center">
-<img src="./images/codeflare_stack.svg" width="1012" height="1040">
+<img src="./images/codeflare_stack.svg" width="759" height="780">
 </p>
 
 ---
