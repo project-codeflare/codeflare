@@ -35,24 +35,24 @@ Status](https://travis-ci.com/project-codeflare/codeflare.svg?branch=main)](http
 <!-- >> **⚠ UPDATE**  
 > CodeFlare is evolving! Check our [updates](https://github.com/project-codeflare/codeflare#pipeline-execution-and-scaling) for CodeFlare Pipelines and related contributions to Ray Workflows under Ray project. -->
 
-# Simplified and efficient scaling of distributed AI
+# Simplified and efficient AI/ML on the hybrid cloud
 
-CodeFlare provides a simple, user-friendly abstraction for developing, scaling, and managing resources for distributed AI on the Hybrid Cloud platform with OpenShift Container Platform.
+CodeFlare provides a simple, user-friendly abstraction for developing, scaling, and managing resources for distributed AI/ML on the Hybrid Cloud platform with OpenShift Container Platform.
 
 ---
 
 ## 📦 Stack Components and Features
 
-CodeFlare stack consists of the following main components. This is a metarepo, gathering pointers and artififacts to deploy and use the stack.
+CodeFlare stack consists of the following main components. This project is organized as a metarepo, gathering pointers and artififacts to deploy and use the stack.
 
 * **Simplified user experience**:
-CodeFlare [SDK](codeflare-sdk) and [CLI](codeflare-cli) to define, develop, and control remote distributed compute jobs and infrastructure from either a python-based environment or command-line interface
+CodeFlare [SDK](https://github.com/project-codeflare/codeflare-sdk) and [CLI](https://github.com/project-codeflare/codeflare-cli) to define, develop, and control remote distributed compute jobs and infrastructure from either a python-based environment or command-line interface
 
 * **Efficient resource management**:
-Multi-Cluster Application Dispatcher [(MCAD)](mcad) for queueing, resource quotas, and management of batch jobs. And, Instascale, for on-demand resource scaling of an OpenShift cluster
+Multi-Cluster Application Dispatcher [(MCAD)](https://github.com/project-codeflare/multi-cluster-app-dispatcher) for queueing, resource quotas, and management of batch jobs. And, [Instascale](https://github.com/project-codeflare/instacale), for on-demand resource scaling of an OpenShift cluster
 
 * **Automated and streamlined deployment**:
-[CodeFlare Operator](codeflare-operator) for automating deployment and configuration of the Project CodeFlare stack
+[CodeFlare Operator](https://github.com/project-codeflare/codeflare-operator) for automating deployment and configuration of the Project CodeFlare stack
 
 With CodeFlare stack, users automate and simplify scale-out of steps like data pre-processing, distributed model training, adaptation and validation. 
 
@@ -63,7 +63,7 @@ See below our stack and how to get started.
 --- 
 ## ⚙️ Project CodeFlare Ecosystem
 
-In addition to running standalone, Project CodeFlare is deployed as part of and integrated with the [Open Data Hub][distributed-workloads], leveraging [OpenShift Container Platform](https://www.openshift.com). 
+In addition to running standalone, Project CodeFlare is deployed as part of and integrated with the [Open Data Hub](https://github.com/opendatahub-io/distributed-workloads), leveraging [OpenShift Container Platform](https://www.openshift.com). 
 
 With OpenShift, CodeFlare can be deployed anywhere, from on-prem to cloud, and integrate easily with other cloud-native ecosystems.
 
@@ -77,22 +77,22 @@ With OpenShift, CodeFlare can be deployed anywhere, from on-prem to cloud, and i
 
 ### Learning
 
-Watch [this video][youtube-demo] for an introduction to Project CodeFlare and what the
+Watch [this video](https://www.youtube.com/watch?v=OAzFBFL5B0k) for an introduction to Project CodeFlare and what the
 stack can do.
 
 ### Quick Start
 
-To get started using the Project CodeFlare stack, try this [end-to-end example][quickstart]!
+To get started using the Project CodeFlare stack, try this [end-to-end example](https://github.com/opendatahub-io/distributed-workloads/blob/main/Quick-Start.md)!
 
-For more basic walk-throughs and in-depth tutorials, see our [demo notebooks][demos]!
+For more basic walk-throughs and in-depth tutorials, see our [demo notebooks](https://github.com/project-codeflare/codeflare-sdk/tree/main/demo-notebooks/guided-demos)!
 
 ## Development
 
-See more details in any of the component repos linked above, or get started by taking a look at the [project board][board] for open tasks/issues!
+See more details in any of the component repos linked above, or get started by taking a look at the [project board](https://github.com/orgs/project-codeflare/projects/8) for open tasks/issues!
 
 ### Architecture
 
-We attempt to document all architectural decisions in our [ADR documents][adr]. Start here to understand the architectural details of Project CodeFlare.
+We attempt to document all architectural decisions in our [ADR documents](https://github.com/project-codeflare/adr). Start here to understand the architectural details of Project CodeFlare.
 
 ---
 
