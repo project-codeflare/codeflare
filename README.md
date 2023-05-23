@@ -43,20 +43,20 @@ CodeFlare provides a simple, user-friendly abstraction for developing, scaling, 
 
 ## 📦 Stack Components and Features
 
-CodeFlare stack consists of the following main components. This project is organized as a metarepo, gathering pointers and artififacts to deploy and use the stack.
+CodeFlare stack consists of the following main components. This project is organized as a metarepo, gathering pointers and artifacts to deploy and use the stack.
 
 * **Simplified user experience**:
 CodeFlare [SDK](https://github.com/project-codeflare/codeflare-sdk) and [CLI](https://github.com/project-codeflare/codeflare-cli) to define, develop, and control remote distributed compute jobs and infrastructure from either a python-based environment or command-line interface
 
 * **Efficient resource management**:
-Multi-Cluster Application Dispatcher [(MCAD)](https://github.com/project-codeflare/multi-cluster-app-dispatcher) for queueing, resource quotas, and management of batch jobs. And, [Instascale](https://github.com/project-codeflare/instacale), for on-demand resource scaling of an OpenShift cluster
+Multi-Cluster Application Dispatcher [(MCAD)](https://github.com/project-codeflare/multi-cluster-app-dispatcher) for queueing, resource quotas, and management of batch jobs. And [Instascale](https://github.com/project-codeflare/instacale) for on-demand resource scaling of an OpenShift cluster
 
 * **Automated and streamlined deployment**:
 [CodeFlare Operator](https://github.com/project-codeflare/codeflare-operator) for automating deployment and configuration of the Project CodeFlare stack
 
-With CodeFlare stack, users automate and simplify scale-out of steps like data pre-processing, distributed model training, adaptation and validation. 
+With CodeFlare stack, users automate and simplify the execution and scaling of the steps in the life cycle of model development, from data pre-processing, distributed model training, model adaptation and validation.
 
-Through transparent integration with [Ray](https://github.com/ray-project/ray) and [PyTorch](https://github.com/pytorch/pytorch) framewokrs, and the rich library ecosystem that run on them, CodeFlare enables data scientists to **spend more time on model developement and minimum time on resource deployment and scaling**. 
+Through transparent integration with [Ray](https://github.com/ray-project/ray) and [PyTorch](https://github.com/pytorch/pytorch) frameworks, and the rich library ecosystem that run on them, CodeFlare enables data scientists to **spend more time on model development and minimum time on resource deployment and scaling**. 
 
 See below our stack and how to get started.
 
