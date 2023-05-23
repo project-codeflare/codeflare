@@ -57,7 +57,7 @@ Through transparent integration with [Ray](https://github.com/ray-project/ray) a
 See the CodeFlare stack below and how to get started.
 
 <p align="center">
-<img src="./images/codeflare_stack.svg" width="759" height="780">
+<img src="./images/codeflare_stack.svg" width="506" height="520">
 </p>
 
 ---
