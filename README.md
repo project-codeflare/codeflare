@@ -49,7 +49,7 @@ CodeFlare stack consists of the following main components. This project is organ
 CodeFlare [SDK](https://github.com/project-codeflare/codeflare-sdk) and [CLI](https://github.com/project-codeflare/codeflare-cli) to define, develop, and control remote distributed compute jobs and infrastructure from either a python-based environment or command-line interface
 
 * **Efficient resource management**:
-Multi-Cluster Application Dispatcher [(MCAD)](https://github.com/project-codeflare/multi-cluster-app-dispatcher) for queueing, resource quotas, and management of batch jobs. And [Instascale](https://github.com/project-codeflare/instacale) for on-demand resource scaling of an OpenShift cluster
+Multi-Cluster Application Dispatcher [(MCAD)](https://github.com/project-codeflare/multi-cluster-app-dispatcher) for queueing, resource quotas, and management of batch jobs. And [Instascale](https://github.com/project-codeflare/instascale) for on-demand resource scaling of an OpenShift cluster
 
 * **Automated and streamlined deployment**:
 [CodeFlare Operator](https://github.com/project-codeflare/codeflare-operator) for automating deployment and configuration of the Project CodeFlare stack
