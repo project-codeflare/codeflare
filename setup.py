@@ -41,7 +41,6 @@ setup(
     install_requires=[
         'ray[default,serve,k8s]>=1.3.0',
         'setuptools>=52.0.0',
-        'sklearn>=0.0',
         'scikit-learn>=0.24.1',
         'pandas>=1.2.4',
         'numpy>=1.18.5',
