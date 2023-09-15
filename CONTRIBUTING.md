@@ -35,7 +35,7 @@ To report an issue, or to suggest an idea for a change, open an [issue](../../is
 
 When creating a PR for one of our projects it is important to get your work reviewed by other members of the team. Below are some steps to getting your work reviewed. <br>
 * Assign a Reviewer from the list of reviewers on the project.
-* Move the linked issue(s) from the `In Progress` column to `Ready For Review` column on the [Project Codeflare Sprint Board](https://github.com/orgs/project-codeflare/projects/8/views/3).
+* Change the status of the issue from `In Progress` to `Ready For Review` on the [Project Codeflare Sprint Board](https://github.com/orgs/project-codeflare/projects/8/views/3).
 * Once the PR is reviewed the reviewer may request changes to be made, or if they are happy with the PR they will apply an `lgtm` label.
 * You can now move the linked issue(s) to the `In Review` column.
 * When the `lgtm` label has been applied you can assign an Approver to your PR.
