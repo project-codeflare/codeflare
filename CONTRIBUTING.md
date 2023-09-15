@@ -37,10 +37,10 @@ When creating a PR for one of our projects it is important to get your work revi
 * Assign a Reviewer from the list of reviewers on the project.
 * Change the status of the issue from `In Progress` to `Ready For Review` on the [Project Codeflare Sprint Board](https://github.com/orgs/project-codeflare/projects/8/views/3).
 * Once the PR is reviewed the reviewer may request changes to be made, or if they are happy with the PR they will apply an `lgtm` label.
-* You can now move the linked issue(s) to the `In Review` column.
+* You can now change the status of the issue to `In Review`.
 * When the `lgtm` label has been applied you can assign an Approver to your PR.
 * The approver may request more changes, or if they are happy with the PR they will apply the `approved` label. After this the PR will be merged.
-* You can now move the linked issue(s) to the `Closed` column if they have not moved automatically after the merge.
+* You can now change the status of the issue to `Closed` if the status didn't change automatically after the merge.
 
 ### Reviewers and Approvers for each project
 * [MCAD](https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/OWNERS)
