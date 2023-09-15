@@ -31,3 +31,15 @@ This project uses ZenHub for tracking of issues and roadmap.
 ## Reporting an Issue
 
 To report an issue, or to suggest an idea for a change, open an [issue](../../issues/new). It is best to check our existing [issues](../../issues) first to see if a similar one has already been opened and discussed.
+## Getting Feedback on your contribution
+
+When creating a PR for one of our projects it is important to get your work reviewed by other members of the team. Below are some steps to getting your work reviewed. <br>
+* Assign a Reviewer from the list of reviewers on the project
+* Get a `lgtm` label for your PR
+* Assign an Approver to your PR
+* Based on the quality of your work it will be approved and merged or changes will be requested
+
+### Reviewers and Approvers for each project
+* [MCAD](https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/OWNERS)
+* [InstaScale](https://github.com/project-codeflare/instascale/blob/main/OWNERS)
+* [Codeflare-SDK](https://github.com/project-codeflare/codeflare-sdk/blob/main/OWNERS)
