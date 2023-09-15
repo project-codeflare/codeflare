@@ -40,6 +40,7 @@ When creating a PR for one of our projects it is important to get your work revi
 * You can now move the linked issue(s) to the `In Review` column.
 * When the `lgtm` label has been applied you can assign an Approver to your PR.
 * The approver may request more changes, or if they are happy with the PR they will apply the `approved` label. After this the PR will be merged.
+* You can now move the linked issue(s) to the `Closed` column if they have not moved automatically after the merge.
 
 ### Reviewers and Approvers for each project
 * [MCAD](https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/OWNERS)
