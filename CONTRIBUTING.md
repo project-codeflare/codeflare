@@ -31,3 +31,18 @@ This project uses ZenHub for tracking of issues and roadmap.
 ## Reporting an Issue
 
 To report an issue, or to suggest an idea for a change, open an [issue](../../issues/new). It is best to check our existing [issues](../../issues) first to see if a similar one has already been opened and discussed.
+## Getting Feedback on Your Contribution
+
+When creating a PR for one of our projects it is important to get your work reviewed by other members of the team. Below are some steps to getting your work reviewed. <br>
+* Assign a Reviewer from the list of reviewers on the project.
+* Change the status of the issue from `In Progress` to `Ready For Review` on the [Project Codeflare Sprint Board](https://github.com/orgs/project-codeflare/projects/8/views/3).
+* Once the PR is reviewed the reviewer may request changes to be made, or if they are happy with the PR they will apply an `lgtm` label.
+* You can now change the status of the issue to `In Review`.
+* When the `lgtm` label has been applied you can assign an Approver to your PR.
+* The approver may request more changes, or if they are happy with the PR they will apply the `approved` label. After this the PR will be merged.
+* You can now change the status of the issue to `Closed` if the status didn't change automatically after the merge.
+
+### Reviewers and Approvers for each project
+* [MCAD](https://github.com/project-codeflare/multi-cluster-app-dispatcher/blob/main/OWNERS)
+* [InstaScale](https://github.com/project-codeflare/instascale/blob/main/OWNERS)
+* [Codeflare-SDK](https://github.com/project-codeflare/codeflare-sdk/blob/main/OWNERS)
